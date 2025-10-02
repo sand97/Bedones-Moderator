@@ -1,158 +1,91 @@
-import { trpc } from '../utils/trpc';
 import type { NextPageWithLayout } from './_app';
-import type { inferProcedureInput } from '@trpc/server';
-import Link from 'next/link';
-import { Fragment } from 'react';
-import type { AppRouter } from '~/server/routers/_app';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Card, CardContent } from '~/components/ui/card';
+import { Separator } from '~/components/ui/separator';
+import { Header } from '~/components/Header';
+import { UndesiredCommentsSection } from '~/components/UndesiredCommentsSection';
+import { SpamDetectionSection } from '~/components/SpamDetectionSection';
+import {
+  IntelligentFAQSection,
+  type FAQItem,
+} from '~/components/IntelligentFAQSection';
+import { FacebookConnectButton } from '~/components/FacebookConnectButton';
+import { MessageIllustration } from '~/components/MessageIllustration';
 
 const IndexPage: NextPageWithLayout = () => {
-  const utils = trpc.useUtils();
-  const postsQuery = trpc.post.list.useInfiniteQuery(
-    {
-      limit: 5,
-    },
-    {
-      getNextPageParam(lastPage) {
-        return lastPage.nextCursor;
-      },
-    },
-  );
-
-  const addPost = trpc.post.add.useMutation({
-    async onSuccess() {
-      // refetches posts after a post is added
-      await utils.post.list.invalidate();
-    },
-  });
-
-  // prefetch all posts for instant navigation
-  // useEffect(() => {
-  //   const allPosts = postsQuery.data?.pages.flatMap((page) => page.items) ?? [];
-  //   for (const { id } of allPosts) {
-  //     void utils.post.byId.prefetch({ id });
-  //   }
-  // }, [postsQuery.data, utils]);
+  const { t } = useTranslation();
+  const [undesiredCommentsEnabled, setUndesiredCommentsEnabled] =
+    useState(true);
+  const [undesiredCommentsAction, setUndesiredCommentsAction] = useState<
+    'delete' | 'hide'
+  >('hide');
+  const [spamDetectionEnabled, setSpamDetectionEnabled] = useState(true);
+  const [spamAction, setSpamAction] = useState<'delete' | 'hide'>('delete');
+  const [intelligentFAQEnabled, setIntelligentFAQEnabled] = useState(false);
+  const [faqItems, setFaqItems] = useState<FAQItem[]>([]);
 
   return (
-    <div className="flex flex-col bg-gray-800 py-8">
-      <h1 className="text-4xl font-bold">
-        Welcome to your tRPC with Prisma starter!
-      </h1>
-      <p className="text-gray-400">
-        If you get stuck, check{' '}
-        <Link className="underline" href="https://trpc.io">
-          the docs
-        </Link>
-        , write a message in our{' '}
-        <Link className="underline" href="https://trpc.io/discord">
-          Discord-channel
-        </Link>
-        , or write a message in{' '}
-        <Link
-          className="underline"
-          href="https://github.com/trpc/trpc/discussions"
-        >
-          GitHub Discussions
-        </Link>
-        .
-      </p>
+    <div className="min-h-screen bg-[#FDFDFD] bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:80px_80px] relative overflow-hidden">
+      <Header className="pt-4 pb-8" />
+      <div className="container mx-auto px-4 pb-4 max-w-2xl relative z-10">
+        <div className="text-center mb-6">
+          <h1 className="lg:text-4xl text-2xl font-light text-black mb-2">
+            {t('page.title')}
+          </h1>
+          <p className="text-gray-500 font-normal">{t('page.subtitle')}</p>
+        </div>
 
-      <div className="flex flex-col py-8 items-start gap-y-2">
-        <div className="flex flex-col"></div>
-        <h2 className="text-3xl font-semibold">
-          Latest Posts
-          {postsQuery.status === 'pending' && '(loading)'}
-        </h2>
-
-        <button
-          className="bg-gray-900 p-2 rounded-md font-semibold disabled:bg-gray-700 disabled:text-gray-400"
-          onClick={() => postsQuery.fetchNextPage()}
-          disabled={!postsQuery.hasNextPage || postsQuery.isFetchingNextPage}
-        >
-          {postsQuery.isFetchingNextPage
-            ? 'Loading more...'
-            : postsQuery.hasNextPage
-              ? 'Load More'
-              : 'Nothing more to load'}
-        </button>
-
-        {postsQuery.data?.pages.map((page, index) => (
-          <Fragment key={page.items[0]?.id || index}>
-            {page.items.map((item) => (
-              <article key={item.id}>
-                <h3 className="text-2xl font-semibold">{item.title}</h3>
-                <Link className="text-gray-400" href={`/post/${item.id}`}>
-                  View more
-                </Link>
-              </article>
-            ))}
-          </Fragment>
-        ))}
-      </div>
-
-      <hr />
-
-      <div className="flex flex-col py-8 items-center">
-        <h2 className="text-3xl font-semibold pb-2">Add a Post</h2>
-
-        <form
-          className="py-2 w-4/6"
-          onSubmit={async (e) => {
-            /**
-             * In a real app you probably don't want to use this manually
-             * Checkout React Hook Form - it works great with tRPC
-             * @see https://react-hook-form.com/
-             * @see https://kitchen-sink.trpc.io/react-hook-form
-             */
-            e.preventDefault();
-            const $form = e.currentTarget;
-            const values = Object.fromEntries(new FormData($form));
-            type Input = inferProcedureInput<AppRouter['post']['add']>;
-            //    ^?
-            const input: Input = {
-              title: values.title as string,
-              text: values.text as string,
-            };
-            try {
-              await addPost.mutateAsync(input);
-
-              $form.reset();
-            } catch (cause) {
-              console.error({ cause }, 'Failed to add post');
-            }
-          }}
-        >
-          <div className="flex flex-col gap-y-4 font-semibold">
-            <input
-              className="focus-visible:outline-dashed outline-offset-4 outline-2 outline-gray-700 rounded-xl px-4 py-3 bg-gray-900"
-              id="title"
-              name="title"
-              type="text"
-              placeholder="Title"
-              disabled={addPost.isPending}
-            />
-            <textarea
-              className="resize-none focus-visible:outline-dashed outline-offset-4 outline-2 outline-gray-700 rounded-xl px-4 py-3 bg-gray-900"
-              id="text"
-              name="text"
-              placeholder="Text"
-              disabled={addPost.isPending}
-              rows={6}
+        <Card className="mb-8">
+          <CardContent className="p-6 space-y-6">
+            <UndesiredCommentsSection
+              enabled={undesiredCommentsEnabled}
+              onEnabledChange={setUndesiredCommentsEnabled}
+              action={undesiredCommentsAction}
+              onActionChange={setUndesiredCommentsAction}
             />
 
-            <div className="flex justify-center">
-              <input
-                className="cursor-pointer bg-gray-900 p-2 rounded-md px-16"
-                type="submit"
-                disabled={addPost.isPending}
-              />
-              {addPost.error && (
-                <p style={{ color: 'red' }}>{addPost.error.message}</p>
-              )}
-            </div>
-          </div>
-        </form>
+            <Separator />
+
+            <SpamDetectionSection
+              enabled={spamDetectionEnabled}
+              onEnabledChange={setSpamDetectionEnabled}
+              action={spamAction}
+              onActionChange={setSpamAction}
+            />
+
+            <Separator />
+
+            <IntelligentFAQSection
+              enabled={intelligentFAQEnabled}
+              onEnabledChange={setIntelligentFAQEnabled}
+              faqItems={faqItems}
+              onFaqItemsChange={setFaqItems}
+            />
+          </CardContent>
+        </Card>
+
+        <FacebookConnectButton
+          undesiredCommentsEnabled={undesiredCommentsEnabled}
+          spamDetectionEnabled={spamDetectionEnabled}
+          intelligentFAQEnabled={intelligentFAQEnabled}
+        />
       </div>
+      {/* Background Illustrations */}
+      {/* <div className="flex flex-col lg:flex-row justify-around lg:items-end items-center gap-8 lg:pt-16 py-8 px-8 pointer-events-none z-0">
+        <MessageIllustration
+          message={t('illustration.case1.message')}
+          action={t('illustration.case1.action')}
+        />
+        <MessageIllustration
+          message={t('illustration.case2.message')}
+          action={t('illustration.case2.action')}
+        />
+        <MessageIllustration
+          message={t('illustration.case3.message')}
+          action={t('illustration.case3.action')}
+        />
+      </div> */}
     </div>
   );
 };

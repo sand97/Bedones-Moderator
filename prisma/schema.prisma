@@ -2,7 +2,7 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 datasource db {
-  provider = "postgres"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -10,14 +10,134 @@ generator client {
   provider = "prisma-client-js"
 }
 
-model Post {
-  id    String @id @default(uuid())
-  title String
-  text  String
+model User {
+  id                String    @id @default(cuid())
+  email             String?   @unique
+  name              String?
+  image             String?
+  emailVerified     Boolean   @default(false)
+  facebookId        String?   @unique
+  accessToken       String? // Encrypted Facebook access token
+  accessTokenExpiry DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  pages             Page[]
+  sessions          Session[]
+  accounts          Account[]
+}
 
-  // To return `Date`s intact through the API we use transformers
-  // https://trpc.io/docs/v11/data-transformers
-  // This is unique so it can be used for cursor-based pagination
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  expiresAt DateTime
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Account {
+  id                String   @id @default(cuid())
+  userId            String
+  accountId         String
+  providerId        String
+  accessToken       String?
+  refreshToken      String?
+  idToken           String?
+  expiresAt         DateTime?
+  password          String?
+  scope             String?
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(cuid())
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([identifier, value])
+}
+
+model Page {
+  id                   String        @id // Facebook Page ID
+  name                 String
+  accessToken          String // Encrypted page-specific access token
+  userId               String
+  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  settings             PageSettings?
+  posts                Post[]
+  createdAt            DateTime      @default(now())
+  updatedAt            DateTime      @updatedAt
+
+  @@index([userId])
+}
+
+model PageSettings {
+  id                        String    @id @default(cuid())
+  pageId                    String    @unique
+  page                      Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  undesiredCommentsEnabled  Boolean   @default(false)
+  undesiredCommentsAction   String    @default("hide") // "hide" or "delete"
+  spamDetectionEnabled      Boolean   @default(false)
+  spamAction                String    @default("delete") // "hide" or "delete"
+  intelligentFAQEnabled     Boolean   @default(false)
+  faqRules                  FAQRule[]
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+}
+
+model FAQRule {
+  id             String       @id @default(cuid())
+  pageSettingsId String
+  pageSettings   PageSettings @relation(fields: [pageSettingsId], references: [id], onDelete: Cascade)
+  assertion      String // Trigger condition (e.g., "If user asks for phone number")
+  response       String // AI response template (e.g., "Reply 657 80 80 80")
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([pageSettingsId])
+}
+
+model Comment {
+  id               String   @id // Facebook Comment ID
+  postId           String
+  post             Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  pageId           String
+  message          String
+  fromId           String // Facebook User ID
+  fromName         String // Facebook User Name
+  createdTime      DateTime
+  action           String // "none", "hide", "delete", "reply"
+  actionReason     String? // AI explanation
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([postId])
+  @@index([pageId])
+  @@index([fromId])
+  @@index([action])
+}
+
+model Post {
+  id        String    @id // Facebook Post ID
+  pageId    String
+  page      Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  message   String?
+  comments  Comment[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([pageId])
 }

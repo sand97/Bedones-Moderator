@@ -23,4 +23,10 @@ export default {
   typescript: {
     ignoreBuildErrors: true,
   },
+  /** Configuration for Cloudflare Pages deployment */
+  images: {
+    unoptimized: true,
+  },
+  /** Allow cross-origin requests for development */
+  allowedDevOrigins: ['https://moderator.bedones.local'],
 } satisfies NextConfig;
