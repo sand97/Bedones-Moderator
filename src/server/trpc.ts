@@ -8,7 +8,7 @@
  * @see https://trpc.io/docs/v11/procedures
  */
 
-import { initTRPC } from '@trpc/server';
+import { initTRPC, TRPCError } from '@trpc/server';
 import { transformer } from '~/utils/transformer';
 import type { Context } from './context';
 
@@ -36,6 +36,22 @@ export const router = t.router;
  * @see https://trpc.io/docs/v11/procedures
  **/
 export const publicProcedure = t.procedure;
+
+/**
+ * Protected procedure - requires authentication
+ */
+export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
+  if (!ctx.session || !ctx.user) {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return next({
+    ctx: {
+      ...ctx,
+      session: ctx.session,
+      user: ctx.user,
+    },
+  });
+});
 
 /**
  * Merge multiple routers together

@@ -6,7 +6,6 @@ import { router, publicProcedure } from '../trpc';
 import type { Prisma } from '@prisma/client';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
-import { prisma } from '~/server/prisma';
 
 /**
  * Default selector for Post.
@@ -29,7 +28,7 @@ export const postRouter = router({
         cursor: z.string().nullish(),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       /**
        * For pagination docs you can have a look here
        * @see https://trpc.io/docs/v11/useInfiniteQuery
@@ -39,7 +38,7 @@ export const postRouter = router({
       const limit = input.limit ?? 50;
       const { cursor } = input;
 
-      const items = await prisma.post.findMany({
+      const items = await ctx.db.post.findMany({
         select: defaultPostSelect,
         // get an extra item at the end which we'll use as next cursor
         take: limit + 1,
@@ -72,9 +71,9 @@ export const postRouter = router({
         id: z.string(),
       }),
     )
-    .query(async ({ input }) => {
+    .query(async ({ input, ctx }) => {
       const { id } = input;
-      const post = await prisma.post.findUnique({
+      const post = await ctx.db.post.findUnique({
         where: { id },
         select: defaultPostSelect,
       });
@@ -94,8 +93,8 @@ export const postRouter = router({
         text: z.string().min(1),
       }),
     )
-    .mutation(async ({ input }) => {
-      const post = await prisma.post.create({
+    .mutation(async ({ input, ctx }) => {
+      const post = await ctx.db.post.create({
         data: input,
         select: defaultPostSelect,
       });

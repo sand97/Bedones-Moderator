@@ -1,0 +1,105 @@
+{
+  "page": {
+    "title": "Bedones Moderator",
+    "subtitle": "Manage your Facebook comments with artificial intelligence"
+  },
+  "header": {
+    "connection": "Connection",
+    "signOut": "Sign Out"
+  },
+  "undesiredComments": {
+    "title": "Filter Undesired Comments",
+    "configure": "Configure undesired comment handling",
+    "description": "When enabled, this feature allows you to automatically handle comments that contain unwanted content, inappropriate language, or violate your community guidelines. You can choose to either hide these comments from public view or delete them entirely.",
+    "hide": "Hide undesired comments",
+    "delete": "Delete undesired comments"
+  },
+  "spamDetection": {
+    "title": "Detect and Handle Spam",
+    "configure": "Configure spam detection settings",
+    "description": "Our AI-powered spam detection automatically identifies promotional content, repetitive messages, suspicious links, and other spam patterns. Choose how you want these comments to be handled.",
+    "hide": "Hide spam comments",
+    "delete": "Delete spam comments"
+  },
+  "intelligentFAQ": {
+    "title": "Intelligent Generated Replies",
+    "configure": "Manage intelligent FAQ responses",
+    "description": "Set up automated intelligent responses for frequently asked questions. Define assertions that trigger specific AI-generated responses to provide consistent, helpful answers to your audience.",
+    "rules": "FAQ Rules",
+    "addFAQ": "Add FAQ",
+    "editRule": "Edit FAQ Rule",
+    "addRule": "Add FAQ Rule",
+    "configureDescription": "Configure an intelligent response for frequently asked questions.",
+    "assertion": "Assertion",
+    "assertionPlaceholder": "Ex: If the user asks for the phone number",
+    "assertionRequired": "Assertion is required",
+    "assertionMin": "Assertion must be at least 3 characters",
+    "response": "AI Response Template",
+    "responsePlaceholder": "Ex: Reply 657 80 80 80",
+    "responseRequired": "Response template is required",
+    "responseMin": "Response must be at least 3 characters",
+    "cancel": "Cancel",
+    "update": "Update",
+    "add": "Add",
+    "assertionLabel": "Assertion:",
+    "responseLabel": "Response:"
+  },
+  "facebook": {
+    "continue": "Continue with Facebook",
+    "disclaimer": "By continuing, you accept our Terms of Service and Privacy Policy"
+  },
+  "validation": {
+    "atLeastOneFeature": "Please enable at least one moderation feature"
+  },
+  "authError": {
+    "title": "Authentication Error",
+    "message": "We encountered an issue while processing your request. Please try again or contact the application owner if the problem persists.",
+    "tryAgain": "Try Again",
+    "goHome": "Go to Home",
+    "needHelp": "Need help?",
+    "helpIntro": "If you continue to experience issues:",
+    "helpSteps": {
+      "clearCache": "Clear your browser cache and cookies",
+      "tryBrowser": "Try using a different browser",
+      "checkConnection": "Check your internet connection",
+      "contactSupport": "Contact support if the problem persists"
+    },
+    "errorCode": "Error Code:",
+    "errors": {
+      "please_restart_the_process": {
+        "title": "Session Expired",
+        "message": "Your authentication session has expired. Please restart the login process."
+      },
+      "access_denied": {
+        "title": "Access Denied",
+        "message": "You denied access to your account. Please try again and grant the necessary permissions."
+      },
+      "oauth_error": {
+        "title": "OAuth Error",
+        "message": "There was an error connecting to the authentication provider. Please try again."
+      },
+      "configuration_error": {
+        "title": "Configuration Error",
+        "message": "There is a configuration issue. Please contact support."
+      },
+      "unable_to_create_user": {
+        "title": "Unable to Create Account",
+        "message": "We were unable to create your account. This may be due to a technical issue. Please try again or contact support if the problem persists."
+      }
+    }
+  },
+  "illustration": {
+    "case1": {
+      "message": "Bad dirty dog",
+      "action": "Comment hidden"
+    },
+    "case2": {
+      "message": "Click here to win $1000 !!!",
+      "action": "Spam hidden"
+    },
+    "case3": {
+      "message": "What's your phone number?",
+      "action": "Auto-reply sent"
+    }
+  }
+}

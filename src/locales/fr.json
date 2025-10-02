@@ -1,0 +1,105 @@
+{
+  "page": {
+    "title": "Bedones Moderator",
+    "subtitle": "Gérez vos commentaires Facebook avec l'intelligence artificielle"
+  },
+  "header": {
+    "connection": "Connexion",
+    "signOut": "Déconnexion"
+  },
+  "undesiredComments": {
+    "title": "Filtrer les commentaires indésirables",
+    "configure": "Configurer la gestion des commentaires indésirables",
+    "description": "Lorsqu'elle est activée, cette fonctionnalité vous permet de gérer automatiquement les commentaires contenant du contenu indésirable, un langage inapproprié ou qui violent vos directives communautaires. Vous pouvez choisir de masquer ces commentaires de la vue publique ou de les supprimer entièrement.",
+    "hide": "Masquer les commentaires indésirables",
+    "delete": "Supprimer les commentaires indésirables"
+  },
+  "spamDetection": {
+    "title": "Détecter et gérer le spam",
+    "configure": "Configurer les paramètres de détection de spam",
+    "description": "Notre détection de spam alimentée par l'IA identifie automatiquement le contenu promotionnel, les messages répétitifs, les liens suspects et d'autres modèles de spam. Choisissez comment vous souhaitez gérer ces commentaires.",
+    "hide": "Masquer les commentaires spam",
+    "delete": "Supprimer les commentaires spam"
+  },
+  "intelligentFAQ": {
+    "title": "Réponses générées intelligemment",
+    "configure": "Gérer les réponses FAQ intelligentes",
+    "description": "Configurez des réponses intelligentes automatisées pour les questions fréquemment posées. Définissez des assertions qui déclenchent des réponses spécifiques générées par l'IA pour fournir des réponses cohérentes et utiles à votre audience.",
+    "rules": "Règles FAQ",
+    "addFAQ": "Ajouter FAQ",
+    "editRule": "Modifier la règle FAQ",
+    "addRule": "Ajouter une règle FAQ",
+    "configureDescription": "Configurez une réponse intelligente pour les questions fréquemment posées.",
+    "assertion": "Assertion",
+    "assertionPlaceholder": "Ex: Si l'utilisateur demande le numéro de téléphone",
+    "assertionRequired": "L'assertion est requise",
+    "assertionMin": "L'assertion doit contenir au moins 3 caractères",
+    "response": "Modèle de réponse IA",
+    "responsePlaceholder": "Ex: Répondre 657 80 80 80",
+    "responseRequired": "Le modèle de réponse est requis",
+    "responseMin": "La réponse doit contenir au moins 3 caractères",
+    "cancel": "Annuler",
+    "update": "Mettre à jour",
+    "add": "Ajouter",
+    "assertionLabel": "Assertion:",
+    "responseLabel": "Réponse:"
+  },
+  "facebook": {
+    "continue": "Continuer avec Facebook",
+    "disclaimer": "En continuant, vous acceptez nos Conditions Générales d'Utilisation et notre Politique de Confidentialité"
+  },
+  "validation": {
+    "atLeastOneFeature": "Veuillez activer au moins une fonctionnalité de modération"
+  },
+  "authError": {
+    "title": "Erreur d'authentification",
+    "message": "Nous avons rencontré un problème lors du traitement de votre demande. Veuillez réessayer ou contacter le propriétaire de l'application si le problème persiste.",
+    "tryAgain": "Réessayer",
+    "goHome": "Retour à l'accueil",
+    "needHelp": "Besoin d'aide ?",
+    "helpIntro": "Si vous continuez à rencontrer des problèmes :",
+    "helpSteps": {
+      "clearCache": "Effacez le cache et les cookies de votre navigateur",
+      "tryBrowser": "Essayez d'utiliser un autre navigateur",
+      "checkConnection": "Vérifiez votre connexion Internet",
+      "contactSupport": "Contactez le support si le problème persiste"
+    },
+    "errorCode": "Code d'erreur :",
+    "errors": {
+      "please_restart_the_process": {
+        "title": "Session expirée",
+        "message": "Votre session d'authentification a expiré. Veuillez redémarrer le processus de connexion."
+      },
+      "access_denied": {
+        "title": "Accès refusé",
+        "message": "Vous avez refusé l'accès à votre compte. Veuillez réessayer et accorder les permissions nécessaires."
+      },
+      "oauth_error": {
+        "title": "Erreur OAuth",
+        "message": "Une erreur s'est produite lors de la connexion au fournisseur d'authentification. Veuillez réessayer."
+      },
+      "configuration_error": {
+        "title": "Erreur de configuration",
+        "message": "Il y a un problème de configuration. Veuillez contacter le support."
+      },
+      "unable_to_create_user": {
+        "title": "Impossible de créer le compte",
+        "message": "Nous n'avons pas pu créer votre compte. Cela peut être dû à un problème technique. Veuillez réessayer ou contacter le support si le problème persiste."
+      }
+    }
+  },
+  "illustration": {
+    "case1": {
+      "message": "Mouf salle chien",
+      "action": "Commentaire masqué"
+    },
+    "case2": {
+      "message": "Clique ici pour gagner 1000€ !!!",
+      "action": "Spam masqué"
+    },
+    "case3": {
+      "message": "C'est quoi votre numéro de téléphone ?",
+      "action": "Réponse automatique envoyée"
+    }
+  }
+}

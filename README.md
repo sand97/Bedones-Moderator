@@ -1,88 +1,261 @@
-# Prisma + tRPC
+# Facebook Comment Moderator
 
-## Features
+A powerful Next.js application for monitoring and moderating Facebook page comments in real-time. Built with tRPC, Prisma, and designed for deployment on Cloudflare Pages with D1 database.
 
-- 🧙‍♂️ E2E typesafety with [tRPC](https://trpc.io)
-- ⚡ Full-stack React with Next.js
-- ⚡ Database with Prisma
-- ⚙️ VSCode extensions
-- 🎨 ESLint + Prettier
-- 💚 CI setup using GitHub Actions:
-  - ✅ E2E testing with [Playwright](https://playwright.dev/)
-  - ✅ Linting
-- 🔐 Validates your env vars on build and start
+## 🚀 Features
 
-## Setup
+- **Real-time Comment Monitoring**: Monitor all comments on your Facebook page in real-time
+- **Smart Filtering**: Automatically filter spam and inappropriate content using AI
+- **Easy Management**: Bulk actions, custom rules, and intuitive dashboard
+- **Cloudflare Deployment**: Optimized for Cloudflare Pages with D1 database
+- **Static Generation**: Home page uses static generation for optimal performance
 
-```bash
-pnpm create next-app --example https://github.com/trpc/trpc --example-path examples/next-prisma-starter trpc-prisma-starter
-cd trpc-prisma-starter
-pnpm
-pnpm dx
-```
+## 🛠️ Tech Stack
 
-### Requirements
+- **Framework**: Next.js 15 (Pages Router)
+- **Database**: Cloudflare D1 (SQLite) with Prisma ORM
+- **API**: tRPC for type-safe APIs
+- **Styling**: Tailwind CSS
+- **Deployment**: Cloudflare Pages
+- **Testing**: Vitest + Playwright
 
-- Node >= 18.0.0
-- Postgres
+## 📋 Prerequisites
 
-## Development
+- Node.js 20.14.0 or higher
+- npm or pnpm
+- Cloudflare account with D1 database access
+- Facebook Developer Account
 
-### Start project
+## 🔧 Getting Started
 
-```bash
-pnpm create next-app --example https://github.com/trpc/trpc --example-path examples/next-prisma-starter trpc-prisma-starter
-cd trpc-prisma-starter
-pnpm
-pnpm dx
-```
-
-### Commands
+### 1. Install Dependencies
 
 ```bash
-pnpm build      # runs `prisma generate` + `prisma migrate` + `next build`
-pnpm db-reset   # resets local db
-pnpm dev        # starts next.js
-pnpm dx         # starts postgres db + runs migrations + seeds + starts next.js
-pnpm test-dev   # runs e2e tests on dev
-pnpm test-start # runs e2e + unit tests
-pnpm test-unit  # runs normal Vitest unit tests
-pnpm test-e2e   # runs e2e tests
+npm install
 ```
 
-## Deployment
+### 2. Environment Setup
 
-### Using [Render](https://render.com/)
+Copy the example environment file and fill in your values:
 
-The project contains a [`render.yaml`](./render.yaml) [_"Blueprint"_](https://render.com/docs/blueprint-spec) which makes the project easily deployable on [Render](https://render.com/).
+```bash
+cp .env.example .env
+```
 
-Go to [dashboard.render.com/blueprints](https://dashboard.render.com/blueprints) and connect to this Blueprint and see how the app and database automatically gets deployed.
+Fill in your `.env` file:
 
-## Files of note
+```env
+# Local development with SQLite
+DATABASE_URL="file:./dev.db"
 
-<table>
-  <thead>
-    <tr>
-      <th>Path</th>
-      <th>Description</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><a href="./prisma/schema.prisma"><code>./prisma/schema.prisma</code></a></td>
-      <td>Prisma schema</td>
-    </tr>
-    <tr>
-      <td><a href="./src/pages/api/trpc/[trpc].ts"><code>./src/pages/api/trpc/[trpc].ts</code></a></td>
-      <td>tRPC response handler</td>
-    </tr>
-    <tr>
-      <td><a href="./src/server/routers"><code>./src/server/routers</code></a></td>
-      <td>Your app's different tRPC-routers</td>
-    </tr>
-  </tbody>
-</table>
+# Facebook App Configuration
+FACEBOOK_APP_ID=your_facebook_app_id_here
+FACEBOOK_APP_SECRET=your_facebook_app_secret_here
+FACEBOOK_WEBHOOK_VERIFY_TOKEN=your_webhook_verify_token_here
+```
 
----
+### 3. Database Setup
 
-Created by [@alexdotjs](https://twitter.com/alexdotjs).
+For local development:
+
+```bash
+# Run initial migration
+npx prisma migrate dev --name init
+
+# Seed the database (optional)
+npm run db-seed
+
+# Open Prisma Studio to view data
+npm run prisma-studio
+```
+
+### 4. Development Server
+
+#### Standard Local Development
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) to view the application.
+
+#### Local HTTPS Development (for Facebook Login Testing)
+
+Facebook OAuth requires HTTPS for callbacks. To test locally with HTTPS:
+
+1. **Add the domain to your hosts file** (already done if you followed setup):
+
+```bash
+# /etc/hosts should contain:
+# 127.0.0.1 moderator.bedones.local
+```
+
+2. **Update your `.env` file**:
+
+```env
+NEXTAUTH_URL=https://moderator.bedones.local
+```
+
+3. **Start the Next.js development server**:
+
+```bash
+npm run dev
+```
+
+4. **Start Caddy in a separate terminal** (from project root):
+
+```bash
+caddy run
+```
+
+5. **Access the application**:
+
+Open [https://moderator.bedones.local](https://moderator.bedones.local)
+
+Your browser will show a security warning about the self-signed certificate. Click "Advanced" and proceed to accept the certificate.
+
+6. **Configure Facebook App**:
+
+In your Facebook Developer Console, set the OAuth redirect URL to:
+```
+https://moderator.bedones.local/api/auth/callback/facebook
+```
+
+**Note**: Keep both terminals running - one for Next.js (`npm run dev`) and one for Caddy (`caddy run`).
+
+## 🌐 Cloudflare Deployment
+
+### 1. Database Configuration
+
+Your D1 database is already configured in `wrangler.toml`:
+
+```toml
+[[env.production.d1_databases]]
+binding = "moderateur_bedones_db"
+database_name = "moderateur-bedones-db"
+database_id = "0d7ab73c-d8d6-443d-b3ac-cc3a7adb1028"
+```
+
+### 2. Run Migrations on Cloudflare D1
+
+```bash
+# Apply migrations to remote D1 database
+npm run cf:migrate
+```
+
+### 3. Deploy to Cloudflare Pages
+
+```bash
+# Build for production
+npm run build
+
+# Deploy to Cloudflare Pages
+npm run deploy
+```
+
+### 4. Preview Locally with D1
+
+```bash
+# Preview with Cloudflare D1 binding
+npm run preview
+```
+
+## 📜 Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run typecheck` - Run TypeScript checks
+- `npm run test-unit` - Run unit tests
+- `npm run test-e2e` - Run E2E tests
+- `npm run generate` - Generate Prisma client
+- `npm run prisma-studio` - Open Prisma Studio
+- `npm run db-seed` - Seed database
+- `npm run deploy` - Deploy to Cloudflare
+- `npm run preview` - Preview with Cloudflare Workers
+- `npm run cf:migrate` - Run migrations on Cloudflare D1
+
+## 🏗️ Project Structure
+
+```
+├── src/
+│   ├── pages/              # Next.js pages (Pages Router)
+│   │   ├── api/trpc/       # tRPC API routes
+│   │   ├── index.tsx       # Home page (static)
+│   │   └── dashboard.tsx   # Dashboard page
+│   ├── server/             # Server-side code
+│   │   ├── routers/        # tRPC routers
+│   │   ├── prisma.ts       # Prisma client setup
+│   │   ├── context.ts      # tRPC context
+│   │   └── trpc.ts         # tRPC setup
+│   └── utils/              # Utility functions
+├── prisma/                 # Database schema and migrations
+├── public/                 # Static assets
+├── wrangler.toml          # Cloudflare configuration
+└── next.config.ts         # Next.js configuration
+```
+
+## 🔌 Facebook Integration
+
+### 1. Create Facebook App
+
+1. Go to [Facebook Developers](https://developers.facebook.com/)
+2. Create a new app
+3. Add the Webhooks product
+4. Configure webhook URL: `https://monitoring.bedones.com/api/webhook`
+
+### 2. Configure Permissions
+
+In your Facebook App settings, add these permissions:
+- `pages_show_list` - List pages user manages
+- `pages_read_user_content` - Read page content
+- `pages_manage_engagement` - Manage comments, reactions
+- `pages_read_engagement` - Read comments, reactions
+- `pages_manage_posts` - Create, edit, delete posts and comments
+- `pages_messaging` - Send and receive messages
+
+### 3. OAuth Redirect URL
+
+Set the OAuth redirect URL in your Facebook App:
+- **Local Development**: `https://moderator.bedones.local/api/auth/callback/facebook`
+- **Production**: `https://your-domain.com/api/auth/callback/facebook`
+
+### 4. Webhook Configuration
+
+Configure webhooks to receive:
+- `feed` (new posts)
+- `comments` (new comments)
+- `mention` (page mentions)
+
+Webhook URL: `https://your-domain.com/api/webhooks/facebook`
+
+## 🛡️ Security Considerations
+
+- All Facebook API credentials are stored as environment variables
+- Database access is restricted through Cloudflare D1 bindings
+- tRPC provides type-safe API endpoints
+- Input validation using Zod schemas
+
+## 📊 Monitoring
+
+The application will be accessible at:
+- **Production**: `https://monitoring.bedones.com`
+- **Development**: `http://localhost:3000`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if needed
+5. Run the test suite
+6. Submit a pull request
+
+## 📝 License
+
+This project is private and confidential.
+
+## 🆘 Support
+
+For support and questions, please contact the development team.
