@@ -2,7 +2,7 @@
 /// <reference types="@cloudflare/workers-types" />
 import type * as trpcNext from '@trpc/server/adapters/next';
 import { prisma, createPrismaWithD1 } from './prisma';
-import { auth } from '~/lib/auth';
+import { getSessionTokenFromRequest, validateSession } from '~/lib/auth';
 import type { Session, User } from '~/lib/auth';
 
 interface CreateContextOptions {
@@ -36,17 +36,27 @@ export async function createContext(
 ): Promise<Context> {
   // for API-response caching see https://trpc.io/docs/v11/caching
 
-  // Get session from Better Auth
-  const session = await auth.api.getSession({
-    headers: opts.req.headers as any,
-  });
+  // Get session from custom auth
+  const headers = new Headers(opts.req.headers as any);
+  const token = getSessionTokenFromRequest(headers);
+
+  let session: Session | null = null;
+  let user: User | null = null;
+
+  if (token) {
+    const sessionData = await validateSession(prisma, token);
+    if (sessionData) {
+      session = sessionData.session;
+      user = sessionData.user;
+    }
+  }
 
   // In Cloudflare Workers environment, D1 database will be available in env
   const d1 = (opts.req as any)?.env?.moderateur_bedones_db;
 
   return await createContextInner({
     d1,
-    session: session?.session || null,
-    user: session?.user || null,
+    session,
+    user,
   });
 }

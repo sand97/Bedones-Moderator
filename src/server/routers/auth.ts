@@ -62,7 +62,7 @@ export const authRouter = router({
         const pages = await FacebookService.fetchUserPages(input.accessToken);
 
         // Save pages to database
-        await FacebookService.saveUserPages(userId, input.accessToken, pages);
+        await FacebookService.saveUserPages(userId, input.accessToken, pages, ctx.db);
 
         return {
           success: true,
@@ -109,6 +109,7 @@ export const authRouter = router({
         userId,
         facebookAccount.accessToken,
         pages,
+        ctx.db,
       );
 
       return {

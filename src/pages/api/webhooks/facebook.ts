@@ -1,13 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import crypto from 'crypto';
-import { prisma } from '~/server/prisma';
+import { createPrismaWithD1, prisma as defaultPrisma } from '~/server/prisma';
 import { FacebookService } from '~/server/services/facebook';
 import { AIService } from '~/server/services/ai';
 
 interface FacebookWebhookEntry {
   id: string;
   time: number;
-  changes: Array<{
+  changes: {
     field: string;
     value: {
       from: {
@@ -21,7 +20,7 @@ interface FacebookWebhookEntry {
       verb: string;
       item: string;
     };
-  }>;
+  }[];
 }
 
 interface FacebookWebhookPayload {
@@ -30,20 +29,34 @@ interface FacebookWebhookPayload {
 }
 
 /**
- * Verify the webhook signature from Facebook
+ * Verify the webhook signature from Facebook using Web Crypto API
  */
-function verifySignature(
+async function verifySignature(
   payload: string,
   signature: string | undefined,
-): boolean {
+): Promise<boolean> {
   if (!signature || !process.env.FACEBOOK_APP_SECRET) {
     return false;
   }
 
-  const expectedSignature = crypto
-    .createHmac('sha256', process.env.FACEBOOK_APP_SECRET)
-    .update(payload)
-    .digest('hex');
+  const encoder = new TextEncoder();
+  const key = await crypto.subtle.importKey(
+    'raw',
+    encoder.encode(process.env.FACEBOOK_APP_SECRET),
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign']
+  );
+
+  const signatureBytes = await crypto.subtle.sign(
+    'HMAC',
+    key,
+    encoder.encode(payload)
+  );
+
+  const expectedSignature = Array.from(new Uint8Array(signatureBytes))
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
 
   return `sha256=${expectedSignature}` === signature;
 }
@@ -56,7 +69,10 @@ function handleVerification(req: NextApiRequest, res: NextApiResponse) {
   const token = req.query['hub.verify_token'];
   const challenge = req.query['hub.challenge'];
 
-  if (mode === 'subscribe' && token === process.env.FACEBOOK_WEBHOOK_VERIFY_TOKEN) {
+  if (
+    mode === 'subscribe' &&
+    token === process.env.FACEBOOK_WEBHOOK_VERIFY_TOKEN
+  ) {
     console.log('Webhook verified successfully');
     res.status(200).send(challenge);
   } else {
@@ -68,7 +84,7 @@ function handleVerification(req: NextApiRequest, res: NextApiResponse) {
 /**
  * Process a comment webhook notification
  */
-async function processCommentNotification(entry: FacebookWebhookEntry) {
+async function processCommentNotification(entry: FacebookWebhookEntry, prisma: any) {
   for (const change of entry.changes) {
     if (change.field !== 'feed' || change.value.item !== 'comment') {
       continue;
@@ -86,7 +102,7 @@ async function processCommentNotification(entry: FacebookWebhookEntry) {
         include: { settings: true },
       });
 
-      if (!page || !page.settings) {
+      if (!page?.settings) {
         console.error(`Page ${pageId} not found or has no settings`);
         continue;
       }
@@ -111,7 +127,9 @@ async function processCommentNotification(entry: FacebookWebhookEntry) {
         },
         pageSettings: {
           undesiredCommentsEnabled: page.settings.undesiredCommentsEnabled,
-          undesiredCommentsAction: page.settings.undesiredCommentsAction as 'hide' | 'delete',
+          undesiredCommentsAction: page.settings.undesiredCommentsAction as
+            | 'hide'
+            | 'delete',
           spamDetectionEnabled: page.settings.spamDetectionEnabled,
           spamAction: page.settings.spamAction as 'hide' | 'delete',
           intelligentFAQEnabled: page.settings.intelligentFAQEnabled,
@@ -119,7 +137,7 @@ async function processCommentNotification(entry: FacebookWebhookEntry) {
       });
 
       // Get page access token
-      const pageAccessToken = await FacebookService.getPageAccessToken(pageId);
+      const pageAccessToken = await FacebookService.getPageAccessToken(pageId, prisma);
 
       // Execute action based on AI analysis
       switch (analysis.action) {
@@ -145,7 +163,9 @@ async function processCommentNotification(entry: FacebookWebhookEntry) {
           break;
 
         case 'none':
-          console.log(`No action for comment ${comment_id}: ${analysis.reason}`);
+          console.log(
+            `No action for comment ${comment_id}: ${analysis.reason}`,
+          );
           break;
       }
 
@@ -194,11 +214,15 @@ export default async function handler(
 
   // Handle POST request for webhook notifications
   if (req.method === 'POST') {
+    // Get D1 binding from request env (Cloudflare Workers)
+    const d1 = (req as any)?.env?.moderateur_bedones_db;
+    const prisma = d1 ? createPrismaWithD1(d1) : defaultPrisma;
+
     // Verify the signature
     const signature = req.headers['x-hub-signature-256'] as string | undefined;
     const rawBody = JSON.stringify(req.body);
 
-    if (!verifySignature(rawBody, signature)) {
+    if (!(await verifySignature(rawBody, signature))) {
       console.error('Invalid webhook signature');
       res.status(403).send('Forbidden');
       return;
@@ -210,7 +234,7 @@ export default async function handler(
     if (payload.object === 'page') {
       // Process asynchronously and respond immediately
       Promise.all(
-        payload.entry.map((entry) => processCommentNotification(entry)),
+        payload.entry.map((entry) => processCommentNotification(entry, prisma)),
       ).catch((error) => {
         console.error('Error processing webhook entries:', error);
       });

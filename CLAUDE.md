@@ -1,0 +1,1 @@
+- text should be translated in @src/locales/

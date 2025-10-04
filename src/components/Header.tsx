@@ -13,11 +13,10 @@ export function Header({ className }: HeaderProps) {
   const router = useRouter();
   const { data: session } = useSession();
 
-  const handleAuthClick = () => {
+  const handleAuthClick = async () => {
     if (session?.user) {
       // Sign out
-      signOut();
-      router.push('/');
+      await signOut();
     } else {
       // Go to login page
       router.push('/');
