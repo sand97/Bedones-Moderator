@@ -1,6 +1,9 @@
 import type { NextPage } from 'next';
 import type { AppType, AppProps } from 'next/app';
 import type { ReactElement, ReactNode } from 'react';
+import { useRouter } from 'next/router';
+import { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { DefaultLayout } from '~/components/DefaultLayout';
 import { Toaster } from '~/components/ui/toaster';
@@ -20,8 +23,19 @@ type AppPropsWithLayout = AppProps & {
 };
 
 const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
+  const router = useRouter();
+  const { i18n } = useTranslation();
+
   const getLayout =
     Component.getLayout ?? ((page) => <DefaultLayout>{page}</DefaultLayout>);
+
+  // Sync i18next with Next.js router locale
+  useEffect(() => {
+    const locale = router.locale || 'fr';
+    if (i18n.language !== locale) {
+      i18n.changeLanguage(locale);
+    }
+  }, [router.locale, i18n]);
 
   return (
     <>

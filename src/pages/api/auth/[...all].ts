@@ -14,18 +14,27 @@ export default async function handler(
     // Create a new request with the full URL
     const url = new URL(req.url || '', baseURL);
 
-    // Prepare request body if needed
-    let body: string | undefined;
+    // Convert NextJS headers to Web API Headers
+    const headers = new Headers();
+    Object.entries(req.headers).forEach(([key, value]) => {
+      if (value) {
+        headers.set(key, Array.isArray(value) ? value[0] : value);
+      }
+    });
+
+    // Prepare request options
+    const requestOptions: RequestInit = {
+      method: req.method,
+      headers,
+    };
+
+    // Add body for non-GET/HEAD requests
     if (req.method !== 'GET' && req.method !== 'HEAD') {
-      body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+      requestOptions.body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
     }
 
     // Call the auth handler
-    const authResponse = await auth.handler(new Request(url.toString(), {
-      method: req.method,
-      headers: req.headers as HeadersInit,
-      body,
-    }));
+    const authResponse = await auth.handler(new Request(url.toString(), requestOptions));
 
     // Convert Response to NextApiResponse
     authResponse.headers.forEach((value, key) => {

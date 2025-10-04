@@ -29,4 +29,9 @@ export default {
   },
   /** Allow cross-origin requests for development */
   allowedDevOrigins: ['https://moderator.bedones.local'],
+  /** i18n configuration */
+  i18n: {
+    locales: ['fr', 'en'],
+    defaultLocale: 'fr',
+  },
 } satisfies NextConfig;
