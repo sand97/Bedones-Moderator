@@ -26,7 +26,7 @@
     "configure": "Gérer les réponses FAQ intelligentes",
     "description": "Configurez des réponses intelligentes automatisées pour les questions fréquemment posées. Définissez des assertions qui déclenchent des réponses spécifiques générées par l'IA pour fournir des réponses cohérentes et utiles à votre audience.",
     "rules": "Règles FAQ",
-    "addFAQ": "Ajouter FAQ",
+    "addFAQ": "Ajouter",
     "editRule": "Modifier la règle FAQ",
     "addRule": "Ajouter une règle FAQ",
     "configureDescription": "Configurez une réponse intelligente pour les questions fréquemment posées.",
@@ -52,7 +52,9 @@
       "description": "Gérez vos pages Facebook et les paramètres de modération",
       "noPagesFound": "Aucune page Facebook trouvée. Veuillez vous assurer d'avoir accordé l'accès à vos pages.",
       "addedAgo": "Ajoutée il y a {{time}}",
-      "noFaqRules": "Aucune règle FAQ configurée pour le moment"
+      "noFaqRules": "Aucune règle FAQ configurée pour le moment",
+      "settingsUpdated": "Paramètres mis à jour avec succès",
+      "settingsUpdateFailed": "Échec de la mise à jour des paramètres"
     }
   },
   "validation": {

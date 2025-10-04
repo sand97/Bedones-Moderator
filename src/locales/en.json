@@ -26,7 +26,7 @@
     "configure": "Manage intelligent FAQ responses",
     "description": "Set up automated intelligent responses for frequently asked questions. Define assertions that trigger specific AI-generated responses to provide consistent, helpful answers to your audience.",
     "rules": "FAQ Rules",
-    "addFAQ": "Add FAQ",
+    "addFAQ": "Add",
     "editRule": "Edit FAQ Rule",
     "addRule": "Add FAQ Rule",
     "configureDescription": "Configure an intelligent response for frequently asked questions.",
@@ -52,7 +52,9 @@
       "description": "Manage your Facebook pages and moderation settings",
       "noPagesFound": "No Facebook pages found. Please make sure you've granted access to your pages.",
       "addedAgo": "Added {{time}} ago",
-      "noFaqRules": "No FAQ rules configured yet"
+      "noFaqRules": "No FAQ rules configured yet",
+      "settingsUpdated": "Settings updated successfully",
+      "settingsUpdateFailed": "Failed to update settings"
     }
   },
   "validation": {
