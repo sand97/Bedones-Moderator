@@ -46,7 +46,14 @@
   },
   "facebook": {
     "continue": "Continuer avec Facebook",
-    "disclaimer": "En continuant, vous acceptez nos Conditions Générales d'Utilisation et notre Politique de Confidentialité"
+    "disclaimer": "En continuant, vous acceptez nos Conditions Générales d'Utilisation et notre Politique de Confidentialité",
+    "pageSettings": {
+      "title": "Pages Facebook",
+      "description": "Gérez vos pages Facebook et les paramètres de modération",
+      "noPagesFound": "Aucune page Facebook trouvée. Veuillez vous assurer d'avoir accordé l'accès à vos pages.",
+      "addedAgo": "Ajoutée il y a {{time}}",
+      "noFaqRules": "Aucune règle FAQ configurée pour le moment"
+    }
   },
   "validation": {
     "atLeastOneFeature": "Veuillez activer au moins une fonctionnalité de modération"
@@ -139,6 +146,17 @@
     "connectedPages": "Pages connectées",
     "moderatedComments": "Commentaires modérés",
     "pagesDescription": "Pages Facebook connectées à votre compte",
-    "commentsDescription": "Commentaires masqués ou supprimés par la modération"
+    "commentsDescription": "Commentaires masqués ou supprimés par la modération",
+    "undesirableComments": "Commentaires indésirables",
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "thisMonth": "Ce mois",
+    "pages": "pages",
+    "unavailable": "Indisponible",
+    "settingsApplied": {
+      "success": "Paramètres appliqués avec succès",
+      "successDescription": "Vos paramètres de modération ont été appliqués à {{count}} page(s)",
+      "error": "Échec de l'application des paramètres"
+    }
   }
 }

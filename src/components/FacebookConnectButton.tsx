@@ -5,17 +5,24 @@ import { useToast } from '~/hooks/use-toast';
 import { authClient } from '~/lib/auth-client';
 import { useState, useEffect } from 'react';
 import { cn } from '~/lib/utils';
+import type { FAQItem } from './IntelligentFAQSection';
 
 interface FacebookConnectButtonProps {
   undesiredCommentsEnabled: boolean;
+  undesiredCommentsAction: 'hide' | 'delete';
   spamDetectionEnabled: boolean;
+  spamAction: 'hide' | 'delete';
   intelligentFAQEnabled: boolean;
+  faqItems: FAQItem[];
 }
 
 export function FacebookConnectButton({
   undesiredCommentsEnabled,
+  undesiredCommentsAction,
   spamDetectionEnabled,
+  spamAction,
   intelligentFAQEnabled,
+  faqItems,
 }: FacebookConnectButtonProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
@@ -60,10 +67,11 @@ export function FacebookConnectButton({
       'moderationSettings',
       JSON.stringify({
         undesiredCommentsEnabled,
-        undesiredCommentsAction: 'hide', // Will be updated to get from parent
+        undesiredCommentsAction,
         spamDetectionEnabled,
-        spamAction: 'delete', // Will be updated to get from parent
+        spamAction,
         intelligentFAQEnabled,
+        faqItems,
       }),
     );
 

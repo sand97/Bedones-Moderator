@@ -148,6 +148,100 @@ export const authRouter = router({
   }),
 
   /**
+   * Get pages count by provider
+   */
+  getPagesCountByProvider: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    // Currently only Facebook pages are supported
+    const facebookPagesCount = await ctx.db.page.count({
+      where: { userId },
+    });
+
+    return {
+      facebook: facebookPagesCount,
+      instagram: 0,
+      tiktok: 0,
+    };
+  }),
+
+  /**
+   * Apply initial settings to all user pages
+   */
+  applyInitialSettingsToPages: protectedProcedure
+    .input(
+      z.object({
+        undesiredCommentsEnabled: z.boolean(),
+        undesiredCommentsAction: z.enum(['hide', 'delete']),
+        spamDetectionEnabled: z.boolean(),
+        spamAction: z.enum(['hide', 'delete']),
+        intelligentFAQEnabled: z.boolean(),
+        faqItems: z.array(
+          z.object({
+            assertion: z.string(),
+            response: z.string(),
+          }),
+        ),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.user.id;
+
+      // Get all user pages
+      const pages = await ctx.db.page.findMany({
+        where: { userId },
+      });
+
+      if (pages.length === 0) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'No pages found',
+        });
+      }
+
+      // Update settings for all pages
+      for (const page of pages) {
+        // Upsert page settings
+        const pageSettings = await ctx.db.pageSettings.upsert({
+          where: { pageId: page.id },
+          create: {
+            pageId: page.id,
+            undesiredCommentsEnabled: input.undesiredCommentsEnabled,
+            undesiredCommentsAction: input.undesiredCommentsAction,
+            spamDetectionEnabled: input.spamDetectionEnabled,
+            spamAction: input.spamAction,
+            intelligentFAQEnabled: input.intelligentFAQEnabled,
+          },
+          update: {
+            undesiredCommentsEnabled: input.undesiredCommentsEnabled,
+            undesiredCommentsAction: input.undesiredCommentsAction,
+            spamDetectionEnabled: input.spamDetectionEnabled,
+            spamAction: input.spamAction,
+            intelligentFAQEnabled: input.intelligentFAQEnabled,
+          },
+        });
+
+        // Create FAQ rules if intelligentFAQ is enabled
+        if (input.intelligentFAQEnabled && input.faqItems.length > 0) {
+          for (const faqItem of input.faqItems) {
+            await ctx.db.fAQRule.create({
+              data: {
+                pageSettingsId: pageSettings.id,
+                assertion: faqItem.assertion,
+                response: faqItem.response,
+              },
+            });
+          }
+        }
+      }
+
+      return {
+        success: true,
+        pagesUpdated: pages.length,
+      };
+    }),
+
+  /**
    * Update page settings
    */
   updatePageSettings: protectedProcedure
@@ -278,5 +372,89 @@ export const authRouter = router({
       });
 
       return { success: true };
+    }),
+
+  /**
+   * Get undesirable comments statistics for date ranges
+   */
+  getUndesirableCommentsStats: protectedProcedure
+    .input(
+      z.object({
+        startDate: z.date(),
+        endDate: z.date(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.user.id;
+
+      const count = await ctx.db.comment.count({
+        where: {
+          action: {
+            in: ['hide', 'delete'],
+          },
+          createdAt: {
+            gte: input.startDate,
+            lte: input.endDate,
+          },
+          post: {
+            page: {
+              userId,
+            },
+          },
+        },
+      });
+
+      return {
+        count,
+        startDate: input.startDate,
+        endDate: input.endDate,
+      };
+    }),
+
+  /**
+   * Get undesirable comments statistics for multiple date ranges
+   */
+  getUndesirableCommentsStatsMultiple: protectedProcedure
+    .input(
+      z.object({
+        intervals: z.array(
+          z.object({
+            startDate: z.date(),
+            endDate: z.date(),
+          })
+        ),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = ctx.user.id;
+
+      const results = await Promise.all(
+        input.intervals.map(async (interval) => {
+          const count = await ctx.db.comment.count({
+            where: {
+              action: {
+                in: ['hide', 'delete'],
+              },
+              createdAt: {
+                gte: interval.startDate,
+                lte: interval.endDate,
+              },
+              post: {
+                page: {
+                  userId,
+                },
+              },
+            },
+          });
+
+          return {
+            count,
+            startDate: interval.startDate,
+            endDate: interval.endDate,
+          };
+        })
+      );
+
+      return results;
     }),
 });
