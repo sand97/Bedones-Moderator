@@ -8,17 +8,23 @@ import { Label } from '~/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
 import { useToast } from '~/hooks/use-toast';
 import { DashboardLayout } from '~/components/DashboardLayout';
+import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
+import { Separator } from '~/components/ui/separator';
+import { formatDistanceToNow } from 'date-fns';
+import { fr, enUS } from 'date-fns/locale';
+import { useTranslation } from 'react-i18next';
 
 const FacebookPage: NextPage = () => {
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const { data: session, isLoading: sessionLoading } =
     trpc.auth.getSession.useQuery();
   const { data: pages, isLoading: pagesLoading } = trpc.auth.getPages.useQuery(
     undefined,
     {
       enabled: !!session?.user,
-    }
+    },
   );
 
   const utils = trpc.useUtils();
@@ -44,27 +50,19 @@ const FacebookPage: NextPage = () => {
   }
 
   return (
-    <DashboardLayout pageTitle="Facebook">
-      <div className="mb-4">
-        <h1 className="text-2xl font-semibold tracking-tight">Facebook Pages</h1>
-        <p className="text-sm text-muted-foreground">
-          Manage your Facebook pages and moderation settings
-        </p>
-      </div>
-
+    <DashboardLayout pageTitle={t('facebook.pageSettings.title')}>
       {pages && pages.length === 0 && (
         <Card>
           <CardContent className="p-6">
             <p className="text-gray-500">
-              No Facebook pages found. Please make sure you've granted access
-              to your pages.
+              {t('facebook.pageSettings.noPagesFound')}
             </p>
           </CardContent>
         </Card>
       )}
 
       {pages && pages.length > 0 && (
-        <div className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
           {pages.map((page) => (
             <PageCard key={page.id} page={page} />
           ))}
@@ -80,7 +78,9 @@ interface PageCardProps {
 
 function PageCard({ page }: PageCardProps) {
   const { toast } = useToast();
+  const { t, i18n } = useTranslation();
   const utils = trpc.useUtils();
+  const locale = i18n.language === 'fr' ? fr : enUS;
 
   const updateSettings = trpc.auth.updatePageSettings.useMutation({
     onSuccess: () => {
@@ -112,17 +112,33 @@ function PageCard({ page }: PageCardProps) {
     });
   };
 
+  const pageAvatarUrl = `https://graph.facebook.com/${page.id}/picture?type=large`;
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{page.name}</CardTitle>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-12 w-12">
+            <AvatarImage src={pageAvatarUrl} alt={page.name} />
+            <AvatarFallback>{page.name.charAt(0)}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <CardTitle className="mb-1">{page.name}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {t('facebook.pageSettings.addedAgo', {
+                time: formatDistanceToNow(new Date(page.createdAt), { locale }),
+              })}
+            </p>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <Separator />
+      <CardContent className="space-y-6 pt-6">
         {/* Undesired Comments */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label htmlFor={`undesired-${page.id}`}>
-              Filter Undesired Comments
+              {t('undesiredComments.title')}
             </Label>
             <Switch
               id={`undesired-${page.id}`}
@@ -140,9 +156,13 @@ function PageCard({ page }: PageCardProps) {
               }
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="hide" id={`hide-undesired-${page.id}`} className="accent-black" />
+                <RadioGroupItem
+                  value="hide"
+                  id={`hide-undesired-${page.id}`}
+                  className="accent-black"
+                />
                 <Label htmlFor={`hide-undesired-${page.id}`}>
-                  Hide undesired comments
+                  {t('undesiredComments.hide')}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
@@ -152,7 +172,7 @@ function PageCard({ page }: PageCardProps) {
                   className="accent-black"
                 />
                 <Label htmlFor={`delete-undesired-${page.id}`}>
-                  Delete undesired comments
+                  {t('undesiredComments.delete')}
                 </Label>
               </div>
             </RadioGroup>
@@ -162,7 +182,9 @@ function PageCard({ page }: PageCardProps) {
         {/* Spam Detection */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <Label htmlFor={`spam-${page.id}`}>Detect and Handle Spam</Label>
+            <Label htmlFor={`spam-${page.id}`}>
+              {t('spamDetection.title')}
+            </Label>
             <Switch
               id={`spam-${page.id}`}
               checked={page.settings?.spamDetectionEnabled || false}
@@ -177,15 +199,23 @@ function PageCard({ page }: PageCardProps) {
               onValueChange={(value) => handleActionChange('spamAction', value)}
             >
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="hide" id={`hide-spam-${page.id}`} className="accent-black" />
+                <RadioGroupItem
+                  value="hide"
+                  id={`hide-spam-${page.id}`}
+                  className="accent-black"
+                />
                 <Label htmlFor={`hide-spam-${page.id}`}>
-                  Hide spam comments
+                  {t('spamDetection.hide')}
                 </Label>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="delete" id={`delete-spam-${page.id}`} className="accent-black" />
+                <RadioGroupItem
+                  value="delete"
+                  id={`delete-spam-${page.id}`}
+                  className="accent-black"
+                />
                 <Label htmlFor={`delete-spam-${page.id}`}>
-                  Delete spam comments
+                  {t('spamDetection.delete')}
                 </Label>
               </div>
             </RadioGroup>
@@ -196,7 +226,7 @@ function PageCard({ page }: PageCardProps) {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label htmlFor={`faq-${page.id}`}>
-              Intelligent Generated Replies
+              {t('intelligentFAQ.title')}
             </Label>
             <Switch
               id={`faq-${page.id}`}
@@ -220,7 +250,7 @@ function PageCard({ page }: PageCardProps) {
                 ))
               ) : (
                 <p className="text-sm text-gray-500">
-                  No FAQ rules configured yet
+                  {t('facebook.pageSettings.noFaqRules')}
                 </p>
               )}
             </div>

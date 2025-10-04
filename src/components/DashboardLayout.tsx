@@ -18,10 +18,7 @@ interface DashboardLayoutProps {
   pageTitle?: string;
 }
 
-export function DashboardLayout({
-  children,
-  pageTitle,
-}: DashboardLayoutProps) {
+export function DashboardLayout({ children, pageTitle }: DashboardLayoutProps) {
   const fullTitle = pageTitle
     ? `Bedones Moderator | ${pageTitle}`
     : 'Bedones Moderator';
@@ -47,7 +44,7 @@ export function DashboardLayout({
               </Breadcrumb>
             )}
           </header>
-          <div className="flex flex-1 flex-col gap-4 p-4">{children}</div>
+          <div className="flex flex-1 flex-col p-4">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </>

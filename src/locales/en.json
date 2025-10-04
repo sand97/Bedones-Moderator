@@ -46,7 +46,14 @@
   },
   "facebook": {
     "continue": "Continue with Facebook",
-    "disclaimer": "By continuing, you accept our Terms of Service and Privacy Policy"
+    "disclaimer": "By continuing, you accept our Terms of Service and Privacy Policy",
+    "pageSettings": {
+      "title": "Facebook Pages",
+      "description": "Manage your Facebook pages and moderation settings",
+      "noPagesFound": "No Facebook pages found. Please make sure you've granted access to your pages.",
+      "addedAgo": "Added {{time}} ago",
+      "noFaqRules": "No FAQ rules configured yet"
+    }
   },
   "validation": {
     "atLeastOneFeature": "Please enable at least one moderation feature"
@@ -139,6 +146,17 @@
     "connectedPages": "Connected Pages",
     "moderatedComments": "Moderated Comments",
     "pagesDescription": "Facebook pages connected to your account",
-    "commentsDescription": "Comments hidden or deleted by moderation"
+    "commentsDescription": "Comments hidden or deleted by moderation",
+    "undesirableComments": "Undesirable Comments",
+    "today": "Today",
+    "thisWeek": "This Week",
+    "thisMonth": "This Month",
+    "pages": "pages",
+    "unavailable": "Unavailable",
+    "settingsApplied": {
+      "success": "Settings applied successfully",
+      "successDescription": "Your moderation settings have been applied to {{count}} page(s)",
+      "error": "Failed to apply settings"
+    }
   }
 }

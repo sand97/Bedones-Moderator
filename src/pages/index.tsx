@@ -94,8 +94,11 @@ const IndexPage: NextPageWithLayout = () => {
 
           <FacebookConnectButton
             undesiredCommentsEnabled={undesiredCommentsEnabled}
+            undesiredCommentsAction={undesiredCommentsAction}
             spamDetectionEnabled={spamDetectionEnabled}
+            spamAction={spamAction}
             intelligentFAQEnabled={intelligentFAQEnabled}
+            faqItems={faqItems}
           />
         </div>
         {/* Background Illustrations */}
