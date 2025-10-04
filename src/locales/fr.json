@@ -85,6 +85,18 @@
       "unable_to_create_user": {
         "title": "Impossible de créer le compte",
         "message": "Nous n'avons pas pu créer votre compte. Cela peut être dû à un problème technique. Veuillez réessayer ou contacter le support si le problème persiste."
+      },
+      "no_user_id": {
+        "title": "Échec de l'authentification",
+        "message": "Nous n'avons pas pu récupérer vos informations utilisateur après l'authentification. Il s'agit d'un problème technique. Veuillez réessayer de vous connecter ou contacter le support si le problème persiste."
+      },
+      "no_facebook_account": {
+        "title": "Compte Facebook introuvable",
+        "message": "Nous n'avons pas trouvé la connexion à votre compte Facebook. Cela peut être dû à un problème de synchronisation. Veuillez réessayer de vous connecter ou contacter le support."
+      },
+      "sync_failed": {
+        "title": "Échec de la synchronisation des pages",
+        "message": "Nous vous avons authentifié avec succès, mais une erreur s'est produite lors de la récupération de vos pages Facebook. Veuillez contacter le support avec ce code d'erreur pour que nous puissions vous aider."
       }
     }
   },
@@ -101,5 +113,32 @@
       "message": "C'est quoi votre numéro de téléphone ?",
       "action": "Réponse automatique envoyée"
     }
+  },
+  "sidebar": {
+    "dashboard": "Tableau de bord",
+    "team": "Équipe",
+    "usage": "Utilisation",
+    "comingSoon": "Bientôt disponible",
+    "configuration": "Configuration",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "suspiciousContent": "Contenu suspect",
+    "comments": "Commentaires",
+    "users": "Utilisateurs",
+    "billing": "Facturation",
+    "paymentMethod": "Moyen de paiement",
+    "usages": "Consommation",
+    "legalMentions": "Mentions légales",
+    "needHelp": "Besoin d'aide ?",
+    "account": "Compte",
+    "logout": "Déconnexion"
+  },
+  "dashboard": {
+    "overview": "Vue d'ensemble",
+    "connectedPages": "Pages connectées",
+    "moderatedComments": "Commentaires modérés",
+    "pagesDescription": "Pages Facebook connectées à votre compte",
+    "commentsDescription": "Commentaires masqués ou supprimés par la modération"
   }
 }

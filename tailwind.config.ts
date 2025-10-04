@@ -13,6 +13,20 @@ const config: Config = {
   			md: 'calc(var(--radius) - 2px)',
   			sm: 'calc(var(--radius) - 4px)'
   		},
+  		keyframes: {
+  			'collapsible-down': {
+  				from: { height: '0' },
+  				to: { height: 'var(--radix-collapsible-content-height)' }
+  			},
+  			'collapsible-up': {
+  				from: { height: 'var(--radix-collapsible-content-height)' },
+  				to: { height: '0' }
+  			}
+  		},
+  		animation: {
+  			'collapsible-down': 'collapsible-down 0.2s ease-in-out',
+  			'collapsible-up': 'collapsible-up 0.2s ease-in-out'
+  		},
   		colors: {
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
@@ -53,6 +67,16 @@ const config: Config = {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
+  			},
+  			sidebar: {
+  				DEFAULT: 'hsl(var(--sidebar-background))',
+  				foreground: 'hsl(var(--sidebar-foreground))',
+  				primary: 'hsl(var(--sidebar-primary))',
+  				'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
+  				accent: 'hsl(var(--sidebar-accent))',
+  				'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
+  				border: 'hsl(var(--sidebar-border))',
+  				ring: 'hsl(var(--sidebar-ring))'
   			}
   		}
   	}

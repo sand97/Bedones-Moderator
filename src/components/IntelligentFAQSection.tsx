@@ -1,12 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Checkbox } from '~/components/ui/checkbox';
+import { Switch } from '~/components/ui/switch';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 import { Label } from '~/components/ui/label';
 import { Button } from '~/components/ui/button';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '~/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
 import { Textarea } from '~/components/ui/textarea';
 import { HelpInfo } from '~/components/HelpInfo';
 import { PlusIcon, EditIcon, TrashIcon } from 'lucide-react';
@@ -28,16 +35,11 @@ export function IntelligentFAQSection({
   enabled,
   onEnabledChange,
   faqItems,
-  onFaqItemsChange
+  onFaqItemsChange,
 }: IntelligentFAQSectionProps) {
   const { t } = useTranslation();
-  const [isOpen, setIsOpen] = useState(false);
   const [faqDialogOpen, setFaqDialogOpen] = useState(false);
   const [editingFAQ, setEditingFAQ] = useState<FAQItem | null>(null);
-
-  useEffect(() => {
-    setIsOpen(enabled);
-  }, [enabled]);
 
   const faqValidationSchema = Yup.object({
     assertion: Yup.string()
@@ -51,20 +53,20 @@ export function IntelligentFAQSection({
   const formik = useFormik({
     initialValues: {
       assertion: '',
-      response: ''
+      response: '',
     },
     validationSchema: faqValidationSchema,
     onSubmit: (values) => {
       if (editingFAQ) {
-        onFaqItemsChange(faqItems.map(item =>
-          item.id === editingFAQ.id
-            ? { ...item, ...values }
-            : item
-        ));
+        onFaqItemsChange(
+          faqItems.map((item) =>
+            item.id === editingFAQ.id ? { ...item, ...values } : item,
+          ),
+        );
       } else {
         const newItem: FAQItem = {
           id: Date.now().toString(),
-          ...values
+          ...values,
         };
         onFaqItemsChange([...faqItems, newItem]);
       }
@@ -78,13 +80,13 @@ export function IntelligentFAQSection({
     setEditingFAQ(item);
     formik.setValues({
       assertion: item.assertion,
-      response: item.response
+      response: item.response,
     });
     setFaqDialogOpen(true);
   };
 
   const handleDeleteFAQ = (id: string) => {
-    onFaqItemsChange(faqItems.filter(item => item.id !== id));
+    onFaqItemsChange(faqItems.filter((item) => item.id !== id));
   };
 
   const handleDialogOpenChange = (open: boolean) => {
@@ -101,25 +103,36 @@ export function IntelligentFAQSection({
   };
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center space-x-3">
-        <Checkbox
+    <div>
+      <div className="flex items-center justify-between">
+        <div className="inline-flex items-center space-x-1">
+          <Label
+            htmlFor="faq"
+            className={`text-base font-medium ${enabled ? 'text-black' : 'text-gray-600'} cursor-pointer`}
+          >
+            {t('intelligentFAQ.title')}
+          </Label>
+          <HelpInfo message={t('intelligentFAQ.description')} />
+        </div>
+        <Switch
           id="faq"
           checked={enabled}
           onCheckedChange={(checked) => onEnabledChange(!!checked)}
+          onClick={(e) => e.stopPropagation()}
         />
-        <Label htmlFor="faq" className={`text-base font-medium ${enabled ? 'text-black' : 'text-gray-600'}`}>
-          {t('intelligentFAQ.title')}
-        </Label>
-        <HelpInfo message={t('intelligentFAQ.description')} />
       </div>
 
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible open={enabled}>
         <CollapsibleContent className="mt-4 ml-6 space-y-4">
-            <div className="space-y-3">
+          <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <h4 className="text-sm font-medium">{t('intelligentFAQ.rules')} ({faqItems.length})</h4>
-              <Dialog open={faqDialogOpen} onOpenChange={handleDialogOpenChange}>
+              <h4 className="text-sm font-medium">
+                {t('intelligentFAQ.rules')} ({faqItems.length})
+              </h4>
+              <Dialog
+                open={faqDialogOpen}
+                onOpenChange={handleDialogOpenChange}
+              >
                 <DialogTrigger asChild>
                   <Button variant="outline" size="sm" onClick={handleAddNew}>
                     <PlusIcon className="h-4 w-4 mr-1" />
@@ -128,14 +141,20 @@ export function IntelligentFAQSection({
                 </DialogTrigger>
                 <DialogContent className="max-w-md">
                   <DialogHeader>
-                    <DialogTitle>{editingFAQ ? t('intelligentFAQ.editRule') : t('intelligentFAQ.addRule')}</DialogTitle>
+                    <DialogTitle>
+                      {editingFAQ
+                        ? t('intelligentFAQ.editRule')
+                        : t('intelligentFAQ.addRule')}
+                    </DialogTitle>
                     <DialogDescription>
                       {t('intelligentFAQ.configureDescription')}
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={formik.handleSubmit} className="space-y-4">
                     <div>
-                      <Label htmlFor="assertion">{t('intelligentFAQ.assertion')}</Label>
+                      <Label htmlFor="assertion">
+                        {t('intelligentFAQ.assertion')}
+                      </Label>
                       <Textarea
                         id="assertion"
                         name="assertion"
@@ -144,14 +163,22 @@ export function IntelligentFAQSection({
                         onBlur={formik.handleBlur}
                         placeholder={t('intelligentFAQ.assertionPlaceholder')}
                         rows={3}
-                        className={formik.touched.assertion && formik.errors.assertion ? 'border-red-500' : ''}
+                        className={
+                          formik.touched.assertion && formik.errors.assertion
+                            ? 'border-red-500'
+                            : ''
+                        }
                       />
                       {formik.touched.assertion && formik.errors.assertion && (
-                        <p className="text-xs text-red-500 mt-1">{formik.errors.assertion}</p>
+                        <p className="text-xs text-red-500 mt-1">
+                          {formik.errors.assertion}
+                        </p>
                       )}
                     </div>
                     <div>
-                      <Label htmlFor="response">{t('intelligentFAQ.response')}</Label>
+                      <Label htmlFor="response">
+                        {t('intelligentFAQ.response')}
+                      </Label>
                       <Textarea
                         id="response"
                         name="response"
@@ -160,18 +187,31 @@ export function IntelligentFAQSection({
                         onBlur={formik.handleBlur}
                         placeholder={t('intelligentFAQ.responsePlaceholder')}
                         rows={3}
-                        className={formik.touched.response && formik.errors.response ? 'border-red-500' : ''}
+                        className={
+                          formik.touched.response && formik.errors.response
+                            ? 'border-red-500'
+                            : ''
+                        }
                       />
                       {formik.touched.response && formik.errors.response && (
-                        <p className="text-xs text-red-500 mt-1">{formik.errors.response}</p>
+                        <p className="text-xs text-red-500 mt-1">
+                          {formik.errors.response}
+                        </p>
                       )}
                     </div>
                     <div className="flex justify-end space-x-2">
-                      <Button type="button" variant="outline" onClick={() => handleDialogOpenChange(false)}>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => handleDialogOpenChange(false)}
+                      >
                         {t('intelligentFAQ.cancel')}
                       </Button>
                       <Button type="submit" disabled={formik.isSubmitting}>
-                        {editingFAQ ? t('intelligentFAQ.update') : t('intelligentFAQ.add')} FAQ
+                        {editingFAQ
+                          ? t('intelligentFAQ.update')
+                          : t('intelligentFAQ.add')}{' '}
+                        FAQ
                       </Button>
                     </div>
                   </form>
@@ -182,11 +222,18 @@ export function IntelligentFAQSection({
             {faqItems.length > 0 && (
               <div className="space-y-2">
                 {faqItems.map((item) => (
-                  <div key={item.id} className="border rounded-lg p-3 bg-gray-50">
+                  <div
+                    key={item.id}
+                    className="border rounded-lg p-3 bg-gray-50"
+                  >
                     <div className="flex justify-between items-start">
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{t('intelligentFAQ.assertionLabel')} {item.assertion}</p>
-                        <p className="text-xs text-gray-600 mt-1">{t('intelligentFAQ.responseLabel')} {item.response}</p>
+                        <p className="text-sm font-medium">
+                          {t('intelligentFAQ.assertionLabel')} {item.assertion}
+                        </p>
+                        <p className="text-xs text-gray-600 mt-1">
+                          {t('intelligentFAQ.responseLabel')} {item.response}
+                        </p>
                       </div>
                       <div className="flex space-x-1 ml-2">
                         <Button
@@ -211,9 +258,9 @@ export function IntelligentFAQSection({
                 ))}
               </div>
             )}
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
     </div>
   );
 }

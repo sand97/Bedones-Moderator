@@ -1,20 +1,17 @@
 import { Info } from 'lucide-react';
 import { useState } from 'react';
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+} from '~/components/ui/dialog';
+import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from '~/components/ui/dialog';
-import { Button } from '~/components/ui/button';
 
 interface HelpInfoProps {
   message: string;
@@ -33,7 +30,7 @@ export function HelpInfo({ message }: HelpInfoProps) {
               <Info className="ml-2 h-4 w-4 cursor-help text-muted-foreground" />
             </TooltipTrigger>
             <TooltipContent>
-              <p className="max-w-xs">{message}</p>
+              <p className="max-w-xs text-sm">{message}</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

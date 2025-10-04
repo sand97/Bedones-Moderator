@@ -15,6 +15,37 @@ export const authRouter = router({
   }),
 
   /**
+   * Get dashboard statistics for the current user
+   */
+  getDashboardStats: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    // Count connected Facebook pages
+    const connectedPagesCount = await ctx.db.page.count({
+      where: { userId },
+    });
+
+    // Count moderated comments (hidden or deleted)
+    const moderatedCommentsCount = await ctx.db.comment.count({
+      where: {
+        action: {
+          in: ['hide', 'delete'],
+        },
+        post: {
+          page: {
+            userId,
+          },
+        },
+      },
+    });
+
+    return {
+      connectedPagesCount,
+      moderatedCommentsCount,
+    };
+  }),
+
+  /**
    * Fetch and save user's Facebook pages after OAuth
    */
   syncFacebookPages: protectedProcedure
@@ -45,6 +76,53 @@ export const authRouter = router({
         });
       }
     }),
+
+  /**
+   * Auto-sync Facebook pages using stored access token
+   */
+  autoSyncFacebookPages: protectedProcedure.mutation(async ({ ctx }) => {
+    const userId = ctx.user.id;
+
+    try {
+      // Get Facebook account with access token
+      const facebookAccount = await ctx.db.account.findFirst({
+        where: {
+          userId,
+          providerId: 'facebook',
+        },
+      });
+
+      if (!facebookAccount || !facebookAccount.accessToken) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'Facebook account or access token not found',
+        });
+      }
+
+      // Fetch pages from Facebook
+      const pages = await FacebookService.fetchUserPages(
+        facebookAccount.accessToken,
+      );
+
+      // Save pages to database
+      await FacebookService.saveUserPages(
+        userId,
+        facebookAccount.accessToken,
+        pages,
+      );
+
+      return {
+        success: true,
+        pagesCount: pages.length,
+      };
+    } catch (error) {
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to sync Facebook pages',
+        cause: error,
+      });
+    }
+  }),
 
   /**
    * Get user's connected pages

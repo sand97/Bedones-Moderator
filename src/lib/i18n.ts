@@ -3,6 +3,25 @@ import { initReactI18next } from 'react-i18next';
 import en from '../locales/en.json';
 import fr from '../locales/fr.json';
 
+// Get initial language from browser locale or default to 'fr'
+const getBrowserLanguage = () => {
+  if (typeof window !== 'undefined') {
+    // Check if running in browser
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    if (urlLang && ['en', 'fr'].includes(urlLang)) {
+      return urlLang;
+    }
+
+    // Check path for locale (Next.js i18n routing)
+    const pathMatch = window.location.pathname.match(/^\/(en|fr)\//);
+    if (pathMatch) {
+      return pathMatch[1];
+    }
+  }
+  return 'fr';
+};
+
 i18n
   .use(initReactI18next)
   .init({
@@ -14,10 +33,13 @@ i18n
         translation: fr
       }
     },
-    lng: 'fr', // default language is French
+    lng: getBrowserLanguage(),
     fallbackLng: 'fr',
     interpolation: {
       escapeValue: false
+    },
+    react: {
+      useSuspense: false
     }
   });
 

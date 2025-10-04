@@ -85,6 +85,18 @@
       "unable_to_create_user": {
         "title": "Unable to Create Account",
         "message": "We were unable to create your account. This may be due to a technical issue. Please try again or contact support if the problem persists."
+      },
+      "no_user_id": {
+        "title": "Authentication Failed",
+        "message": "We couldn't retrieve your user information after authentication. This is a technical issue. Please try signing in again or contact support if the problem persists."
+      },
+      "no_facebook_account": {
+        "title": "Facebook Account Not Found",
+        "message": "We couldn't find your Facebook account connection. This may be due to a synchronization issue. Please try signing in again or contact support."
+      },
+      "sync_failed": {
+        "title": "Page Synchronization Failed",
+        "message": "We successfully authenticated you, but encountered an error while retrieving your Facebook pages. Please contact support with this error code so we can assist you."
       }
     }
   },
@@ -101,5 +113,32 @@
       "message": "What's your phone number?",
       "action": "Auto-reply sent"
     }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "team": "Team",
+    "usage": "Usage",
+    "comingSoon": "Coming soon",
+    "configuration": "Configuration",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "tiktok": "TikTok",
+    "suspiciousContent": "Suspicious Content",
+    "comments": "Comments",
+    "users": "Users",
+    "billing": "Billing",
+    "paymentMethod": "Payment Method",
+    "usages": "Usages",
+    "legalMentions": "Legal Mentions",
+    "needHelp": "Need help?",
+    "account": "Account",
+    "logout": "Logout"
+  },
+  "dashboard": {
+    "overview": "Overview",
+    "connectedPages": "Connected Pages",
+    "moderatedComments": "Moderated Comments",
+    "pagesDescription": "Facebook pages connected to your account",
+    "commentsDescription": "Comments hidden or deleted by moderation"
   }
 }

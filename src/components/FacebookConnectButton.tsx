@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';
 import { authClient } from '~/lib/auth-client';
+import { useState, useEffect } from 'react';
+import { cn } from '~/lib/utils';
 
 interface FacebookConnectButtonProps {
   undesiredCommentsEnabled: boolean;
@@ -17,6 +19,24 @@ export function FacebookConnectButton({
 }: FacebookConnectButtonProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const [loading, setLoading] = useState(() => {
+    // Check if OAuth is in progress from sessionStorage
+    return sessionStorage.getItem('facebookOAuthInProgress') === 'true';
+  });
+
+  useEffect(() => {
+    // Clear the OAuth in progress flag on mount (in case of error/cancellation)
+    const clearFlag = () => {
+      sessionStorage.removeItem('facebookOAuthInProgress');
+    };
+
+    // Clear on visibility change (user comes back to tab)
+    document.addEventListener('visibilitychange', clearFlag);
+
+    return () => {
+      document.removeEventListener('visibilitychange', clearFlag);
+    };
+  }, []);
 
   const handleClick = async () => {
     if (
@@ -31,6 +51,10 @@ export function FacebookConnectButton({
       return;
     }
 
+    setLoading(true);
+    // Set flag in sessionStorage to persist loading state across remounts
+    sessionStorage.setItem('facebookOAuthInProgress', 'true');
+
     // Save settings to localStorage to restore after OAuth redirect
     localStorage.setItem(
       'moderationSettings',
@@ -44,25 +68,36 @@ export function FacebookConnectButton({
     );
 
     // Use Better Auth client to initiate Facebook OAuth
-    await authClient.signIn.social({
-      provider: 'facebook',
-      callbackURL: '/dashboard',
-      scopes: [
-        'pages_show_list',
-        'pages_read_user_content',
-        'pages_manage_engagement',
-        'pages_read_engagement',
-        'pages_manage_posts',
-        'pages_messaging',
-      ],
-    });
+    try {
+      await authClient.signIn.social({
+        provider: 'facebook',
+        callbackURL: '/dashboard',
+        scopes: [
+          'pages_show_list',
+          'pages_read_user_content',
+          'pages_manage_engagement',
+          'pages_read_engagement',
+          'pages_manage_posts',
+          'pages_messaging',
+        ],
+      });
+    } catch (error) {
+      console.error('Facebook OAuth failed:', error);
+      // Clear the flag on error
+      sessionStorage.removeItem('facebookOAuthInProgress');
+      setLoading(false);
+    }
   };
 
   return (
     <div className="text-center">
       <Button
+        disabled={loading}
         onClick={handleClick}
-        className="bg-black hover:bg-gray-800 text-white border border-gray-300 px-8 py-6 text-base rounded-full"
+        className={cn(
+          'bg-black hover:bg-gray-800 text-white border border-gray-300 px-8 py-6 text-base rounded-full',
+          { 'opacity-50': loading },
+        )}
       >
         <span className="mr-2 h-6 w-6 bg-white rounded-full text-black flex items-center justify-center">
           <FacebookIcon className="h-4 w-4 fill-black stroke-transparent" />

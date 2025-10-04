@@ -9,7 +9,7 @@ interface HeaderProps {
 }
 
 export function Header({ className }: HeaderProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -22,6 +22,14 @@ export function Header({ className }: HeaderProps) {
       // Go to login page
       router.push('/');
     }
+  };
+
+  const handleLanguageToggle = async () => {
+    const newLang = router.locale === 'fr' ? 'en' : 'fr';
+    // Change i18next language immediately for instant UI update
+    await i18n.changeLanguage(newLang);
+    // Update Next.js router locale
+    router.push(router.pathname, router.asPath, { locale: newLang });
   };
 
   return (
@@ -39,6 +47,13 @@ export function Header({ className }: HeaderProps) {
               {session.user.name || session.user.email}
             </span>
           )}
+          <button
+            onClick={handleLanguageToggle}
+            className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium bg-white hover:bg-gray-100 border border-gray-300 transition-colors"
+            title="Switch language"
+          >
+            {router.locale === 'en' ? 'Français' : 'English'}
+          </button>
           <Button
             variant="outline"
             className="bg-white hover:bg-gray-50"
