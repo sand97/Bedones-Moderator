@@ -29,6 +29,7 @@ interface IntelligentFAQSectionProps {
   onEnabledChange: (enabled: boolean) => void;
   faqItems: FAQItem[];
   onFaqItemsChange: (items: FAQItem[]) => void;
+  idPrefix?: string;
 }
 
 export function IntelligentFAQSection({
@@ -36,6 +37,7 @@ export function IntelligentFAQSection({
   onEnabledChange,
   faqItems,
   onFaqItemsChange,
+  idPrefix = '',
 }: IntelligentFAQSectionProps) {
   const { t } = useTranslation();
   const [faqDialogOpen, setFaqDialogOpen] = useState(false);
@@ -107,7 +109,7 @@ export function IntelligentFAQSection({
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center space-x-1">
           <Label
-            htmlFor="faq"
+            htmlFor={`${idPrefix}faq`}
             className={`text-base font-medium ${enabled ? 'text-black' : 'text-gray-600'} cursor-pointer`}
           >
             {t('intelligentFAQ.title')}
@@ -115,7 +117,7 @@ export function IntelligentFAQSection({
           <HelpInfo message={t('intelligentFAQ.description')} />
         </div>
         <Switch
-          id="faq"
+          id={`${idPrefix}faq`}
           checked={enabled}
           onCheckedChange={(checked) => onEnabledChange(!!checked)}
           onClick={(e) => e.stopPropagation()}

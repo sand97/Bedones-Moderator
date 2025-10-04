@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Switch } from '~/components/ui/switch';
 import { Collapsible, CollapsibleContent } from '~/components/ui/collapsible';
 import { Label } from '~/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
 import { HelpInfo } from '~/components/HelpInfo';
 
 interface UndesiredCommentsSectionProps {
@@ -9,6 +10,7 @@ interface UndesiredCommentsSectionProps {
   onEnabledChange: (enabled: boolean) => void;
   action: 'delete' | 'hide';
   onActionChange: (action: 'delete' | 'hide') => void;
+  idPrefix?: string;
 }
 
 export function UndesiredCommentsSection({
@@ -16,6 +18,7 @@ export function UndesiredCommentsSection({
   onEnabledChange,
   action,
   onActionChange,
+  idPrefix = '',
 }: UndesiredCommentsSectionProps) {
   const { t } = useTranslation();
 
@@ -24,7 +27,7 @@ export function UndesiredCommentsSection({
       <div className="flex items-center justify-between">
         <div className="inline-flex items-center space-x-1">
           <Label
-            htmlFor="undesired"
+            htmlFor={`${idPrefix}undesired`}
             className={`text-base font-medium ${enabled ? 'text-black' : 'text-gray-600'} cursor-pointer`}
           >
             {t('undesiredComments.title')}
@@ -32,7 +35,7 @@ export function UndesiredCommentsSection({
           <HelpInfo message={t('undesiredComments.description')} />
         </div>
         <Switch
-          id="undesired"
+          id={`${idPrefix}undesired`}
           checked={enabled}
           onCheckedChange={(checked) => onEnabledChange(!!checked)}
           onClick={(e) => e.stopPropagation()}
@@ -41,40 +44,29 @@ export function UndesiredCommentsSection({
 
       <Collapsible open={enabled}>
         <CollapsibleContent className="mt-4 ml-6 space-y-3">
-          <div className="flex items-center space-x-2">
-            <input
-              type="radio"
-              id="hide-undesired"
-              name="undesired-action"
-              value="hide"
-              checked={action === 'hide'}
-              onChange={(e) => onActionChange(e.target.value as 'hide')}
-              className="w-4 h-4 accent-black border-gray-300"
-            />
-            <Label
-              htmlFor="hide-undesired"
-              className={`text-sm ${action === 'hide' ? 'text-black' : 'text-gray-600'}`}
-            >
-              {t('undesiredComments.hide')}
-            </Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <input
-              type="radio"
-              id="delete-undesired"
-              name="undesired-action"
-              value="delete"
-              checked={action === 'delete'}
-              onChange={(e) => onActionChange(e.target.value as 'delete')}
-              className="w-4 h-4 accent-black border-gray-300"
-            />
-            <Label
-              htmlFor="delete-undesired"
-              className={`text-sm ${action === 'delete' ? 'text-black' : 'text-gray-600'}`}
-            >
-              {t('undesiredComments.delete')}
-            </Label>
-          </div>
+          <RadioGroup value={action} onValueChange={onActionChange}>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="hide" id={`${idPrefix}hide-undesired`} />
+              <Label
+                htmlFor={`${idPrefix}hide-undesired`}
+                className="text-sm cursor-pointer"
+              >
+                {t('undesiredComments.hide')}
+              </Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem
+                value="delete"
+                id={`${idPrefix}delete-undesired`}
+              />
+              <Label
+                htmlFor={`${idPrefix}delete-undesired`}
+                className="text-sm cursor-pointer"
+              >
+                {t('undesiredComments.delete')}
+              </Label>
+            </div>
+          </RadioGroup>
         </CollapsibleContent>
       </Collapsible>
     </div>

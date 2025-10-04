@@ -339,6 +339,48 @@ export const authRouter = router({
     }),
 
   /**
+   * Update FAQ rule
+   */
+  updateFAQRule: protectedProcedure
+    .input(
+      z.object({
+        ruleId: z.string(),
+        assertion: z.string().min(3),
+        response: z.string().min(3),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      // Verify rule belongs to user's page
+      const rule = await ctx.db.fAQRule.findUnique({
+        where: { id: input.ruleId },
+        include: {
+          pageSettings: {
+            include: {
+              page: true,
+            },
+          },
+        },
+      });
+
+      if (!rule || rule.pageSettings.page.userId !== ctx.user.id) {
+        throw new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'FAQ rule not found or access denied',
+        });
+      }
+
+      const updatedRule = await ctx.db.fAQRule.update({
+        where: { id: input.ruleId },
+        data: {
+          assertion: input.assertion,
+          response: input.response,
+        },
+      });
+
+      return updatedRule;
+    }),
+
+  /**
    * Delete FAQ rule
    */
   deleteFAQRule: protectedProcedure

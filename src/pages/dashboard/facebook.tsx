@@ -1,11 +1,13 @@
 import type { NextPage } from 'next';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '~/utils/trpc';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
-import { Switch } from '~/components/ui/switch';
-import { Label } from '~/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
 import { useToast } from '~/hooks/use-toast';
 import { DashboardLayout } from '~/components/DashboardLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
@@ -13,6 +15,12 @@ import { Separator } from '~/components/ui/separator';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
+import { UndesiredCommentsSection } from '~/components/UndesiredCommentsSection';
+import { SpamDetectionSection } from '~/components/SpamDetectionSection';
+import {
+  IntelligentFAQSection,
+  type FAQItem,
+} from '~/components/IntelligentFAQSection';
 
 const FacebookPage: NextPage = () => {
   const router = useRouter();
@@ -82,33 +90,176 @@ function PageCard({ page }: PageCardProps) {
   const utils = trpc.useUtils();
   const locale = i18n.language === 'fr' ? fr : enUS;
 
+  // Local state for page settings
+  const [undesiredCommentsEnabled, setUndesiredCommentsEnabled] = useState(
+    page.settings?.undesiredCommentsEnabled || false,
+  );
+  const [undesiredCommentsAction, setUndesiredCommentsAction] = useState<
+    'hide' | 'delete'
+  >((page.settings?.undesiredCommentsAction as 'hide' | 'delete') || 'hide');
+
+  const [spamDetectionEnabled, setSpamDetectionEnabled] = useState(
+    page.settings?.spamDetectionEnabled || false,
+  );
+  const [spamAction, setSpamAction] = useState<'hide' | 'delete'>(
+    (page.settings?.spamAction as 'hide' | 'delete') || 'delete',
+  );
+
+  const [intelligentFAQEnabled, setIntelligentFAQEnabled] = useState(
+    page.settings?.intelligentFAQEnabled || false,
+  );
+  const [faqItems, setFaqItems] = useState<FAQItem[]>(
+    page.settings?.faqRules?.map((rule: any) => ({
+      id: rule.id,
+      assertion: rule.assertion,
+      response: rule.response,
+    })) || [],
+  );
+
+  // Sync state when page data changes
+  useEffect(() => {
+    setUndesiredCommentsEnabled(page.settings?.undesiredCommentsEnabled || false);
+    setUndesiredCommentsAction(
+      (page.settings?.undesiredCommentsAction as 'hide' | 'delete') || 'hide',
+    );
+    setSpamDetectionEnabled(page.settings?.spamDetectionEnabled || false);
+    setSpamAction(
+      (page.settings?.spamAction as 'hide' | 'delete') || 'delete',
+    );
+    setIntelligentFAQEnabled(page.settings?.intelligentFAQEnabled || false);
+    setFaqItems(
+      page.settings?.faqRules?.map((rule: any) => ({
+        id: rule.id,
+        assertion: rule.assertion,
+        response: rule.response,
+      })) || [],
+    );
+  }, [page.settings]);
+
   const updateSettings = trpc.auth.updatePageSettings.useMutation({
     onSuccess: () => {
       toast({
-        title: 'Settings updated successfully',
+        title: t('facebook.pageSettings.settingsUpdated'),
       });
       utils.auth.getPages.invalidate();
     },
     onError: (error) => {
       toast({
         variant: 'destructive',
-        title: 'Failed to update settings',
+        title: t('facebook.pageSettings.settingsUpdateFailed'),
         description: error.message,
       });
     },
   });
 
-  const handleToggle = (field: string, value: boolean) => {
+  const addFAQRule = trpc.auth.addFAQRule.useMutation({
+    onSuccess: () => {
+      utils.auth.getPages.invalidate();
+    },
+  });
+
+  const updateFAQRule = trpc.auth.updateFAQRule.useMutation({
+    onSuccess: () => {
+      utils.auth.getPages.invalidate();
+    },
+  });
+
+  const deleteFAQRule = trpc.auth.deleteFAQRule.useMutation({
+    onSuccess: () => {
+      utils.auth.getPages.invalidate();
+    },
+  });
+
+  const handleUndesiredCommentsEnabledChange = (enabled: boolean) => {
+    setUndesiredCommentsEnabled(enabled);
     updateSettings.mutate({
       pageId: page.id,
-      [field]: value,
+      undesiredCommentsEnabled: enabled,
     });
   };
 
-  const handleActionChange = (field: string, value: string) => {
+  const handleUndesiredCommentsActionChange = (action: 'hide' | 'delete') => {
+    setUndesiredCommentsAction(action);
     updateSettings.mutate({
       pageId: page.id,
-      [field]: value,
+      undesiredCommentsAction: action,
+    });
+  };
+
+  const handleSpamDetectionEnabledChange = (enabled: boolean) => {
+    setSpamDetectionEnabled(enabled);
+    updateSettings.mutate({
+      pageId: page.id,
+      spamDetectionEnabled: enabled,
+    });
+  };
+
+  const handleSpamActionChange = (action: 'hide' | 'delete') => {
+    setSpamAction(action);
+    updateSettings.mutate({
+      pageId: page.id,
+      spamAction: action,
+    });
+  };
+
+  const handleIntelligentFAQEnabledChange = (enabled: boolean) => {
+    setIntelligentFAQEnabled(enabled);
+    updateSettings.mutate({
+      pageId: page.id,
+      intelligentFAQEnabled: enabled,
+    });
+  };
+
+  const handleFaqItemsChange = (items: FAQItem[]) => {
+    const oldItems = faqItems;
+    const newItems = items;
+
+    // Find added items (items with new IDs or temp IDs like timestamps)
+    const added = newItems.filter(
+      (newItem) => !oldItems.find((old) => old.id === newItem.id),
+    );
+
+    // Find removed items
+    const removed = oldItems.filter(
+      (oldItem) => !newItems.find((newItem) => newItem.id === oldItem.id),
+    );
+
+    // Find edited items (same ID but different content)
+    const edited = newItems.filter((newItem) => {
+      const oldItem = oldItems.find((old) => old.id === newItem.id);
+      return (
+        oldItem &&
+        (oldItem.assertion !== newItem.assertion ||
+          oldItem.response !== newItem.response)
+      );
+    });
+
+    // Update local state immediately
+    setFaqItems(items);
+
+    // Add new rules to database
+    added.forEach((item) => {
+      addFAQRule.mutate({
+        pageId: page.id,
+        assertion: item.assertion,
+        response: item.response,
+      });
+    });
+
+    // Delete removed rules from database
+    removed.forEach((item) => {
+      deleteFAQRule.mutate({
+        ruleId: item.id,
+      });
+    });
+
+    // Update edited rules in database
+    edited.forEach((item) => {
+      updateFAQRule.mutate({
+        ruleId: item.id,
+        assertion: item.assertion,
+        response: item.response,
+      });
     });
   };
 
@@ -134,128 +285,29 @@ function PageCard({ page }: PageCardProps) {
       </CardHeader>
       <Separator />
       <CardContent className="space-y-6 pt-6">
-        {/* Undesired Comments */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label htmlFor={`undesired-${page.id}`}>
-              {t('undesiredComments.title')}
-            </Label>
-            <Switch
-              id={`undesired-${page.id}`}
-              checked={page.settings?.undesiredCommentsEnabled || false}
-              onCheckedChange={(checked) =>
-                handleToggle('undesiredCommentsEnabled', checked)
-              }
-            />
-          </div>
-          {page.settings?.undesiredCommentsEnabled && (
-            <RadioGroup
-              value={page.settings?.undesiredCommentsAction || 'hide'}
-              onValueChange={(value) =>
-                handleActionChange('undesiredCommentsAction', value)
-              }
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="hide"
-                  id={`hide-undesired-${page.id}`}
-                  className="accent-black"
-                />
-                <Label htmlFor={`hide-undesired-${page.id}`}>
-                  {t('undesiredComments.hide')}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="delete"
-                  id={`delete-undesired-${page.id}`}
-                  className="accent-black"
-                />
-                <Label htmlFor={`delete-undesired-${page.id}`}>
-                  {t('undesiredComments.delete')}
-                </Label>
-              </div>
-            </RadioGroup>
-          )}
-        </div>
+        <UndesiredCommentsSection
+          enabled={undesiredCommentsEnabled}
+          onEnabledChange={handleUndesiredCommentsEnabledChange}
+          action={undesiredCommentsAction}
+          onActionChange={handleUndesiredCommentsActionChange}
+          idPrefix={`${page.id}-`}
+        />
 
-        {/* Spam Detection */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label htmlFor={`spam-${page.id}`}>
-              {t('spamDetection.title')}
-            </Label>
-            <Switch
-              id={`spam-${page.id}`}
-              checked={page.settings?.spamDetectionEnabled || false}
-              onCheckedChange={(checked) =>
-                handleToggle('spamDetectionEnabled', checked)
-              }
-            />
-          </div>
-          {page.settings?.spamDetectionEnabled && (
-            <RadioGroup
-              value={page.settings?.spamAction || 'delete'}
-              onValueChange={(value) => handleActionChange('spamAction', value)}
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="hide"
-                  id={`hide-spam-${page.id}`}
-                  className="accent-black"
-                />
-                <Label htmlFor={`hide-spam-${page.id}`}>
-                  {t('spamDetection.hide')}
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem
-                  value="delete"
-                  id={`delete-spam-${page.id}`}
-                  className="accent-black"
-                />
-                <Label htmlFor={`delete-spam-${page.id}`}>
-                  {t('spamDetection.delete')}
-                </Label>
-              </div>
-            </RadioGroup>
-          )}
-        </div>
+        <SpamDetectionSection
+          enabled={spamDetectionEnabled}
+          onEnabledChange={handleSpamDetectionEnabledChange}
+          action={spamAction}
+          onActionChange={handleSpamActionChange}
+          idPrefix={`${page.id}-`}
+        />
 
-        {/* Intelligent FAQ */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <Label htmlFor={`faq-${page.id}`}>
-              {t('intelligentFAQ.title')}
-            </Label>
-            <Switch
-              id={`faq-${page.id}`}
-              checked={page.settings?.intelligentFAQEnabled || false}
-              onCheckedChange={(checked) =>
-                handleToggle('intelligentFAQEnabled', checked)
-              }
-            />
-          </div>
-          {page.settings?.intelligentFAQEnabled && (
-            <div className="space-y-2">
-              {page.settings?.faqRules?.length > 0 ? (
-                page.settings.faqRules.map((rule: any) => (
-                  <div
-                    key={rule.id}
-                    className="p-3 bg-gray-50 rounded-lg text-sm"
-                  >
-                    <p className="font-medium">{rule.assertion}</p>
-                    <p className="text-gray-600">{rule.response}</p>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-gray-500">
-                  {t('facebook.pageSettings.noFaqRules')}
-                </p>
-              )}
-            </div>
-          )}
-        </div>
+        <IntelligentFAQSection
+          enabled={intelligentFAQEnabled}
+          onEnabledChange={handleIntelligentFAQEnabledChange}
+          faqItems={faqItems}
+          onFaqItemsChange={handleFaqItemsChange}
+          idPrefix={`${page.id}-`}
+        />
       </CardContent>
     </Card>
   );
