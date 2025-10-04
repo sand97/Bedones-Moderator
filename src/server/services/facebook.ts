@@ -1,31 +1,64 @@
 import { PrismaClient } from '@prisma/client';
-import crypto from 'crypto';
 
 const prisma = new PrismaClient();
 
-// Encryption/Decryption utilities
-const ENCRYPTION_KEY = Buffer.from(
-  process.env.BETTER_AUTH_SECRET?.slice(0, 32) || '',
-  'utf8',
-);
-const IV_LENGTH = 16;
+// Encryption/Decryption utilities using Web Crypto API (edge-compatible)
+const IV_LENGTH = 12; // GCM uses 12 bytes
 
-function encrypt(text: string): string {
-  const iv = crypto.randomBytes(IV_LENGTH);
-  const cipher = crypto.createCipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
-  let encrypted = cipher.update(text, 'utf8', 'hex');
-  encrypted += cipher.final('hex');
-  return iv.toString('hex') + ':' + encrypted;
+async function getEncryptionKey(): Promise<CryptoKey> {
+  const secret = process.env.SESSION_SECRET || '';
+  const encoder = new TextEncoder();
+  const keyMaterial = encoder.encode(secret.padEnd(32, '0').slice(0, 32));
+
+  return await crypto.subtle.importKey(
+    'raw',
+    keyMaterial,
+    { name: 'AES-GCM' },
+    false,
+    ['encrypt', 'decrypt']
+  );
 }
 
-function decrypt(text: string): string {
-  const parts = text.split(':');
-  const iv = Buffer.from(parts[0], 'hex');
-  const encryptedText = parts[1];
-  const decipher = crypto.createDecipheriv('aes-256-cbc', ENCRYPTION_KEY, iv);
-  let decrypted = decipher.update(encryptedText, 'hex', 'utf8');
-  decrypted += decipher.final('utf8');
-  return decrypted;
+async function encrypt(text: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(text);
+  const iv = crypto.getRandomValues(new Uint8Array(IV_LENGTH));
+  const key = await getEncryptionKey();
+
+  const encrypted = await crypto.subtle.encrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    data
+  );
+
+  // Combine IV and encrypted data
+  const combined = new Uint8Array(iv.length + encrypted.byteLength);
+  combined.set(iv, 0);
+  combined.set(new Uint8Array(encrypted), iv.length);
+
+  // Convert to hex
+  return Array.from(combined)
+    .map(b => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function decrypt(text: string): Promise<string> {
+  // Convert hex to bytes
+  const bytes = new Uint8Array(text.match(/.{2}/g)!.map(byte => parseInt(byte, 16)));
+
+  // Split IV and encrypted data
+  const iv = bytes.slice(0, IV_LENGTH);
+  const data = bytes.slice(IV_LENGTH);
+  const key = await getEncryptionKey();
+
+  const decrypted = await crypto.subtle.decrypt(
+    { name: 'AES-GCM', iv },
+    key,
+    data
+  );
+
+  const decoder = new TextDecoder();
+  return decoder.decode(decrypted);
 }
 
 export interface FacebookPage {
@@ -60,16 +93,19 @@ export class FacebookService {
     userId: string,
     userAccessToken: string,
     pages: FacebookPage[],
+    prismaClient?: PrismaClient,
   ) {
+    const db = prismaClient || prisma;
+
     // Encrypt user access token
-    const encryptedUserToken = encrypt(userAccessToken);
+    const encryptedUserToken = await encrypt(userAccessToken);
 
     // Get token expiry (default 60 days for long-lived tokens)
     const tokenExpiry = new Date();
     tokenExpiry.setDate(tokenExpiry.getDate() + 60);
 
     // Update user with encrypted access token
-    await prisma.user.update({
+    await db.user.update({
       where: { id: userId },
       data: {
         accessToken: encryptedUserToken,
@@ -79,9 +115,9 @@ export class FacebookService {
 
     // Save or update each page
     for (const page of pages) {
-      const encryptedPageToken = encrypt(page.access_token);
+      const encryptedPageToken = await encrypt(page.access_token);
 
-      await prisma.page.upsert({
+      await db.page.upsert({
         where: { id: page.id },
         create: {
           id: page.id,
@@ -96,7 +132,7 @@ export class FacebookService {
       });
 
       // Create default page settings if they don't exist
-      await prisma.pageSettings.upsert({
+      await db.pageSettings.upsert({
         where: { pageId: page.id },
         create: {
           pageId: page.id,
@@ -114,8 +150,9 @@ export class FacebookService {
   /**
    * Get decrypted page access token
    */
-  static async getPageAccessToken(pageId: string): Promise<string> {
-    const page = await prisma.page.findUnique({
+  static async getPageAccessToken(pageId: string, prismaClient?: PrismaClient): Promise<string> {
+    const db = prismaClient || prisma;
+    const page = await db.page.findUnique({
       where: { id: pageId },
       select: { accessToken: true },
     });
@@ -124,7 +161,7 @@ export class FacebookService {
       throw new Error('Page not found');
     }
 
-    return decrypt(page.accessToken);
+    return await decrypt(page.accessToken);
   }
 
   /**

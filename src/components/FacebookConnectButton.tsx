@@ -2,7 +2,7 @@ import { FacebookIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';
-import { authClient } from '~/lib/auth-client';
+import { signIn } from '~/lib/auth-client';
 import { useState, useEffect } from 'react';
 import { cn } from '~/lib/utils';
 import type { FAQItem } from './IntelligentFAQSection';
@@ -45,7 +45,7 @@ export function FacebookConnectButton({
     };
   }, []);
 
-  const handleClick = async () => {
+  const handleClick = () => {
     if (
       !undesiredCommentsEnabled &&
       !spamDetectionEnabled &&
@@ -75,26 +75,8 @@ export function FacebookConnectButton({
       }),
     );
 
-    // Use Better Auth client to initiate Facebook OAuth
-    try {
-      await authClient.signIn.social({
-        provider: 'facebook',
-        callbackURL: '/dashboard',
-        scopes: [
-          'pages_show_list',
-          'pages_read_user_content',
-          'pages_manage_engagement',
-          'pages_read_engagement',
-          'pages_manage_posts',
-          'pages_messaging',
-        ],
-      });
-    } catch (error) {
-      console.error('Facebook OAuth failed:', error);
-      // Clear the flag on error
-      sessionStorage.removeItem('facebookOAuthInProgress');
-      setLoading(false);
-    }
+    // Use custom auth client to initiate Facebook OAuth
+    signIn();
   };
 
   return (
