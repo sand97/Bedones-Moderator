@@ -160,5 +160,47 @@
       "successDescription": "Your moderation settings have been applied to {{count}} page(s)",
       "error": "Failed to apply settings"
     }
+  },
+  "comments": {
+    "title": "Comments",
+    "filters": {
+      "title": "Filters",
+      "description": "Filter comments by page, author, action, and date range",
+      "filter": "Filter",
+      "page": "Page",
+      "allPages": "All pages",
+      "author": "Author",
+      "authorPlaceholder": "Search by author name",
+      "action": "Action",
+      "allActions": "All actions",
+      "dateFrom": "From date",
+      "dateTo": "To date",
+      "selectDate": "Select a date",
+      "clear": "Clear filters"
+    },
+    "actions": {
+      "none": "No action",
+      "hide": "Hidden",
+      "delete": "Deleted",
+      "reply": "Replied"
+    },
+    "list": {
+      "title": "Comment History",
+      "total": "comments",
+      "noComments": "No comments found"
+    },
+    "table": {
+      "page": "Page",
+      "author": "Author",
+      "message": "Message",
+      "date": "Date",
+      "action": "Action"
+    },
+    "pagination": {
+      "showing": "Showing {{from}} to {{to}} of {{total}} comments",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{current}} of {{total}}"
+    }
   }
 }

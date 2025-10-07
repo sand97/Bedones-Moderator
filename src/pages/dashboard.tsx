@@ -8,6 +8,7 @@ import { Button } from '~/components/ui/button';
 import { DashboardLayout } from '~/components/DashboardLayout';
 import { Facebook, Instagram, ExternalLink } from 'lucide-react';
 import { cn } from '~/lib/utils';
+import { Skeleton } from '~/components/ui/skeleton';
 import {
   startOfToday,
   endOfToday,
@@ -135,6 +136,13 @@ const DashboardPage: NextPage = () => {
   useEffect(() => {
     if (!session?.user || settingsApplied || !pagesCount) return;
 
+    // Check if update is disabled via query parameter (for existing users)
+    const updateDisabled = router.query.update === 'disabled';
+    if (updateDisabled) {
+      localStorage.removeItem('moderationSettings');
+      return;
+    }
+
     const storedSettings = localStorage.getItem('moderationSettings');
     if (!storedSettings) return;
 
@@ -152,12 +160,55 @@ const DashboardPage: NextPage = () => {
       localStorage.removeItem('moderationSettings');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user, pagesCount, settingsApplied]);
+  }, [session?.user, pagesCount, settingsApplied, router.query.update]);
 
   if (sessionLoading) {
     return (
       <DashboardLayout pageTitle={t('sidebar.dashboard')}>
-        <p>Loading...</p>
+        {/* Connected Pages Section Skeleton */}
+        <div className="mb-4">
+          <Skeleton className="h-7 w-48" />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-12">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="relative overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between mb-12">
+                  <Skeleton className="h-6 w-24" />
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <Skeleton className="h-5 w-16" />
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {/* Undesirable Comments Section Skeleton */}
+        <div className="mb-4">
+          <Skeleton className="h-7 w-56" />
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="relative overflow-hidden">
+              <CardContent className="p-6">
+                <div className="mb-2">
+                  <Skeleton className="h-5 w-20" />
+                </div>
+                <div className="mb-8">
+                  <Skeleton className="h-9 w-12" />
+                </div>
+                <div className="absolute bottom-4 right-4">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </DashboardLayout>
     );
   }

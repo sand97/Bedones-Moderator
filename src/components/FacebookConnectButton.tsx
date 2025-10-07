@@ -2,8 +2,7 @@ import { FacebookIcon } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';
-import { signIn } from '~/lib/auth-client';
-import { useState, useEffect } from 'react';
+import { useAuth } from '~/hooks/useAuth';
 import { cn } from '~/lib/utils';
 import type { FAQItem } from './IntelligentFAQSection';
 
@@ -26,24 +25,7 @@ export function FacebookConnectButton({
 }: FacebookConnectButtonProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const [loading, setLoading] = useState(() => {
-    // Check if OAuth is in progress from sessionStorage
-    return sessionStorage.getItem('facebookOAuthInProgress') === 'true';
-  });
-
-  useEffect(() => {
-    // Clear the OAuth in progress flag on mount (in case of error/cancellation)
-    const clearFlag = () => {
-      sessionStorage.removeItem('facebookOAuthInProgress');
-    };
-
-    // Clear on visibility change (user comes back to tab)
-    document.addEventListener('visibilitychange', clearFlag);
-
-    return () => {
-      document.removeEventListener('visibilitychange', clearFlag);
-    };
-  }, []);
+  const { loading, signIn } = useAuth();
 
   const handleClick = () => {
     if (
@@ -57,10 +39,6 @@ export function FacebookConnectButton({
       });
       return;
     }
-
-    setLoading(true);
-    // Set flag in sessionStorage to persist loading state across remounts
-    sessionStorage.setItem('facebookOAuthInProgress', 'true');
 
     // Save settings to localStorage to restore after OAuth redirect
     localStorage.setItem(

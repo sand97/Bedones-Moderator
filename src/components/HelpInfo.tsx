@@ -24,7 +24,7 @@ export function HelpInfo({ message }: HelpInfoProps) {
     <>
       {/* Desktop: Tooltip */}
       <div className="hidden md:inline-flex">
-        <TooltipProvider>
+        <TooltipProvider delayDuration={200}>
           <Tooltip>
             <TooltipTrigger asChild>
               <Info className="ml-2 h-4 w-4 cursor-help text-muted-foreground" />

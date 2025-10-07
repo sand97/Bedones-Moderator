@@ -1,8 +1,8 @@
-import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
+import { useAuth } from '~/hooks/useAuth';
 import { cn } from '~/lib/utils';
-import { useSession, signOut } from '~/lib/auth-client';
 
 interface HeaderProps {
   className?: string;
@@ -11,17 +11,16 @@ interface HeaderProps {
 export function Header({ className }: HeaderProps) {
   const { t, i18n } = useTranslation();
   const router = useRouter();
-  const { data: session } = useSession();
+  const { session, signIn, signOut } = useAuth();
 
-  const handleAuthClick = async () => {
-    if (session?.user) {
-      // Sign out
-      await signOut();
-    } else {
-      // Go to login page
-      router.push('/');
-    }
-  };
+  // const handleAuthClick = async () => {
+  //   if (session?.user) {
+  //     await signOut();
+  //     router.push('/');
+  //   } else {
+  //     signIn();
+  //   }
+  // };
 
   const handleLanguageToggle = async () => {
     const newLang = router.locale === 'fr' ? 'en' : 'fr';
@@ -53,13 +52,13 @@ export function Header({ className }: HeaderProps) {
           >
             {router.locale === 'en' ? 'Français' : 'English'}
           </button>
-          <Button
+          {/* <Button
             variant="outline"
             className="bg-white hover:bg-gray-50"
             onClick={handleAuthClick}
           >
             {session?.user ? t('header.signOut') : t('header.connection')}
-          </Button>
+          </Button> */}
         </div>
       </div>
     </header>

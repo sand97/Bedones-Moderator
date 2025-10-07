@@ -1,14 +1,31 @@
 export const runtime = 'edge';
 
-export default async function handler(req: Request) {
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+function handleSignIn(
+  url: URL,
+  headers: Headers | NextApiRequest['headers'],
+): { location: string; setCookie: string } {
   const appId = process.env.FACEBOOK_APP_ID;
-  const appUrl = process.env.APP_URL || 'https://moderator.bedones.local';
+
+  // Get app URL from request headers (dynamic based on actual request)
+  let protocol: string;
+  let host: string;
+
+  if (headers instanceof Headers) {
+    protocol =
+      headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
+    host = headers.get('x-forwarded-host') || headers.get('host') || url.host;
+  } else {
+    protocol =
+      (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
+    host = (headers['x-forwarded-host'] as string) || headers.host! || url.host;
+  }
+
+  const appUrl = `${protocol}://${host}`;
 
   if (!appId) {
-    return new Response(JSON.stringify({ error: 'Facebook App ID not configured' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    throw new Error('Facebook App ID not configured');
   }
 
   // Generate state for CSRF protection
@@ -18,13 +35,14 @@ export default async function handler(req: Request) {
 
   // Build Facebook OAuth URL
   const redirectUri = `${appUrl}/api/auth/callback/facebook`;
+
   const scopes = [
+    // Receive webhook for Page comments
     'pages_show_list',
-    'pages_read_user_content',
-    'pages_manage_engagement',
+    'pages_manage_metadata',
+    // Delete comments
     'pages_read_engagement',
-    'pages_manage_posts',
-    'pages_messaging',
+    'pages_manage_engagement',
   ].join(',');
 
   const authUrl = new URL('https://www.facebook.com/v21.0/dialog/oauth');
@@ -48,11 +66,57 @@ export default async function handler(req: Request) {
     stateCookie.push('Secure');
   }
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      'Location': authUrl.toString(),
-      'Set-Cookie': stateCookie.join('; '),
-    },
-  });
+  return {
+    location: authUrl.toString(),
+    setCookie: stateCookie.join('; '),
+  };
+}
+
+export default async function handler(
+  req: NextApiRequest | Request,
+  res?: NextApiResponse,
+) {
+  // Check if we're in Edge runtime by testing if req is a Web Request
+  const isEdgeRuntime = req instanceof Request;
+
+  // Handle Next.js API route (Node.js runtime)
+  if (!isEdgeRuntime && res) {
+    try {
+      const nodeReq = req as NextApiRequest;
+      const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);
+
+      const result = handleSignIn(url, nodeReq.headers);
+
+      res.setHeader('Set-Cookie', result.setCookie);
+      res.setHeader('Location', result.location);
+      res.status(302).end();
+      return;
+    } catch (error) {
+      console.error('[Facebook SignIn] Error:', error);
+      res.status(500).json({ error: 'Facebook sign in failed' });
+      return;
+    }
+  }
+
+  // Handle Edge runtime (Cloudflare)
+  const request = req as Request;
+
+  try {
+    const url = new URL(request.url);
+    const result = handleSignIn(url, request.headers);
+
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: result.location,
+        'Set-Cookie': result.setCookie,
+      },
+    });
+  } catch (error) {
+    console.error('[Facebook SignIn] Error:', error);
+    return new Response(JSON.stringify({ error: 'Facebook sign in failed' }), {
+      status: 500,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
 }

@@ -160,5 +160,47 @@
       "successDescription": "Vos paramètres de modération ont été appliqués à {{count}} page(s)",
       "error": "Échec de l'application des paramètres"
     }
+  },
+  "comments": {
+    "title": "Commentaires",
+    "filters": {
+      "title": "Filtres",
+      "description": "Filtrer les commentaires par page, auteur, action et période",
+      "filter": "Filtrer",
+      "page": "Page",
+      "allPages": "Toutes les pages",
+      "author": "Auteur",
+      "authorPlaceholder": "Rechercher par nom d'auteur",
+      "action": "Action",
+      "allActions": "Toutes les actions",
+      "dateFrom": "Date de début",
+      "dateTo": "Date de fin",
+      "selectDate": "Sélectionner une date",
+      "clear": "Effacer les filtres"
+    },
+    "actions": {
+      "none": "Aucune action",
+      "hide": "Masqué",
+      "delete": "Supprimé",
+      "reply": "Répondu"
+    },
+    "list": {
+      "title": "Historique des commentaires",
+      "total": "commentaires",
+      "noComments": "Aucun commentaire trouvé"
+    },
+    "table": {
+      "page": "Page",
+      "author": "Auteur",
+      "message": "Message",
+      "date": "Date",
+      "action": "Action"
+    },
+    "pagination": {
+      "showing": "Affichage de {{from}} à {{to}} sur {{total}} commentaires",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {{current}} sur {{total}}"
+    }
   }
 }

@@ -7,7 +7,11 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
   return (
     <>
       <Head>
-        <title>Prisma Starter</title>
+        <title>Bedones | Moderator</title>
+        <meta
+          name="description"
+          content="Detect and hide/remove bad comment in your social media pages with IA"
+        />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 

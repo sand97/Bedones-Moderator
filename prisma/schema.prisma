@@ -7,7 +7,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 model User {
@@ -121,6 +122,7 @@ model Comment {
   createdTime      DateTime
   action           String // "none", "hide", "delete", "reply"
   actionReason     String? // AI explanation
+  permalinkUrl     String? // URL to the comment on Facebook
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
@@ -128,16 +130,18 @@ model Comment {
   @@index([pageId])
   @@index([fromId])
   @@index([action])
+  @@index([createdTime])
 }
 
 model Post {
-  id        String    @id // Facebook Post ID
-  pageId    String
-  page      Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  message   String?
-  comments  Comment[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id           String    @id // Facebook Post ID
+  pageId       String
+  page         Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  message      String?
+  permalinkUrl String? // URL to the post on Facebook
+  comments     Comment[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
 
   @@index([pageId])
 }
