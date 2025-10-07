@@ -46,7 +46,7 @@
   },
   "facebook": {
     "continue": "Continuer avec Facebook",
-    "disclaimer": "En continuant, vous acceptez nos Conditions Générales d'Utilisation et notre Politique de Confidentialité",
+    "disclaimer": "En continuant, vous acceptez nos <terms>Conditions Générales d'Utilisation</terms> et notre <privacy>Politique de Confidentialité</privacy>",
     "pageSettings": {
       "title": "Pages Facebook",
       "description": "Gérez vos pages Facebook et les paramètres de modération",
