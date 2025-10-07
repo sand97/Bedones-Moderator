@@ -1,5 +1,6 @@
 import { FacebookIcon } from 'lucide-react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation, Trans } from 'react-i18next';
+import Link from 'next/link';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';
 import { useAuth } from '~/hooks/useAuth';
@@ -72,7 +73,25 @@ export function FacebookConnectButton({
         </span>
         {t('facebook.continue')}
       </Button>
-      <p className="text-xs text-gray-500 mt-3">{t('facebook.disclaimer')}</p>
+      <p className="text-xs text-gray-500 mt-3">
+        <Trans
+          i18nKey="facebook.disclaimer"
+          components={{
+            terms: (
+              <Link
+                href="/terms"
+                className="underline hover:text-gray-700"
+              />
+            ),
+            privacy: (
+              <Link
+                href="/privacy"
+                className="underline hover:text-gray-700"
+              />
+            ),
+          }}
+        />
+      </p>
     </div>
   );
 }
