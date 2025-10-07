@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import type { User, Session } from '@prisma/client';
 
 // Use Web Crypto API (available in edge runtime)
-const SESSION_COOKIE_NAME = 'session';
+export const SESSION_COOKIE_NAME = 'session';
 const SESSION_EXPIRY_DAYS = 7;
 
 export interface SessionWithUser {
@@ -52,23 +52,38 @@ export async function validateSession(
   prisma: PrismaClient,
   token: string,
 ): Promise<SessionWithUser | null> {
-  const session = await prisma.session.findUnique({
-    where: { token },
-    include: { user: true },
-  });
+  try {
+    console.log('[Auth] Validating session token:', token.substring(0, 10) + '...');
 
-  if (!session) {
+    const session = await prisma.session.findUnique({
+      where: { token },
+      include: { user: true },
+    });
+
+    if (!session) {
+      console.log('[Auth] Session not found in database');
+      return null;
+    }
+
+    console.log('[Auth] Session found, checking expiry');
+    console.log('[Auth] Session expires at:', session.expiresAt);
+    console.log('[Auth] Current time:', new Date());
+
+    // Check if session is expired
+    if (session.expiresAt < new Date()) {
+      console.log('[Auth] Session expired, deleting');
+      // Delete expired session
+      await prisma.session.delete({ where: { id: session.id } });
+      return null;
+    }
+
+    console.log('[Auth] Session valid for user:', session.user.id);
+    return { session, user: session.user };
+  } catch (error) {
+    console.error('[Auth] Error validating session:', error);
+    console.error('[Auth] Error details:', error instanceof Error ? error.message : String(error));
     return null;
   }
-
-  // Check if session is expired
-  if (session.expiresAt < new Date()) {
-    // Delete expired session
-    await prisma.session.delete({ where: { id: session.id } });
-    return null;
-  }
-
-  return { session, user: session.user };
 }
 
 /**
@@ -88,6 +103,8 @@ export function getSessionTokenFromRequest(
   headers: Headers,
 ): string | null {
   const cookieHeader = headers.get('cookie');
+  console.log('[Auth] Cookie header:', cookieHeader ? 'present' : 'missing');
+
   if (!cookieHeader) return null;
 
   const cookies = cookieHeader.split(';').map((c) => c.trim());
@@ -95,7 +112,12 @@ export function getSessionTokenFromRequest(
     c.startsWith(`${SESSION_COOKIE_NAME}=`),
   );
 
-  if (!sessionCookie) return null;
+  if (!sessionCookie) {
+    console.log('[Auth] Session cookie not found. Available cookies:', cookies.map(c => c.split('=')[0]));
+    return null;
+  }
+
+  console.log('[Auth] Session cookie found');
 
   return sessionCookie.split('=')[1];
 }

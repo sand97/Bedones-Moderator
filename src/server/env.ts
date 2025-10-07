@@ -6,7 +6,9 @@
 import { z } from 'zod';
 
 const envSchema = z.object({
-  DATABASE_URL: z.string(),
+  // DATABASE_URL is optional in production when using Cloudflare D1
+  // The database connection is handled through D1 binding instead
+  DATABASE_URL: z.string().optional(),
   NODE_ENV: z.enum(['development', 'test', 'production']),
 });
 

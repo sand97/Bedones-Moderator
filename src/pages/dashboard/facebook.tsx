@@ -12,6 +12,7 @@ import { useToast } from '~/hooks/use-toast';
 import { DashboardLayout } from '~/components/DashboardLayout';
 import { Avatar, AvatarFallback, AvatarImage } from '~/components/ui/avatar';
 import { Separator } from '~/components/ui/separator';
+import { Skeleton } from '~/components/ui/skeleton';
 import { formatDistanceToNow } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +49,42 @@ const FacebookPage: NextPage = () => {
   if (sessionLoading || pagesLoading) {
     return (
       <DashboardLayout pageTitle="Facebook">
-        <p>Loading...</p>
+        <div className="grid gap-6 md:grid-cols-2">
+          {[1, 2].map((i) => (
+            <Card key={i}>
+              <CardHeader>
+                <div className="flex items-center gap-4">
+                  <Skeleton className="h-12 w-12 rounded-full" />
+                  <div className="flex-1">
+                    <Skeleton className="h-6 w-32 mb-2" />
+                    <Skeleton className="h-4 w-24" />
+                  </div>
+                </div>
+              </CardHeader>
+              <Separator />
+              <CardContent className="space-y-6 pt-6">
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-6 w-11 rounded-full" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <Skeleton className="h-6 w-40" />
+                    <Skeleton className="h-6 w-11 rounded-full" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between mb-4">
+                    <Skeleton className="h-6 w-36" />
+                    <Skeleton className="h-6 w-11 rounded-full" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </DashboardLayout>
     );
   }

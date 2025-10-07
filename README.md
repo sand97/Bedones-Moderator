@@ -130,27 +130,72 @@ https://moderator.bedones.local/api/auth/callback/facebook
 Your D1 database is already configured in `wrangler.toml`:
 
 ```toml
-[[env.production.d1_databases]]
+[[d1_databases]]
 binding = "moderateur_bedones_db"
 database_name = "moderateur-bedones-db"
 database_id = "0d7ab73c-d8d6-443d-b3ac-cc3a7adb1028"
 ```
 
-### 2. Run Migrations on Cloudflare D1
+### 2. Database Migrations
+
+#### Initial Setup (First Time Only)
+
+When deploying for the first time, apply the initial schema to your remote D1 database:
 
 ```bash
-# Apply migrations to remote D1 database
-npm run cf:migrate
+# Generate SQL migration from Prisma schema
+npx prisma migrate diff \
+  --from-empty \
+  --to-schema-datamodel ./prisma/schema.prisma \
+  --script > init.sql
+
+# Apply to remote D1 database
+npx wrangler d1 execute moderateur-bedones-db --remote --file=init.sql
+
+# Clean up
+rm init.sql
 ```
+
+#### Schema Updates (After Changing prisma/schema.prisma)
+
+When you update your Prisma schema, follow these steps:
+
+**1. Update local development database:**
+```bash
+npx prisma migrate dev --name description_of_change
+```
+
+**2. Generate and apply migration to production:**
+```bash
+# Generate migration SQL from the schema change
+npx prisma migrate diff \
+  --from-empty \
+  --to-schema-datamodel ./prisma/schema.prisma \
+  --script > migration.sql
+
+# Apply to remote D1 database
+npx wrangler d1 execute moderateur-bedones-db --remote --file=migration.sql
+
+# Clean up
+rm migration.sql
+```
+
+**Note:** D1 doesn't track Prisma migrations like traditional databases. Always verify your schema changes before applying to production.
 
 ### 3. Deploy to Cloudflare Pages
 
+**Quick Deploy (Build + Deploy):**
 ```bash
-# Build for production
-npm run build
+npm run build-deploy-cf
+```
+
+**Or step by step:**
+```bash
+# Build for production with Cloudflare adapter
+npm run build:cf
 
 # Deploy to Cloudflare Pages
-npm run deploy
+npx wrangler pages deploy .vercel/output/static
 ```
 
 ### 4. Preview Locally with D1
@@ -162,19 +207,28 @@ npm run preview
 
 ## 📜 Available Scripts
 
+### Development
 - `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run start` - Start production server
+- `npm run generate` - Generate Prisma client
+- `npm run prisma-studio` - Open Prisma Studio
+- `npm run db-seed` - Seed database
+
+### Database Migrations
+- `npm run migrate-dev` - Run migrations on local database
+- `npm run migrate` - Deploy migrations (for CI/CD)
+
+### Testing & Quality
 - `npm run lint` - Run ESLint
 - `npm run typecheck` - Run TypeScript checks
 - `npm run test-unit` - Run unit tests
 - `npm run test-e2e` - Run E2E tests
-- `npm run generate` - Generate Prisma client
-- `npm run prisma-studio` - Open Prisma Studio
-- `npm run db-seed` - Seed database
-- `npm run deploy` - Deploy to Cloudflare
-- `npm run preview` - Preview with Cloudflare Workers
-- `npm run cf:migrate` - Run migrations on Cloudflare D1
+
+### Build & Deploy
+- `npm run build` - Build Next.js for production
+- `npm run build:cf` - Build with Cloudflare adapter
+- `npm run build-deploy-cf` - Build and deploy to Cloudflare Pages
+- `npm run preview` - Preview with Cloudflare Workers locally
+- `npm run start` - Start production server (Node.js)
 
 ## 🏗️ Project Structure
 

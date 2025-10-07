@@ -15,7 +15,7 @@ async function getEncryptionKey(): Promise<CryptoKey> {
     keyMaterial,
     { name: 'AES-GCM' },
     false,
-    ['encrypt', 'decrypt']
+    ['encrypt', 'decrypt'],
   );
 }
 
@@ -28,7 +28,7 @@ async function encrypt(text: string): Promise<string> {
   const encrypted = await crypto.subtle.encrypt(
     { name: 'AES-GCM', iv },
     key,
-    data
+    data,
   );
 
   // Combine IV and encrypted data
@@ -38,13 +38,15 @@ async function encrypt(text: string): Promise<string> {
 
   // Convert to hex
   return Array.from(combined)
-    .map(b => b.toString(16).padStart(2, '0'))
+    .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 }
 
 async function decrypt(text: string): Promise<string> {
   // Convert hex to bytes
-  const bytes = new Uint8Array(text.match(/.{2}/g)!.map(byte => parseInt(byte, 16)));
+  const bytes = new Uint8Array(
+    text.match(/.{2}/g)!.map((byte) => parseInt(byte, 16)),
+  );
 
   // Split IV and encrypted data
   const iv = bytes.slice(0, IV_LENGTH);
@@ -54,7 +56,7 @@ async function decrypt(text: string): Promise<string> {
   const decrypted = await crypto.subtle.decrypt(
     { name: 'AES-GCM', iv },
     key,
-    data
+    data,
   );
 
   const decoder = new TextDecoder();
@@ -144,13 +146,33 @@ export class FacebookService {
         },
         update: {},
       });
+
+      // Subscribe page to webhook
+      try {
+        const response = await this.subscribePageToWebhook(
+          page.id,
+          page.access_token,
+        );
+        console.log(
+          `[Facebook Webhook] ✓ Subscribed page ${page.id} (${page.name}) to webhook`,
+          response,
+        );
+      } catch (error) {
+        console.error(
+          `[Facebook Webhook] ✗ Failed to subscribe page ${page.id} (${page.name}):`,
+          error,
+        );
+      }
     }
   }
 
   /**
    * Get decrypted page access token
    */
-  static async getPageAccessToken(pageId: string, prismaClient?: PrismaClient): Promise<string> {
+  static async getPageAccessToken(
+    pageId: string,
+    prismaClient?: PrismaClient,
+  ): Promise<string> {
     const db = prismaClient || prisma;
     const page = await db.page.findUnique({
       where: { id: pageId },
@@ -181,6 +203,7 @@ export class FacebookService {
     );
 
     if (!response.ok) {
+      console.error(response);
       throw new Error(`Failed to hide comment: ${response.statusText}`);
     }
   }
@@ -200,6 +223,7 @@ export class FacebookService {
     );
 
     if (!response.ok) {
+      console.error(response);
       throw new Error(`Failed to delete comment: ${response.statusText}`);
     }
   }
@@ -222,8 +246,32 @@ export class FacebookService {
     );
 
     if (!response.ok) {
+      console.error(response);
       throw new Error(`Failed to reply to comment: ${response.statusText}`);
     }
+  }
+
+  /**
+   * Subscribe a page to the app's webhook
+   */
+  static async subscribePageToWebhook(
+    pageId: string,
+    pageAccessToken: string,
+  ): Promise<{ success: boolean }> {
+    const response = await fetch(
+      `https://graph.facebook.com/v21.0/${pageId}/subscribed_apps?subscribed_fields=feed&access_token=${pageAccessToken}`,
+      {
+        method: 'POST',
+      },
+    );
+
+    if (!response.ok) {
+      console.error(response);
+      const error = await response.text();
+      throw new Error(`Failed to subscribe page to webhook: ${error}`);
+    }
+
+    return await response.json();
   }
 
   /**

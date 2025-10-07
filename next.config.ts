@@ -28,7 +28,7 @@ export default {
     unoptimized: true,
   },
   /** Allow cross-origin requests for development */
-  allowedDevOrigins: ['https://moderator.bedones.local'],
+  allowedDevOrigins: ['moderator.bedones.local', 'moderator.bedones.com'],
   /** i18n configuration */
   i18n: {
     locales: ['fr', 'en'],

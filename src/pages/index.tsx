@@ -1,20 +1,18 @@
-import type { NextPageWithLayout } from './_app';
-import type { GetServerSideProps } from 'next';
-import { useState, useEffect } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Card, CardContent } from '~/components/ui/card';
+import { useRouter } from 'next/router';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { FacebookConnectButton } from '~/components/FacebookConnectButton';
 import { Header } from '~/components/Header';
-import { UndesiredCommentsSection } from '~/components/UndesiredCommentsSection';
-import { SpamDetectionSection } from '~/components/SpamDetectionSection';
 import {
   IntelligentFAQSection,
   type FAQItem,
 } from '~/components/IntelligentFAQSection';
-import { FacebookConnectButton } from '~/components/FacebookConnectButton';
-import { MessageIllustration } from '~/components/MessageIllustration';
+import { SpamDetectionSection } from '~/components/SpamDetectionSection';
+import { Card, CardContent } from '~/components/ui/card';
+import { UndesiredCommentsSection } from '~/components/UndesiredCommentsSection';
 import { useSession } from '~/lib/auth-client';
+import type { NextPageWithLayout } from './_app';
 
 const IndexPage: NextPageWithLayout = () => {
   const { t } = useTranslation();
