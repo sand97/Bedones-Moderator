@@ -1,10 +1,15 @@
-import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
 interface AIAnalysisResult {
   action: 'none' | 'hide' | 'delete' | 'reply';
   reason: string;
   replyMessage?: string;
+}
+
+interface FAQRule {
+  assertion: string;
+  response: string;
 }
 
 interface CommentContext {
@@ -20,19 +25,20 @@ interface CommentContext {
     spamDetectionEnabled: boolean;
     spamAction: 'hide' | 'delete';
     intelligentFAQEnabled: boolean;
+    faqRules: FAQRule[];
   };
 }
 
 export class AIService {
-  private static xaiClient: Anthropic | null = null;
+  private static xaiClient: OpenAI | null = null;
   private static geminiClient: GoogleGenerativeAI | null = null;
 
-  private static getXAIClient(): Anthropic | null {
+  private static getXAIClient(): OpenAI | null {
     if (!process.env.XAI_API_KEY) {
       return null;
     }
     if (!this.xaiClient) {
-      this.xaiClient = new Anthropic({
+      this.xaiClient = new OpenAI({
         apiKey: process.env.XAI_API_KEY,
         baseURL: 'https://api.x.ai/v1',
       });
@@ -107,14 +113,25 @@ export class AIService {
 
     if (pageSettings.intelligentFAQEnabled) {
       capabilities.push(
-        '- Respond to frequently asked questions with helpful, friendly replies',
+        '- Respond to frequently asked questions with helpful, friendly replies based on the FAQ rules below',
       );
+    }
+
+    let faqSection = '';
+    if (pageSettings.intelligentFAQEnabled && pageSettings.faqRules.length > 0) {
+      faqSection = `\n\nFAQ Rules (Use these to automatically reply to user questions):
+${pageSettings.faqRules.map((rule, index) =>
+  `${index + 1}. When: ${rule.assertion}
+   Reply with: ${rule.response}`
+).join('\n')}
+
+IMPORTANT: When a user's comment matches one of the FAQ assertions above, you MUST use the "reply" action and provide the corresponding response as the replyMessage. Adapt the response slightly to match the user's question naturally, but keep the core information from the FAQ rule.`;
     }
 
     const prompt = `You are a Facebook page comment moderator AI. Your task is to analyze comments and decide what action to take.
 
 Available capabilities:
-${capabilities.join('\n')}
+${capabilities.join('\n')}${faqSection}
 
 Available actions:
 - "hide": Hide the comment from public view
@@ -133,6 +150,7 @@ Guidelines:
 - Be fair and balanced in your moderation decisions
 - Only take action when clearly warranted by the comment content
 - For FAQ replies, be helpful, friendly, and concise
+- When a comment matches an FAQ rule, ALWAYS use the "reply" action with the appropriate response
 - Consider context and intent, not just keywords
 - Prioritize user experience and community safety`;
 
@@ -150,27 +168,32 @@ Provide your analysis and recommended action.`;
   }
 
   private static async analyzeWithGrok(
-    client: Anthropic,
+    client: OpenAI,
     systemPrompt: string,
     userMessage: string,
   ): Promise<AIAnalysisResult> {
-    const response = await client.messages.create({
+    const response = await client.chat.completions.create({
       model: 'grok-2-1212',
       max_tokens: 1024,
+      temperature: 0.7,
       messages: [
         {
+          role: 'system',
+          content: systemPrompt,
+        },
+        {
           role: 'user',
-          content: `${systemPrompt}\n\n${userMessage}`,
+          content: userMessage,
         },
       ],
     });
 
-    const content = response.content[0];
-    if (content.type !== 'text') {
-      throw new Error('Unexpected response type from Grok');
+    const content = response.choices[0]?.message?.content;
+    if (!content) {
+      throw new Error('No content in Grok response');
     }
 
-    return this.parseAIResponse(content.text);
+    return this.parseAIResponse(content);
   }
 
   private static async analyzeWithGemini(
@@ -196,7 +219,8 @@ Provide your analysis and recommended action.`;
 
   private static parseAIResponse(text: string): AIAnalysisResult {
     // Try to extract JSON from the response
-    const jsonMatch = text.match(/\{[\s\S]*\}/);
+    const jsonRegex = /\{[\s\S]*\}/;
+    const jsonMatch = jsonRegex.exec(text);
     if (!jsonMatch) {
       throw new Error('No JSON found in AI response');
     }
