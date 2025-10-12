@@ -1,8 +1,9 @@
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { FacebookConnectButton } from '~/components/FacebookConnectButton';
+import { InstagramConnectButton } from '~/components/InstagramConnectButton';
 import { Header } from '~/components/Header';
 import {
   IntelligentFAQSection,
@@ -13,6 +14,7 @@ import { Card, CardContent } from '~/components/ui/card';
 import { UndesiredCommentsSection } from '~/components/UndesiredCommentsSection';
 import { useSession } from '~/lib/auth-client';
 import type { NextPageWithLayout } from './_app';
+import Link from 'next/link';
 
 const IndexPage: NextPageWithLayout = () => {
   const { t } = useTranslation();
@@ -90,14 +92,45 @@ const IndexPage: NextPageWithLayout = () => {
             </Card>
           </div>
 
-          <FacebookConnectButton
-            undesiredCommentsEnabled={undesiredCommentsEnabled}
-            undesiredCommentsAction={undesiredCommentsAction}
-            spamDetectionEnabled={spamDetectionEnabled}
-            spamAction={spamAction}
-            intelligentFAQEnabled={intelligentFAQEnabled}
-            faqItems={faqItems}
-          />
+          <div className="flex flex-col gap-4 items-center">
+            <div className="max-w-full w-80 flex flex-col gap-2">
+              <FacebookConnectButton
+                undesiredCommentsEnabled={undesiredCommentsEnabled}
+                undesiredCommentsAction={undesiredCommentsAction}
+                spamDetectionEnabled={spamDetectionEnabled}
+                spamAction={spamAction}
+                intelligentFAQEnabled={intelligentFAQEnabled}
+                faqItems={faqItems}
+              />
+              <InstagramConnectButton
+                undesiredCommentsEnabled={undesiredCommentsEnabled}
+                undesiredCommentsAction={undesiredCommentsAction}
+                spamDetectionEnabled={spamDetectionEnabled}
+                spamAction={spamAction}
+                intelligentFAQEnabled={intelligentFAQEnabled}
+                faqItems={faqItems}
+              />
+            </div>
+            <p className="text-xs text-center text-gray-500 mt-3">
+              <Trans
+                i18nKey="instagram.disclaimer"
+                components={{
+                  terms: (
+                    <Link
+                      href="/terms"
+                      className="underline hover:text-gray-700"
+                    />
+                  ),
+                  privacy: (
+                    <Link
+                      href="/privacy"
+                      className="underline hover:text-gray-700"
+                    />
+                  ),
+                }}
+              />
+            </p>
+          </div>
         </div>
         {/* Background Illustrations */}
         {/* <div className="flex flex-col lg:flex-row justify-around lg:items-end items-center gap-8 lg:pt-16 py-8 px-8 pointer-events-none z-0">

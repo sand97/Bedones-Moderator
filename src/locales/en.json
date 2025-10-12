@@ -54,7 +54,30 @@
       "addedAgo": "Added {{time}} ago",
       "noFaqRules": "No FAQ rules configured yet",
       "settingsUpdated": "Settings updated successfully",
-      "settingsUpdateFailed": "Failed to update settings"
+      "settingsUpdateFailed": "Failed to update settings",
+      "addPage": "Add Page",
+      "editPages": "Refresh Pages",
+      "refreshing": "Refreshing...",
+      "pagesRefreshed": "Pages refreshed successfully",
+      "refreshFailed": "Failed to refresh pages"
+    }
+  },
+  "instagram": {
+    "continue": "Continue with Instagram",
+    "disclaimer": "By continuing, you accept our <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>",
+    "accountSettings": {
+      "title": "Instagram Accounts",
+      "description": "Manage your Instagram business accounts and moderation settings",
+      "noAccountsFound": "No Instagram business accounts found. Please make sure you've connected your Instagram business account to a Facebook page.",
+      "addedAgo": "Added {{time}} ago",
+      "noFaqRules": "No FAQ rules configured yet",
+      "settingsUpdated": "Settings updated successfully",
+      "settingsUpdateFailed": "Failed to update settings",
+      "addAccount": "Add Account",
+      "editAccounts": "Refresh Accounts",
+      "refreshing": "Refreshing...",
+      "accountsRefreshed": "Accounts refreshed successfully",
+      "refreshFailed": "Failed to refresh accounts"
     }
   },
   "validation": {
@@ -134,7 +157,7 @@
     "tiktok": "TikTok",
     "suspiciousContent": "Suspicious Content",
     "comments": "Comments",
-    "users": "Users",
+    "followers": "Followers",
     "billing": "Billing",
     "paymentMethod": "Payment Method",
     "usages": "Usages",
@@ -198,6 +221,37 @@
     },
     "pagination": {
       "showing": "Showing {{from}} to {{to}} of {{total}} comments",
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{current}} of {{total}}"
+    }
+  },
+  "followers": {
+    "title": "Followers",
+    "description": "View followers and their comment activity across your pages",
+    "filters": {
+      "title": "Filters",
+      "description": "Filter followers by page and name",
+      "filter": "Filter",
+      "page": "Page",
+      "allPages": "All pages",
+      "follower": "Follower Name",
+      "followerPlaceholder": "Search by follower name",
+      "clear": "Clear filters"
+    },
+    "list": {
+      "title": "Followers List",
+      "total": "followers",
+      "noFollowers": "No followers found"
+    },
+    "table": {
+      "follower": "Follower",
+      "page": "Page",
+      "comments": "Comments",
+      "suspectComments": "{{suspect}} suspect / {{total}} total"
+    },
+    "pagination": {
+      "showing": "Showing {{from}} to {{to}} of {{total}} followers",
       "previous": "Previous",
       "next": "Next",
       "page": "Page {{current}} of {{total}}"

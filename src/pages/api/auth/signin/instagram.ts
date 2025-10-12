@@ -7,7 +7,7 @@ function handleSignIn(
   url: URL,
   headers: Headers | NextApiRequest['headers'],
 ): { location: string; setCookie: string } {
-  const appId = process.env.FACEBOOK_APP_ID;
+  const appId = process.env.INSTAGRAM_APP_ID;
 
   // Get app URL from request headers (dynamic based on actual request)
   let protocol: string;
@@ -26,7 +26,7 @@ function handleSignIn(
   const appUrl = `${protocol}://${host}`;
 
   if (!appId) {
-    throw new Error('Facebook App ID not configured');
+    throw new Error('Instagram App ID not configured');
   }
 
   // Generate state for CSRF protection
@@ -34,20 +34,16 @@ function handleSignIn(
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
 
-  // Build Facebook OAuth URL
-  const redirectUri = `${appUrl}/api/auth/callback/facebook`;
+  // Build Instagram OAuth URL (Instagram Platform API with Instagram Login)
+  const redirectUri = `${appUrl}/api/auth/callback/instagram`;
 
   const scopes = [
-    // Receive webhook for Page comments
-    'pages_show_list',
-    'pages_manage_metadata',
-    'pages_read_user_content',
-    // Delete comments
-    'pages_read_engagement',
-    'pages_manage_engagement',
+    // Instagram Platform API scopes
+    'instagram_business_basic', // Required base scope
+    'instagram_business_manage_comments', // For reading, hiding, deleting, and replying to comments
   ].join(',');
 
-  const authUrl = new URL('https://www.facebook.com/v21.0/dialog/oauth');
+  const authUrl = new URL('https://www.instagram.com/oauth/authorize');
   authUrl.searchParams.set('client_id', appId);
   authUrl.searchParams.set('redirect_uri', redirectUri);
   authUrl.searchParams.set('scope', scopes);
@@ -57,7 +53,7 @@ function handleSignIn(
   // Store state in cookie for verification in callback
   const isProduction = process.env.NODE_ENV === 'production';
   const stateCookie = [
-    `oauth_state=${state}`,
+    `oauth_state_instagram=${state}`,
     'Path=/',
     'HttpOnly',
     'SameSite=Lax',
@@ -94,8 +90,8 @@ export default async function handler(
       res.status(302).end();
       return;
     } catch (error) {
-      console.error('[Facebook SignIn] Error:', error);
-      res.status(500).json({ error: 'Facebook sign in failed' });
+      console.error('[Instagram SignIn] Error:', error);
+      res.status(500).json({ error: 'Instagram sign in failed' });
       return;
     }
   }
@@ -115,8 +111,8 @@ export default async function handler(
       },
     });
   } catch (error) {
-    console.error('[Facebook SignIn] Error:', error);
-    return new Response(JSON.stringify({ error: 'Facebook sign in failed' }), {
+    console.error('[Instagram SignIn] Error:', error);
+    return new Response(JSON.stringify({ error: 'Instagram sign in failed' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });

@@ -1,9 +1,13 @@
 // @ts-check
 
-import { NextConfig } from 'next';
-import { env } from './src/server/env';
+// Setup Cloudflare bindings for local development
+if (process.env.NODE_ENV === 'development') {
+  const { setupDevPlatform } = await import('@cloudflare/next-on-pages/next-dev');
+  await setupDevPlatform();
+}
 
 /**
+ * @type {import('next').NextConfig}
  * @see https://nextjs.org/docs/api-reference/next.config.js/introduction
  */
 export default {
@@ -13,7 +17,7 @@ export default {
    * @see https://nextjs.org/docs/api-reference/next.config.js/runtime-configuration
    */
   publicRuntimeConfig: {
-    NODE_ENV: env.NODE_ENV,
+    NODE_ENV: process.env.NODE_ENV,
   },
   /** We run eslint as a separate task in CI */
   eslint: {
@@ -34,4 +38,4 @@ export default {
     locales: ['fr', 'en'],
     defaultLocale: 'fr',
   },
-} satisfies NextConfig;
+};

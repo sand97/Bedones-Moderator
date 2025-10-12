@@ -35,7 +35,7 @@ export class AIService {
 
   private static getXAIClient(): OpenAI | null {
     if (!process.env.XAI_API_KEY) {
-      return null;
+      throw new Error('XAI_API_KEY is not provided in secrets/environement');
     }
     if (!this.xaiClient) {
       this.xaiClient = new OpenAI({
@@ -48,7 +48,7 @@ export class AIService {
 
   private static getGeminiClient(): GoogleGenerativeAI | null {
     if (!process.env.GEMINI_API_KEY) {
-      return null;
+      throw new Error('GEMINI_API_KEY is not provided in secrets/environement');
     }
     if (!this.geminiClient) {
       this.geminiClient = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
@@ -69,11 +69,7 @@ export class AIService {
       // Try Grok 4 first
       const xaiClient = this.getXAIClient();
       if (xaiClient) {
-        return await this.analyzeWithGrok(
-          xaiClient,
-          systemPrompt,
-          userMessage,
-        );
+        return await this.analyzeWithGrok(xaiClient, systemPrompt, userMessage);
       }
     } catch (error) {
       console.error('Grok 4 analysis failed:', error);
@@ -96,7 +92,9 @@ export class AIService {
     throw new Error('No AI service available');
   }
 
-  private static buildSystemPrompt(pageSettings: CommentContext['pageSettings']): string {
+  private static buildSystemPrompt(
+    pageSettings: CommentContext['pageSettings'],
+  ): string {
     const capabilities: string[] = [];
 
     if (pageSettings.undesiredCommentsEnabled) {
@@ -118,12 +116,18 @@ export class AIService {
     }
 
     let faqSection = '';
-    if (pageSettings.intelligentFAQEnabled && pageSettings.faqRules.length > 0) {
+    if (
+      pageSettings.intelligentFAQEnabled &&
+      pageSettings.faqRules.length > 0
+    ) {
       faqSection = `\n\nFAQ Rules (Use these to automatically reply to user questions):
-${pageSettings.faqRules.map((rule, index) =>
-  `${index + 1}. When: ${rule.assertion}
-   Reply with: ${rule.response}`
-).join('\n')}
+${pageSettings.faqRules
+  .map(
+    (rule, index) =>
+      `${index + 1}. When: ${rule.assertion}
+   Reply with: ${rule.response}`,
+  )
+  .join('\n')}
 
 IMPORTANT: When a user's comment matches one of the FAQ assertions above, you MUST use the "reply" action and provide the corresponding response as the replyMessage. Adapt the response slightly to match the user's question naturally, but keep the core information from the FAQ rule.`;
     }
@@ -173,7 +177,7 @@ Provide your analysis and recommended action.`;
     userMessage: string,
   ): Promise<AIAnalysisResult> {
     const response = await client.chat.completions.create({
-      model: 'grok-2-1212',
+      model: 'grok-4-fast-non-reasoning-latest',
       max_tokens: 1024,
       temperature: 0.7,
       messages: [
@@ -202,7 +206,7 @@ Provide your analysis and recommended action.`;
     userMessage: string,
   ): Promise<AIAnalysisResult> {
     const model = client.getGenerativeModel({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-2.5-flash',
       generationConfig: {
         responseMimeType: 'application/json',
       },

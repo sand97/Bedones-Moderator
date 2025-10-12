@@ -38,6 +38,11 @@ yarn-error.log*
 *.db
 *.db-journal
 
+# prevent nested prisma directory
+prisma/prisma/
 
 # testing
 playwright/test-results
+
+
+.idea

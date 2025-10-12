@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { protectedProcedure, router } from '../trpc';
+import type { Prisma } from '@prisma/client';
+import { TRPCError } from '@trpc/server';
 
 export const commentsRouter = router({
   /**
@@ -10,44 +12,56 @@ export const commentsRouter = router({
       z.object({
         pageId: z.preprocess(
           (val) => (val === '' ? undefined : val),
-          z.string().optional()
+          z.string().optional(),
         ),
         authorName: z.preprocess(
           (val) => (val === '' ? undefined : val),
-          z.string().optional()
+          z.string().optional(),
         ),
         action: z.preprocess(
           (val) => (val === '' ? undefined : val),
-          z.enum(['none', 'hide', 'delete', 'reply']).optional()
+          z.enum(['none', 'hide', 'delete', 'reply']).optional(),
         ),
         dateFrom: z.preprocess(
           (val) => (val === '' ? undefined : val),
-          z.string().optional()
+          z.string().optional(),
         ),
         dateTo: z.preprocess(
           (val) => (val === '' ? undefined : val),
-          z.string().optional()
+          z.string().optional(),
         ),
         page: z.number().min(1).default(1),
         pageSize: z.number().min(1).max(100).default(20),
       }),
     )
     .query(async ({ ctx, input }) => {
-      const { pageId, authorName, action, dateFrom, dateTo, page, pageSize } = input;
+      const { pageId, authorName, action, dateFrom, dateTo, page, pageSize } =
+        input;
+
+      // Get all page IDs for the current user
+      const userPages = await ctx.db.page.findMany({
+        where: { userId: ctx.user.id },
+        select: { id: true },
+      });
+
+      const pagesIds = userPages.map((p) => p.id);
 
       // Build where clause
-      const where: any = {};
+      const where: Prisma.CommentWhereInput = {
+        fromId: { notIn: pagesIds },
+      };
 
       // Only show comments from pages owned by the current user
       if (pageId) {
+        if (!pagesIds.includes(pageId)) {
+          throw new TRPCError({
+            code: 'UNAUTHORIZED',
+            message: "You don't have access to this page",
+          });
+        }
         where.pageId = pageId;
       } else {
-        // Get all page IDs for the current user
-        const userPages = await ctx.db.page.findMany({
-          where: { userId: ctx.user.id },
-          select: { id: true },
-        });
-        where.pageId = { in: userPages.map((p) => p.id) };
+        where.pageId = { in: pagesIds };
       }
 
       if (authorName) {

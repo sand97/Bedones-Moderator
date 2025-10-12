@@ -96,8 +96,6 @@ export function AppSidebar() {
           label: t('sidebar.instagram'),
           icon: <Instagram />,
           href: '/dashboard/instagram',
-          disabled: true,
-          comingSoon: true,
         },
         {
           id: 'tiktok',
@@ -119,10 +117,10 @@ export function AppSidebar() {
           href: '/dashboard/comments',
         },
         {
-          id: 'utilisateurs',
-          label: t('sidebar.users'),
+          id: 'followers',
+          label: t('sidebar.followers'),
           icon: <Users />,
-          href: '/dashboard/users',
+          href: '/dashboard/followers',
         },
       ],
     },
