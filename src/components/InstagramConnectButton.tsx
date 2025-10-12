@@ -1,13 +1,13 @@
-import { FacebookIcon } from 'lucide-react';
-import { useTranslation, Trans } from 'react-i18next';
-import Link from 'next/link';
+import { Instagram } from 'lucide-react';
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';
-import { useAuth } from '~/hooks/useAuth';
+import { signInWithInstagram } from '~/lib/auth-client';
 import { cn } from '~/lib/utils';
 import type { FAQItem } from './IntelligentFAQSection';
 
-interface FacebookConnectButtonProps {
+interface InstagramConnectButtonProps {
   undesiredCommentsEnabled: boolean;
   undesiredCommentsAction: 'hide' | 'delete';
   spamDetectionEnabled: boolean;
@@ -16,17 +16,17 @@ interface FacebookConnectButtonProps {
   faqItems: FAQItem[];
 }
 
-export function FacebookConnectButton({
+export function InstagramConnectButton({
   undesiredCommentsEnabled,
   undesiredCommentsAction,
   spamDetectionEnabled,
   spamAction,
   intelligentFAQEnabled,
   faqItems,
-}: FacebookConnectButtonProps) {
+}: InstagramConnectButtonProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
-  const { loading, signIn } = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const handleClick = () => {
     if (
@@ -54,23 +54,23 @@ export function FacebookConnectButton({
       }),
     );
 
-    // Use custom auth client to initiate Facebook OAuth
-    signIn();
+    setLoading(true);
+    // Use custom auth client to initiate Instagram OAuth
+    signInWithInstagram();
   };
 
   return (
     <Button
       disabled={loading}
       onClick={handleClick}
+      variant="outline"
       className={cn(
-        'w-full bg-black hover:bg-gray-800 text-white border border-gray-300 px-8 py-6 text-base rounded-full',
+        'w-full border-2 border-gray-300 hover:border-gray-400 px-8 py-5 text-base rounded-full',
         { 'opacity-50': loading },
       )}
     >
-      <span className="mr-2 h-6 w-6 bg-white rounded-full text-black flex items-center justify-center">
-        <FacebookIcon className="h-4 w-4 fill-black stroke-transparent" />
-      </span>
-      {t('facebook.continue')}
+      <Instagram className="mr-2 h-5 w-5" />
+      {t('instagram.continue')}
     </Button>
   );
 }

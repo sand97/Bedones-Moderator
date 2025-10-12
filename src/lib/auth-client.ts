@@ -51,6 +51,13 @@ export function signIn() {
 }
 
 /**
+ * Initiate Instagram sign-in
+ */
+export function signInWithInstagram() {
+  window.location.href = '/api/auth/signin/instagram';
+}
+
+/**
  * Sign out the current user
  */
 export function useSignOut() {

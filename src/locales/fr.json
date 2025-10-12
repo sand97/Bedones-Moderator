@@ -54,7 +54,30 @@
       "addedAgo": "Ajoutée il y a {{time}}",
       "noFaqRules": "Aucune règle FAQ configurée pour le moment",
       "settingsUpdated": "Paramètres mis à jour avec succès",
-      "settingsUpdateFailed": "Échec de la mise à jour des paramètres"
+      "settingsUpdateFailed": "Échec de la mise à jour des paramètres",
+      "addPage": "Ajouter une page",
+      "editPages": "Actualiser les pages",
+      "refreshing": "Actualisation...",
+      "pagesRefreshed": "Pages actualisées avec succès",
+      "refreshFailed": "Échec de l'actualisation des pages"
+    }
+  },
+  "instagram": {
+    "continue": "Continuer avec Instagram",
+    "disclaimer": "En continuant, vous acceptez nos <terms>Conditions Générales d'Utilisation</terms> et notre <privacy>Politique de Confidentialité</privacy>",
+    "accountSettings": {
+      "title": "Comptes Instagram",
+      "description": "Gérez vos comptes Instagram professionnels et les paramètres de modération",
+      "noAccountsFound": "Aucun compte Instagram professionnel trouvé. Veuillez vous assurer que votre compte Instagram professionnel est connecté à une page Facebook.",
+      "addedAgo": "Ajouté il y a {{time}}",
+      "noFaqRules": "Aucune règle FAQ configurée pour le moment",
+      "settingsUpdated": "Paramètres mis à jour avec succès",
+      "settingsUpdateFailed": "Échec de la mise à jour des paramètres",
+      "addAccount": "Ajouter un compte",
+      "editAccounts": "Actualiser les comptes",
+      "refreshing": "Actualisation...",
+      "accountsRefreshed": "Comptes actualisés avec succès",
+      "refreshFailed": "Échec de l'actualisation des comptes"
     }
   },
   "validation": {
@@ -134,7 +157,7 @@
     "tiktok": "TikTok",
     "suspiciousContent": "Contenu suspect",
     "comments": "Commentaires",
-    "users": "Utilisateurs",
+    "followers": "Abonnés",
     "billing": "Facturation",
     "paymentMethod": "Moyen de paiement",
     "usages": "Consommation",
@@ -198,6 +221,37 @@
     },
     "pagination": {
       "showing": "Affichage de {{from}} à {{to}} sur {{total}} commentaires",
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {{current}} sur {{total}}"
+    }
+  },
+  "followers": {
+    "title": "Abonnés",
+    "description": "Consultez les abonnés et leur activité de commentaire sur vos pages",
+    "filters": {
+      "title": "Filtres",
+      "description": "Filtrer les abonnés par page et nom",
+      "filter": "Filtrer",
+      "page": "Page",
+      "allPages": "Toutes les pages",
+      "follower": "Nom de l'abonné",
+      "followerPlaceholder": "Rechercher par nom d'abonné",
+      "clear": "Effacer les filtres"
+    },
+    "list": {
+      "title": "Liste des abonnés",
+      "total": "abonnés",
+      "noFollowers": "Aucun abonné trouvé"
+    },
+    "table": {
+      "follower": "Abonné",
+      "page": "Page",
+      "comments": "Commentaires",
+      "suspectComments": "{{suspect}} suspect / {{total}} total"
+    },
+    "pagination": {
+      "showing": "Affichage de {{from}} à {{to}} sur {{total}} abonnés",
       "previous": "Précédent",
       "next": "Suivant",
       "page": "Page {{current}} sur {{total}}"

@@ -11,6 +11,11 @@ generator client {
   previewFeatures = ["driverAdapters"]
 }
 
+enum Provider {
+  FACEBOOK
+  INSTAGRAM
+}
+
 model User {
   id                String    @id @default(cuid())
   email             String?   @unique
@@ -18,7 +23,8 @@ model User {
   image             String?
   emailVerified     Boolean   @default(false)
   facebookId        String?   @unique
-  accessToken       String? // Encrypted Facebook access token
+  instagramId       String?   @unique
+  accessToken       String? // Encrypted access token
   accessTokenExpiry DateTime?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
@@ -72,17 +78,22 @@ model Verification {
 }
 
 model Page {
-  id                   String        @id // Facebook Page ID
-  name                 String
-  accessToken          String // Encrypted page-specific access token
-  userId               String
-  user                 User          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  settings             PageSettings?
-  posts                Post[]
-  createdAt            DateTime      @default(now())
-  updatedAt            DateTime      @updatedAt
+  id                String        @id // Page/Account ID (Facebook Page ID or Instagram Account ID)
+  provider          Provider      @default(FACEBOOK)
+  name              String
+  username          String? // Instagram username (null for Facebook)
+  profilePictureUrl String? // Profile picture (mainly for Instagram)
+  followersCount    Int? // For Instagram
+  accessToken       String // Encrypted page-specific access token
+  userId            String
+  user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  settings          PageSettings?
+  posts             Post[]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
   @@index([userId])
+  @@index([provider])
 }
 
 model PageSettings {
@@ -134,11 +145,11 @@ model Comment {
 }
 
 model Post {
-  id           String    @id // Facebook Post ID
+  id           String    @id // Post ID (Facebook Post ID or Instagram Media ID)
   pageId       String
   page         Page      @relation(fields: [pageId], references: [id], onDelete: Cascade)
-  message      String?
-  permalinkUrl String? // URL to the post on Facebook
+  message      String? // Post message/caption
+  permalinkUrl String? // URL to the post
   comments     Comment[]
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt

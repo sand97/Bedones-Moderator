@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '~/utils/trpc';
-import { signIn } from '~/lib/auth-client';
+import { signInWithInstagram } from '~/lib/auth-client';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { useToast } from '~/hooks/use-toast';
 import { DashboardLayout } from '~/components/DashboardLayout';
@@ -19,35 +19,33 @@ import {
   type FAQItem,
 } from '~/components/IntelligentFAQSection';
 
-const FacebookPage: NextPage = () => {
+const InstagramPage: NextPage = () => {
   const router = useRouter();
   const { toast } = useToast();
   const { t } = useTranslation();
   const { data: session, isLoading: sessionLoading } =
     trpc.auth.getSession.useQuery();
-  const { data: allPages, isLoading: pagesLoading } = trpc.auth.getPages.useQuery(
-    undefined,
-    {
+  const { data: allAccounts, isLoading: accountsLoading } =
+    trpc.auth.getInstagramAccounts.useQuery(undefined, {
       enabled: !!session?.user,
-    },
-  );
+    });
 
-  // Filter to show only Facebook pages
-  const pages = allPages?.filter((page) => page.provider === 'FACEBOOK');
+  // Filter to show only Instagram accounts
+  const accounts = allAccounts?.filter((account) => account.provider === 'INSTAGRAM');
 
   const utils = trpc.useUtils();
 
-  const reconnectPages = trpc.auth.autoSyncFacebookPages.useMutation({
+  const reconnectAccounts = trpc.auth.autoSyncInstagramAccounts.useMutation({
     onSuccess: () => {
       toast({
-        title: t('facebook.pageSettings.pagesRefreshed'),
+        title: t('instagram.accountSettings.accountsRefreshed'),
       });
-      utils.auth.getPages.invalidate();
+      utils.auth.getInstagramAccounts.invalidate();
     },
     onError: (error) => {
       toast({
         variant: 'destructive',
-        title: t('facebook.pageSettings.refreshFailed'),
+        title: t('instagram.accountSettings.refreshFailed'),
         description: error.message,
       });
     },
@@ -61,9 +59,9 @@ const FacebookPage: NextPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, sessionLoading]);
 
-  if (sessionLoading || pagesLoading) {
+  if (sessionLoading || accountsLoading) {
     return (
-      <DashboardLayout pageTitle="Facebook">
+      <DashboardLayout pageTitle="Instagram">
         <div className="grid gap-6 md:grid-cols-2">
           {[1, 2].map((i) => (
             <Card key={i}>
@@ -109,11 +107,11 @@ const FacebookPage: NextPage = () => {
   }
 
   return (
-    <DashboardLayout pageTitle={t('facebook.pageSettings.title')}>
+    <DashboardLayout pageTitle={t('instagram.accountSettings.title')}>
       <div className="mb-6 flex gap-3">
         <button
-          onClick={() => signIn()}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          onClick={() => signInWithInstagram()}
+          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 border border-transparent rounded-md hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
         >
           <svg
             className="h-4 w-4"
@@ -129,24 +127,24 @@ const FacebookPage: NextPage = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          {t('facebook.pageSettings.addPage')}
+          {t('instagram.accountSettings.addAccount')}
         </button>
       </div>
 
-      {pages && pages.length === 0 && (
+      {accounts && accounts.length === 0 && (
         <Card>
           <CardContent className="p-6">
             <p className="text-gray-500">
-              {t('facebook.pageSettings.noPagesFound')}
+              {t('instagram.accountSettings.noAccountsFound')}
             </p>
           </CardContent>
         </Card>
       )}
 
-      {pages && pages.length > 0 && (
+      {accounts && accounts.length > 0 && (
         <div className="grid gap-6 md:grid-cols-2">
-          {pages.map((page) => (
-            <PageCard key={page.id} page={page} />
+          {accounts.map((account) => (
+            <AccountCard key={account.id} account={account} />
           ))}
         </div>
       )}
@@ -154,100 +152,103 @@ const FacebookPage: NextPage = () => {
   );
 };
 
-interface PageCardProps {
-  page: any;
+interface AccountCardProps {
+  account: any;
 }
 
-function PageCard({ page }: PageCardProps) {
+function AccountCard({ account }: AccountCardProps) {
   const { toast } = useToast();
   const { t, i18n } = useTranslation();
   const utils = trpc.useUtils();
   const locale = i18n.language === 'fr' ? fr : enUS;
 
-  // Local state for page settings
+  // Local state for account settings
   const [undesiredCommentsEnabled, setUndesiredCommentsEnabled] = useState(
-    page.settings?.undesiredCommentsEnabled || false,
+    account.settings?.undesiredCommentsEnabled || false,
   );
   const [undesiredCommentsAction, setUndesiredCommentsAction] = useState<
     'hide' | 'delete'
-  >((page.settings?.undesiredCommentsAction as 'hide' | 'delete') || 'hide');
+  >((account.settings?.undesiredCommentsAction as 'hide' | 'delete') || 'hide');
 
   const [spamDetectionEnabled, setSpamDetectionEnabled] = useState(
-    page.settings?.spamDetectionEnabled || false,
+    account.settings?.spamDetectionEnabled || false,
   );
   const [spamAction, setSpamAction] = useState<'hide' | 'delete'>(
-    (page.settings?.spamAction as 'hide' | 'delete') || 'delete',
+    (account.settings?.spamAction as 'hide' | 'delete') || 'delete',
   );
 
   const [intelligentFAQEnabled, setIntelligentFAQEnabled] = useState(
-    page.settings?.intelligentFAQEnabled || false,
+    account.settings?.intelligentFAQEnabled || false,
   );
   const [faqItems, setFaqItems] = useState<FAQItem[]>(
-    page.settings?.faqRules?.map((rule: any) => ({
+    account.settings?.faqRules?.map((rule: any) => ({
       id: rule.id,
       assertion: rule.assertion,
       response: rule.response,
     })) || [],
   );
 
-  // Sync state when page data changes
+  // Sync state when account data changes
   useEffect(() => {
     setUndesiredCommentsEnabled(
-      page.settings?.undesiredCommentsEnabled || false,
+      account.settings?.undesiredCommentsEnabled || false,
     );
     setUndesiredCommentsAction(
-      (page.settings?.undesiredCommentsAction as 'hide' | 'delete') || 'hide',
+      (account.settings?.undesiredCommentsAction as 'hide' | 'delete') ||
+        'hide',
     );
-    setSpamDetectionEnabled(page.settings?.spamDetectionEnabled || false);
-    setSpamAction((page.settings?.spamAction as 'hide' | 'delete') || 'delete');
-    setIntelligentFAQEnabled(page.settings?.intelligentFAQEnabled || false);
+    setSpamDetectionEnabled(account.settings?.spamDetectionEnabled || false);
+    setSpamAction(
+      (account.settings?.spamAction as 'hide' | 'delete') || 'delete',
+    );
+    setIntelligentFAQEnabled(account.settings?.intelligentFAQEnabled || false);
     setFaqItems(
-      page.settings?.faqRules?.map((rule: any) => ({
+      account.settings?.faqRules?.map((rule: any) => ({
         id: rule.id,
         assertion: rule.assertion,
         response: rule.response,
       })) || [],
     );
-  }, [page.settings]);
+  }, [account.settings]);
 
-  const updateSettings = trpc.auth.updatePageSettings.useMutation({
+  const updateSettings = trpc.auth.updateInstagramAccountSettings.useMutation({
     onSuccess: () => {
       toast({
-        title: t('facebook.pageSettings.settingsUpdated'),
+        title: t('instagram.accountSettings.settingsUpdated'),
       });
-      utils.auth.getPages.invalidate();
+      utils.auth.getInstagramAccounts.invalidate();
     },
     onError: (error) => {
       toast({
         variant: 'destructive',
-        title: t('facebook.pageSettings.settingsUpdateFailed'),
+        title: t('instagram.accountSettings.settingsUpdateFailed'),
         description: error.message,
       });
     },
   });
 
-  const addFAQRule = trpc.auth.addFAQRule.useMutation({
+  const addFAQRule = trpc.auth.addInstagramFAQRule.useMutation({
     onSuccess: () => {
-      utils.auth.getPages.invalidate();
+      utils.auth.getInstagramAccounts.invalidate();
     },
   });
 
-  const updateFAQRule = trpc.auth.updateFAQRule.useMutation({
+  const updateFAQRule = trpc.auth.updateInstagramFAQRule.useMutation({
     onSuccess: () => {
-      utils.auth.getPages.invalidate();
+      utils.auth.getInstagramAccounts.invalidate();
     },
   });
 
-  const deleteFAQRule = trpc.auth.deleteFAQRule.useMutation({
+  const deleteFAQRule = trpc.auth.deleteInstagramFAQRule.useMutation({
     onSuccess: () => {
-      utils.auth.getPages.invalidate();
+      utils.auth.getInstagramAccounts.invalidate();
     },
   });
 
   const handleUndesiredCommentsEnabledChange = (enabled: boolean) => {
     setUndesiredCommentsEnabled(enabled);
     updateSettings.mutate({
-      pageId: page.id,
+      accountId: account.id,
       undesiredCommentsEnabled: enabled,
     });
   };
@@ -255,7 +256,7 @@ function PageCard({ page }: PageCardProps) {
   const handleUndesiredCommentsActionChange = (action: 'hide' | 'delete') => {
     setUndesiredCommentsAction(action);
     updateSettings.mutate({
-      pageId: page.id,
+      accountId: account.id,
       undesiredCommentsAction: action,
     });
   };
@@ -263,7 +264,7 @@ function PageCard({ page }: PageCardProps) {
   const handleSpamDetectionEnabledChange = (enabled: boolean) => {
     setSpamDetectionEnabled(enabled);
     updateSettings.mutate({
-      pageId: page.id,
+      accountId: account.id,
       spamDetectionEnabled: enabled,
     });
   };
@@ -271,7 +272,7 @@ function PageCard({ page }: PageCardProps) {
   const handleSpamActionChange = (action: 'hide' | 'delete') => {
     setSpamAction(action);
     updateSettings.mutate({
-      pageId: page.id,
+      accountId: account.id,
       spamAction: action,
     });
   };
@@ -279,7 +280,7 @@ function PageCard({ page }: PageCardProps) {
   const handleIntelligentFAQEnabledChange = (enabled: boolean) => {
     setIntelligentFAQEnabled(enabled);
     updateSettings.mutate({
-      pageId: page.id,
+      accountId: account.id,
       intelligentFAQEnabled: enabled,
     });
   };
@@ -288,7 +289,7 @@ function PageCard({ page }: PageCardProps) {
     const oldItems = faqItems;
     const newItems = items;
 
-    // Find added items (items with new IDs or temp IDs like timestamps)
+    // Find added items
     const added = newItems.filter(
       (newItem) => !oldItems.find((old) => old.id === newItem.id),
     );
@@ -298,7 +299,7 @@ function PageCard({ page }: PageCardProps) {
       (oldItem) => !newItems.find((newItem) => newItem.id === oldItem.id),
     );
 
-    // Find edited items (same ID but different content)
+    // Find edited items
     const edited = newItems.filter((newItem) => {
       const oldItem = oldItems.find((old) => old.id === newItem.id);
       return (
@@ -314,7 +315,7 @@ function PageCard({ page }: PageCardProps) {
     // Add new rules to database
     added.forEach((item) => {
       addFAQRule.mutate({
-        pageId: page.id,
+        accountId: account.id,
         assertion: item.assertion,
         response: item.response,
       });
@@ -337,21 +338,26 @@ function PageCard({ page }: PageCardProps) {
     });
   };
 
-  const pageAvatarUrl = `https://graph.facebook.com/${page.id}/picture?type=large`;
-
   return (
     <Card>
       <CardHeader>
         <div className="flex items-center gap-4">
           <Avatar className="h-12 w-12">
-            <AvatarImage src={pageAvatarUrl} alt={page.name} />
-            <AvatarFallback>{page.name.charAt(0)}</AvatarFallback>
+            <AvatarImage
+              src={account.profilePictureUrl || undefined}
+              alt={account.username}
+            />
+            <AvatarFallback>
+              {account.username.charAt(0).toUpperCase()}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1">
-            <CardTitle className="mb-1">{page.name}</CardTitle>
+            <CardTitle className="mb-1">@{account.username}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              {t('facebook.pageSettings.addedAgo', {
-                time: formatDistanceToNow(new Date(page.createdAt), { locale }),
+              {t('instagram.accountSettings.addedAgo', {
+                time: formatDistanceToNow(new Date(account.createdAt), {
+                  locale,
+                }),
               })}
             </p>
           </div>
@@ -364,7 +370,7 @@ function PageCard({ page }: PageCardProps) {
           onEnabledChange={handleUndesiredCommentsEnabledChange}
           action={undesiredCommentsAction}
           onActionChange={handleUndesiredCommentsActionChange}
-          idPrefix={`${page.id}-`}
+          idPrefix={`${account.id}-`}
         />
 
         <SpamDetectionSection
@@ -372,7 +378,7 @@ function PageCard({ page }: PageCardProps) {
           onEnabledChange={handleSpamDetectionEnabledChange}
           action={spamAction}
           onActionChange={handleSpamActionChange}
-          idPrefix={`${page.id}-`}
+          idPrefix={`${account.id}-`}
         />
 
         <IntelligentFAQSection
@@ -380,11 +386,11 @@ function PageCard({ page }: PageCardProps) {
           onEnabledChange={handleIntelligentFAQEnabledChange}
           faqItems={faqItems}
           onFaqItemsChange={handleFaqItemsChange}
-          idPrefix={`${page.id}-`}
+          idPrefix={`${account.id}-`}
         />
       </CardContent>
     </Card>
   );
 }
 
-export default FacebookPage;
+export default InstagramPage;

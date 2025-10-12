@@ -1,3 +1,4 @@
+// Use edge runtime for Cloudflare deployment
 export const runtime = 'edge';
 
 /**

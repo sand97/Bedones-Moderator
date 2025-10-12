@@ -3,67 +3,60 @@ export const runtime = 'edge';
 
 import { getRequestContext } from '@cloudflare/next-on-pages';
 import { createPrismaWithD1, prisma as defaultPrisma } from '~/server/prisma';
-import { FacebookService } from '~/server/services/facebook';
+import { InstagramService } from '~/server/services/instagram';
 import { AIService } from '~/server/services/ai';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-interface FacebookWebhookFrom {
+interface InstagramWebhookFrom {
   id: string;
-  name: string;
+  username: string;
 }
 
-interface FacebookWebhookPost {
-  status_type: string;
-  is_published: boolean;
-  updated_time: string;
-  permalink_url: string;
-  promotion_status: string;
+interface InstagramWebhookMedia {
   id: string;
+  media_product_type?: string;
+  permalink?: string;
 }
 
-interface FacebookWebhookChangeValue {
-  from: FacebookWebhookFrom;
-  post?: FacebookWebhookPost;
-  message: string;
-  post_id: string;
-  comment_id: string;
-  created_time: number;
-  item: string;
-  parent_id: string;
-  verb: string;
+interface InstagramWebhookChangeValue {
+  from: InstagramWebhookFrom;
+  media?: InstagramWebhookMedia;
+  id: string; // comment ID
+  text: string;
+  timestamp?: string;
 }
 
-interface FacebookWebhookChange {
-  value: FacebookWebhookChangeValue;
-  field: string;
+interface InstagramWebhookChange {
+  value: InstagramWebhookChangeValue;
+  field: string; // 'comments' or 'mentions'
 }
 
-interface FacebookWebhookEntry {
-  id: string;
+interface InstagramWebhookEntry {
+  id: string; // Instagram account ID
   time: number;
-  changes: FacebookWebhookChange[];
+  changes: InstagramWebhookChange[];
 }
 
-interface FacebookWebhookPayload {
-  object: string;
-  entry: FacebookWebhookEntry[];
+interface InstagramWebhookPayload {
+  object: string; // 'instagram'
+  entry: InstagramWebhookEntry[];
 }
 
 /**
- * Verify the webhook signature from Facebook using Web Crypto API
+ * Verify the webhook signature from Instagram using Web Crypto API
  */
 async function verifySignature(
   payload: string,
   signature: string | undefined,
 ): Promise<boolean> {
-  if (!signature || !process.env.FACEBOOK_APP_SECRET) {
+  if (!signature || !process.env.INSTAGRAM_APP_SECRET) {
     return false;
   }
 
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     'raw',
-    encoder.encode(process.env.FACEBOOK_APP_SECRET),
+    encoder.encode(process.env.INSTAGRAM_APP_SECRET),
     { name: 'HMAC', hash: 'SHA-256' },
     false,
     ['sign'],
@@ -83,7 +76,7 @@ async function verifySignature(
 }
 
 /**
- * Handle webhook verification challenge from Facebook
+ * Handle webhook verification challenge from Instagram
  */
 function handleVerification(url: URL): { status: number; body: string } {
   const mode = url.searchParams.get('hub.mode');
@@ -92,55 +85,57 @@ function handleVerification(url: URL): { status: number; body: string } {
 
   if (
     mode === 'subscribe' &&
-    token === process.env.FACEBOOK_WEBHOOK_VERIFY_TOKEN
+    token === process.env.INSTAGRAM_WEBHOOK_VERIFY_TOKEN
   ) {
-    console.log('Webhook verified successfully');
+    console.log('Instagram webhook verified successfully');
     return { status: 200, body: challenge || '' };
   } else {
-    console.error('Webhook verification failed');
+    console.error('Instagram webhook verification failed');
     return { status: 403, body: 'Forbidden' };
   }
 }
 
 /**
- * Process a comment webhook notification
+ * Process a comment webhook notification from Instagram
  */
 async function processCommentNotification(
-  entry: FacebookWebhookEntry,
+  entry: InstagramWebhookEntry,
   prisma: any,
 ) {
   for (const change of entry.changes) {
-    if (change.field !== 'feed' || change.value.item !== 'comment') {
+    if (change.field !== 'comments') {
       continue;
     }
 
-    const { comment_id, post_id, from, message, created_time, post } =
-      change.value;
+    const { id: commentId, text, from, media, timestamp } = change.value;
 
-    // Extract page ID from entry
-    const pageId = entry.id;
+    // Extract Instagram account ID from entry
+    const instagramAccountId = entry.id;
 
     // Build permalink URLs
-    const postPermalinkUrl = post?.permalink_url || null;
-    const commentPermalinkUrl = postPermalinkUrl
-      ? `${postPermalinkUrl}?comment_id=${comment_id}`
+    const mediaPermalinkUrl = media?.permalink || null;
+    const mediaId = media?.id || null;
+    const commentPermalinkUrl = mediaPermalinkUrl
+      ? `${mediaPermalinkUrl}`
       : null;
 
     try {
-      // Get page and settings from database
+      // Get Instagram account (stored as Page with provider INSTAGRAM) and settings from database
       const page = await prisma.page.findUnique({
-        where: { id: pageId },
+        where: { id: instagramAccountId, provider: 'INSTAGRAM' },
         include: {
           settings: {
             include: {
-              faqRules: true
-            }
-          }
+              faqRules: true,
+            },
+          },
         },
       });
 
       if (!page?.settings) {
-        console.error(`Page ${pageId} not found or has no settings`);
+        console.error(
+          `Instagram account ${instagramAccountId} not found or has no settings`,
+        );
         continue;
       }
 
@@ -150,17 +145,22 @@ async function processCommentNotification(
         !page.settings.spamDetectionEnabled &&
         !page.settings.intelligentFAQEnabled
       ) {
-        console.log('All moderation features disabled for this page');
+        console.log(
+          'All moderation features disabled for this Instagram account',
+        );
         continue;
       }
 
       // Analyze comment with AI
       const analysis = await AIService.analyzeComment({
         comment: {
-          id: comment_id,
-          message,
-          from,
-          created_time: new Date(created_time * 1000).toISOString(),
+          id: commentId,
+          message: text,
+          from: {
+            id: from.id,
+            name: from.username,
+          },
+          created_time: timestamp || new Date().toISOString(),
         },
         pageSettings: {
           undesiredCommentsEnabled: page.settings.undesiredCommentsEnabled,
@@ -174,81 +174,93 @@ async function processCommentNotification(
         },
       });
 
-      console.log('AI analysis:', analysis);
+      console.log('AI analysis for Instagram comment:', analysis);
 
-      // Get page access token
-      const pageAccessToken = await FacebookService.getPageAccessToken(
-        pageId,
+      // Get Instagram account access token
+      const accessToken = await InstagramService.getInstagramAccessToken(
+        instagramAccountId,
         prisma,
       );
+
+      console.log('[Instagram Webhook] Access token length:', accessToken.length);
+      console.log('[Instagram Webhook] Access token (first 30 chars):', accessToken.substring(0, 30));
+      console.log('[Instagram Webhook] Access token (last 30 chars):', accessToken.substring(accessToken.length - 30));
 
       // Execute action based on AI analysis
       switch (analysis.action) {
         case 'hide':
-          await FacebookService.hideComment(comment_id, pageAccessToken);
-          console.log(`Hidden comment ${comment_id}: ${analysis.reason}`);
+          await InstagramService.hideComment(commentId, accessToken);
+          console.log(
+            `Hidden Instagram comment ${commentId}: ${analysis.reason}`,
+          );
           break;
 
         case 'delete':
-          await FacebookService.deleteComment(comment_id, pageAccessToken);
-          console.log(`Deleted comment ${comment_id}: ${analysis.reason}`);
+          await InstagramService.deleteComment(commentId, accessToken);
+          console.log(
+            `Deleted Instagram comment ${commentId}: ${analysis.reason}`,
+          );
           break;
 
         case 'reply':
           if (analysis.replyMessage) {
-            await FacebookService.replyToComment(
-              comment_id,
+            await InstagramService.replyToComment(
+              commentId,
               analysis.replyMessage,
-              pageAccessToken,
+              accessToken,
             );
-            console.log(`Replied to comment ${comment_id}: ${analysis.reason}`);
+            console.log(
+              `Replied to Instagram comment ${commentId}: ${analysis.reason}`,
+            );
           }
           break;
 
         case 'none':
           console.log(
-            `No action for comment ${comment_id}: ${analysis.reason}`,
+            `No action for Instagram comment ${commentId}: ${analysis.reason}`,
           );
           break;
       }
 
-      // Ensure post exists in database
-      await prisma.post.upsert({
-        where: { id: post_id },
-        create: {
-          id: post_id,
-          pageId,
-          permalinkUrl: postPermalinkUrl,
-        },
-        update: {
-          permalinkUrl: postPermalinkUrl,
-        },
-      });
+      // Ensure media/post exists in database
+      if (mediaId) {
+        await prisma.post.upsert({
+          where: { id: mediaId },
+          create: {
+            id: mediaId,
+            pageId: instagramAccountId,
+            permalinkUrl: mediaPermalinkUrl,
+          },
+          update: {
+            permalinkUrl: mediaPermalinkUrl,
+          },
+        });
+      }
 
       // Log the action in database (upsert in case comment is edited)
       await prisma.comment.upsert({
-        where: { id: comment_id },
+        where: { id: commentId },
         create: {
-          id: comment_id,
-          postId: post_id,
-          pageId,
-          message,
+          id: commentId,
+          postId: mediaId || 'unknown',
+          pageId: instagramAccountId,
+          message: text,
           fromId: from.id,
-          fromName: from.name,
-          createdTime: new Date(created_time * 1000),
+          fromName: from.username,
+          createdTime: timestamp ? new Date(timestamp) : new Date(),
           action: analysis.action,
           actionReason: analysis.reason,
           permalinkUrl: commentPermalinkUrl,
         },
         update: {
-          message,
+          message: text,
           action: analysis.action,
           actionReason: analysis.reason,
           permalinkUrl: commentPermalinkUrl,
         },
       });
     } catch (error) {
-      console.error(`Error processing comment ${comment_id}:`, error);
+      console.error(`Error processing Instagram comment ${commentId}:`, error);
     }
   }
 }
@@ -266,17 +278,20 @@ export default async function handler(
   // Handle Next.js API route (Node.js runtime - local dev)
   if (!isEdgeRuntime && res) {
     try {
-      console.log('[Webhook] Node.js runtime');
+      console.log('[Instagram Webhook] Node.js runtime');
 
       if (!defaultPrisma) {
-        console.error('[Webhook] No Prisma client available');
+        console.error('[Instagram Webhook] No Prisma client available');
         return res.status(500).end('Database not configured');
       }
 
       const nodeReq = req;
       const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);
 
-      console.log('[Webhook] Handler called, method:', nodeReq.method);
+      console.log(
+        '[Instagram Webhook] Handler called, method:',
+        nodeReq.method,
+      );
 
       // Handle GET request for webhook verification
       if (nodeReq.method === 'GET') {
@@ -294,25 +309,25 @@ export default async function handler(
         //   return res.status(403).end('Forbidden');
         // }
 
-        let payload = nodeReq.body as FacebookWebhookPayload;
+        let payload = nodeReq.body as InstagramWebhookPayload;
         if (Array.isArray(payload)) {
           payload = payload[0];
         }
 
-        console.log('Payload webhook', payload);
+        console.log('Instagram webhook payload:', payload);
 
         // Process each entry in the payload
-        if (payload.object === 'page') {
+        if (payload.object === 'instagram') {
           // Process asynchronously and respond immediately
           Promise.all(
             payload.entry.map((entry) =>
               processCommentNotification(entry, defaultPrisma),
             ),
           ).catch((error) => {
-            console.error('Error processing webhook entries:', error);
+            console.error('Error processing Instagram webhook entries:', error);
           });
 
-          // Respond quickly to Facebook
+          // Respond quickly to Instagram/Facebook
           return res.status(200).end('EVENT_RECEIVED');
         } else {
           return res.status(404).end('Not Found');
@@ -322,7 +337,7 @@ export default async function handler(
       // Method not allowed
       return res.status(405).end('Method Not Allowed');
     } catch (error) {
-      console.error('[Webhook] Error:', error);
+      console.error('[Instagram Webhook] Error:', error);
       return res.status(500).end('Internal Server Error');
     }
   }
@@ -331,7 +346,7 @@ export default async function handler(
   const request = req as Request;
 
   try {
-    console.log('[Webhook] Edge runtime');
+    console.log('[Instagram Webhook] Edge runtime');
 
     const { env } = getRequestContext();
     const d1 = env.moderateur_bedones_db;
@@ -343,7 +358,7 @@ export default async function handler(
     const prisma = createPrismaWithD1(d1);
     const url = new URL(request.url);
 
-    console.log('[Webhook] Handler called, method:', request.method);
+    console.log('[Instagram Webhook] Handler called, method:', request.method);
 
     // Handle GET request for webhook verification
     if (request.method === 'GET') {
@@ -358,32 +373,34 @@ export default async function handler(
       const rawBody = await request.text();
 
       if (!(await verifySignature(rawBody, signature || undefined))) {
-        console.error('Invalid webhook signature');
+        console.error('Invalid Instagram webhook signature');
         return new Response('Forbidden', { status: 403 });
       }
 
-      let payload = JSON.parse(rawBody) as FacebookWebhookPayload;
+      let payload = JSON.parse(rawBody) as InstagramWebhookPayload;
+
+      console.log('Instagram webhook payload:', payload);
 
       if (Array.isArray(payload)) {
         payload = payload[0];
       }
 
       // Process each entry in the payload
-      if (payload.object === 'page') {
+      if (payload.object === 'instagram') {
         try {
           await Promise.all(
             payload.entry.map((entry) =>
               processCommentNotification(entry, prisma),
             ),
           );
-          console.log('Webhook processed successfully');
+          console.log('Instagram webhook processed successfully');
         } catch (error) {
-          console.error('Error processing webhook entries:', error);
+          console.error('Error processing Instagram webhook entries:', error);
         }
-        // Respond quickly to Facebook
+        // Respond quickly to Instagram/Facebook
         return new Response('EVENT_RECEIVED', { status: 200 });
       } else {
-        console.log('Webhook not found');
+        console.log('Instagram webhook not found');
         return new Response('Not Found', { status: 404 });
       }
     }
@@ -391,7 +408,7 @@ export default async function handler(
     // Method not allowed
     return new Response('Method Not Allowed', { status: 405 });
   } catch (error) {
-    console.error('[Webhook] Error:', error);
+    console.error('[Instagram Webhook] Error:', error);
     return new Response('Internal Server Error', { status: 500 });
   }
 }
