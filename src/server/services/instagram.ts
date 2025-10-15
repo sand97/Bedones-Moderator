@@ -258,7 +258,9 @@ export class InstagramService {
     message: string,
     accessToken: string,
   ): Promise<void> {
-    console.log(`[Instagram] Replying to comment ${commentId} with message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`);
+    console.log(
+      `[Instagram] Replying to comment ${commentId} with message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`,
+    );
 
     const response = await fetch(
       `https://graph.instagram.com/v21.0/${commentId}/replies?access_token=${accessToken}`,
@@ -284,7 +286,6 @@ export class InstagramService {
 
     console.log('[Instagram] Reply successful:', {
       commentId,
-      newReplyId: responseData.id,
       response: responseData,
     });
   }
