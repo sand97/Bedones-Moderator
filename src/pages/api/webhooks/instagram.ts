@@ -112,6 +112,14 @@ async function processCommentNotification(
     // Extract Instagram account ID from entry
     const instagramAccountId = entry.id;
 
+    // IMPORTANT: Skip comments FROM the account itself to avoid processing our own replies
+    if (from.id === instagramAccountId) {
+      console.log(
+        `[Instagram Webhook] Skipping comment ${commentId} from account ${instagramAccountId} (own comment)`,
+      );
+      continue;
+    }
+
     // Build permalink URLs
     const mediaPermalinkUrl = media?.permalink || null;
     const mediaId = media?.id || null;
