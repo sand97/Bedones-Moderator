@@ -174,6 +174,8 @@ export class FacebookService {
     message: string,
     pageAccessToken: string,
   ): Promise<void> {
+    console.log(`[Facebook] Replying to comment ${commentId} with message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`);
+
     const response = await fetch(
       `https://graph.facebook.com/v21.0/${commentId}/comments?access_token=${pageAccessToken}`,
       {
@@ -183,10 +185,22 @@ export class FacebookService {
       },
     );
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      console.error(response);
-      throw new Error(`Failed to reply to comment: ${response.statusText}`);
+      console.error('[Facebook] Reply failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: responseData,
+      });
+      throw new Error(`Failed to reply to comment: ${response.statusText} - ${JSON.stringify(responseData)}`);
     }
+
+    console.log('[Facebook] Reply successful:', {
+      commentId,
+      newReplyId: responseData.id,
+      response: responseData,
+    });
   }
 
   /**
