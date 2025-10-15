@@ -120,6 +120,14 @@ async function processCommentNotification(
     // Extract page ID from entry
     const pageId = entry.id;
 
+    // IMPORTANT: Skip comments FROM the page itself to avoid processing our own replies
+    if (from.id === pageId) {
+      console.log(
+        `[Facebook Webhook] Skipping comment ${comment_id} from page ${pageId} (own comment)`,
+      );
+      continue;
+    }
+
     // Build permalink URLs
     const postPermalinkUrl = post?.permalink_url || null;
     const commentPermalinkUrl = postPermalinkUrl
