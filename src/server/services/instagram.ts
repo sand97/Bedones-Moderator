@@ -258,6 +258,8 @@ export class InstagramService {
     message: string,
     accessToken: string,
   ): Promise<void> {
+    console.log(`[Instagram] Replying to comment ${commentId} with message: "${message.substring(0, 50)}${message.length > 50 ? '...' : ''}"`);
+
     const response = await fetch(
       `https://graph.instagram.com/v21.0/${commentId}/replies?access_token=${accessToken}`,
       {
@@ -267,12 +269,24 @@ export class InstagramService {
       },
     );
 
+    const responseData = await response.json();
+
     if (!response.ok) {
-      console.error(response);
+      console.error('[Instagram] Reply failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        error: responseData,
+      });
       throw new Error(
-        `Failed to reply to Instagram comment: ${response.statusText}`,
+        `Failed to reply to Instagram comment: ${response.statusText} - ${JSON.stringify(responseData)}`,
       );
     }
+
+    console.log('[Instagram] Reply successful:', {
+      commentId,
+      newReplyId: responseData.id,
+      response: responseData,
+    });
   }
 
   /**
