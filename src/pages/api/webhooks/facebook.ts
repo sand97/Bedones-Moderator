@@ -238,12 +238,14 @@ async function processCommentNotification(
           createdTime: new Date(created_time * 1000),
           action: analysis.action,
           actionReason: analysis.reason,
+          replyMessage: analysis.replyMessage || null,
           permalinkUrl: commentPermalinkUrl,
         },
         update: {
           message,
           action: analysis.action,
           actionReason: analysis.reason,
+          replyMessage: analysis.replyMessage || null,
           permalinkUrl: commentPermalinkUrl,
         },
       });

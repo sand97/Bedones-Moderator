@@ -250,12 +250,14 @@ async function processCommentNotification(
           createdTime: timestamp ? new Date(timestamp) : new Date(),
           action: analysis.action,
           actionReason: analysis.reason,
+          replyMessage: analysis.replyMessage || null,
           permalinkUrl: commentPermalinkUrl,
         },
         update: {
           message: text,
           action: analysis.action,
           actionReason: analysis.reason,
+          replyMessage: analysis.replyMessage || null,
           permalinkUrl: commentPermalinkUrl,
         },
       });

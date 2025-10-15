@@ -133,6 +133,7 @@ model Comment {
   createdTime      DateTime
   action           String // "none", "hide", "delete", "reply"
   actionReason     String? // AI explanation
+  replyMessage     String? // The actual reply message sent by AI (for action="reply")
   permalinkUrl     String? // URL to the comment on Facebook
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt

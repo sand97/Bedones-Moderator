@@ -8,6 +8,12 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { Badge } from '~/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '~/components/ui/tooltip';
 import { ExternalLink } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr, enUS } from 'date-fns/locale';
@@ -18,6 +24,8 @@ interface Comment {
   fromName: string;
   createdTime: Date;
   action: string;
+  actionReason: string | null;
+  replyMessage: string | null;
   permalinkUrl: string | null;
   post: {
     permalinkUrl: string | null;
@@ -50,62 +58,89 @@ export function CommentsTable({ comments }: CommentsTableProps) {
     }
   };
 
+  const getTooltipContent = (comment: Comment) => {
+    if (comment.action === 'reply' && comment.replyMessage) {
+      return comment.replyMessage;
+    }
+    return comment.actionReason || '';
+  };
+
   return (
-    <div className="rounded-md border">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>{t('comments.table.page')}</TableHead>
-            <TableHead>{t('comments.table.author')}</TableHead>
-            <TableHead>{t('comments.table.message')}</TableHead>
-            <TableHead>{t('comments.table.date')}</TableHead>
-            <TableHead>{t('comments.table.action')}</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {comments.map((comment) => (
-            <TableRow key={comment.id}>
-              <TableCell>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium">{comment.post.page.name}</span>
-                  {comment.post.permalinkUrl && (
-                    <a
-                      href={comment.post.permalinkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>{comment.fromName}</TableCell>
-              <TableCell className="max-w-md">
-                <div className="flex items-start gap-2">
-                  <p className="truncate" title={comment.message}>
-                    {comment.message}
-                  </p>
-                  {comment.permalinkUrl && (
-                    <a
-                      href={comment.permalinkUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 flex-shrink-0"
-                    >
-                      <ExternalLink className="h-4 w-4" />
-                    </a>
-                  )}
-                </div>
-              </TableCell>
-              <TableCell>
-                {format(new Date(comment.createdTime), 'PPp', { locale })}
-              </TableCell>
-              <TableCell>{getActionBadge(comment.action)}</TableCell>
+    <TooltipProvider>
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>{t('comments.table.page')}</TableHead>
+              <TableHead>{t('comments.table.author')}</TableHead>
+              <TableHead>{t('comments.table.message')}</TableHead>
+              <TableHead>{t('comments.table.date')}</TableHead>
+              <TableHead>{t('comments.table.action')}</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </div>
+          </TableHeader>
+          <TableBody>
+            {comments.map((comment) => {
+              const tooltipContent = getTooltipContent(comment);
+              return (
+                <TableRow key={comment.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium">{comment.post.page.name}</span>
+                      {comment.post.permalinkUrl && (
+                        <a
+                          href={comment.post.permalinkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>{comment.fromName}</TableCell>
+                  <TableCell className="max-w-md">
+                    <div className="flex items-start gap-2">
+                      <p className="truncate" title={comment.message}>
+                        {comment.message}
+                      </p>
+                      {comment.permalinkUrl && (
+                        <a
+                          href={comment.permalinkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 flex-shrink-0"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                        </a>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(comment.createdTime), 'PPp', { locale })}
+                  </TableCell>
+                  <TableCell>
+                    {tooltipContent ? (
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <span className="cursor-help">
+                            {getActionBadge(comment.action)}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p>{tooltipContent}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    ) : (
+                      getActionBadge(comment.action)
+                    )}
+                  </TableCell>
+                </TableRow>
+              );
+            })}
+          </TableBody>
+        </Table>
+      </div>
+    </TooltipProvider>
   );
 }

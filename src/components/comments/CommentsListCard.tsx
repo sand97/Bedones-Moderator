@@ -11,6 +11,8 @@ interface Comment {
   fromName: string;
   createdTime: Date;
   action: string;
+  actionReason: string | null;
+  replyMessage: string | null;
   permalinkUrl: string | null;
   post: {
     permalinkUrl: string | null;

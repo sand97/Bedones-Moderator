@@ -52,7 +52,7 @@ const providers: Provider[] = [
     },
     enabled: true,
   },
-  { id: 'instagram', name: 'Instagram', icon: Instagram, enabled: false },
+  { id: 'instagram', name: 'Instagram', icon: Instagram, enabled: true },
   {
     id: 'tiktok',
     name: 'TikTok',
@@ -146,8 +146,9 @@ const DashboardPage: NextPage = () => {
     const storedSettings = localStorage.getItem('moderationSettings');
     if (!storedSettings) return;
 
-    // Only apply if user has pages
-    if (pagesCount.facebook === 0) {
+    // Only apply if user has pages (Facebook OR Instagram)
+    const totalPages = (pagesCount.facebook || 0) + (pagesCount.instagram || 0);
+    if (totalPages === 0) {
       localStorage.removeItem('moderationSettings');
       return;
     }
