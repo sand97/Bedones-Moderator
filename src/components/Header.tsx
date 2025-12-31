@@ -1,4 +1,5 @@
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
 import { useAuth } from '~/hooks/useAuth';
@@ -33,11 +34,19 @@ export function Header({ className }: HeaderProps) {
   return (
     <header className={cn('px-4', className)}>
       <div className="max-w-screen-lg mx-auto flex items-center justify-between">
-        <div
-          className="w-12 h-12 rounded-full bg-black flex items-center justify-center cursor-pointer"
-          onClick={() => router.push(session?.user ? '/dashboard' : '/')}
-        >
-          <span className="text-white text-xl font-bold">B</span>
+        <div className="flex items-center gap-6">
+          <div
+            className="w-12 h-12 rounded-full bg-black flex items-center justify-center cursor-pointer"
+            onClick={() => router.push(session?.user ? '/dashboard' : '/')}
+          >
+            <span className="text-white text-xl font-bold">B</span>
+          </div>
+          <Link
+            href="/blog"
+            className="text-sm font-medium text-gray-700 hover:text-black transition-colors"
+          >
+            Blog
+          </Link>
         </div>
         <div className="flex items-center gap-3">
           {session?.user && (

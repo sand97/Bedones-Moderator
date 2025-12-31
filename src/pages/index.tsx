@@ -110,26 +110,26 @@ const IndexPage: NextPageWithLayout = () => {
                 intelligentFAQEnabled={intelligentFAQEnabled}
                 faqItems={faqItems}
               />
+              <p className="text-xs text-center text-gray-600 mt-2 px-2 leading-relaxed">
+                <Trans
+                  i18nKey="instagram.disclaimer"
+                  components={{
+                    terms: (
+                      <Link
+                        href="/terms"
+                        className="underline hover:text-gray-900 font-medium"
+                      />
+                    ),
+                    privacy: (
+                      <Link
+                        href="/privacy"
+                        className="underline hover:text-gray-900 font-medium"
+                      />
+                    ),
+                  }}
+                />
+              </p>
             </div>
-            <p className="text-xs text-center text-gray-500 mt-3">
-              <Trans
-                i18nKey="instagram.disclaimer"
-                components={{
-                  terms: (
-                    <Link
-                      href="/terms"
-                      className="underline hover:text-gray-700"
-                    />
-                  ),
-                  privacy: (
-                    <Link
-                      href="/privacy"
-                      className="underline hover:text-gray-700"
-                    />
-                  ),
-                }}
-              />
-            </p>
           </div>
         </div>
         {/* Background Illustrations */}
