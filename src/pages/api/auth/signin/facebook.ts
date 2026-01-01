@@ -6,7 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 function handleSignIn(
   url: URL,
   headers: Headers | NextApiRequest['headers'],
-): { location: string; setCookie: string } {
+): { location: string; setCookie: string[] } {
   const appId = process.env.FACEBOOK_APP_ID;
 
   // Get app URL from request headers (dynamic based on actual request)
@@ -28,6 +28,10 @@ function handleSignIn(
   if (!appId) {
     throw new Error('Facebook App ID not configured');
   }
+
+  // Extract locale from URL path (e.g., /en/ or /fr/)
+  const pathMatch = url.pathname.match(/^\/(en|fr)\//);
+  const locale = pathMatch ? pathMatch[1] : 'fr';
 
   // Generate state for CSRF protection
   const state = Array.from(crypto.getRandomValues(new Uint8Array(32)))
@@ -68,9 +72,22 @@ function handleSignIn(
     stateCookie.push('Secure');
   }
 
+  // Store locale in cookie to preserve language preference
+  const localeCookie = [
+    `oauth_locale=${locale}`,
+    'Path=/',
+    'HttpOnly',
+    'SameSite=Lax',
+    'Max-Age=600', // 10 minutes
+  ];
+
+  if (isProduction) {
+    localeCookie.push('Secure');
+  }
+
   return {
     location: authUrl.toString(),
-    setCookie: stateCookie.join('; '),
+    setCookie: [stateCookie.join('; '), localeCookie.join('; ')],
   };
 }
 
@@ -107,12 +124,13 @@ export default async function handler(
     const url = new URL(request.url);
     const result = handleSignIn(url, request.headers);
 
+    const headers = new Headers();
+    headers.append('Location', result.location);
+    result.setCookie.forEach(cookie => headers.append('Set-Cookie', cookie));
+
     return new Response(null, {
       status: 302,
-      headers: {
-        Location: result.location,
-        'Set-Cookie': result.setCookie,
-      },
+      headers,
     });
   } catch (error) {
     console.error('[Facebook SignIn] Error:', error);
