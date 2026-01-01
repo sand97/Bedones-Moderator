@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { signIn, signOut as authSignOut, useSession } from '~/lib/auth-client';
+import { signIn, useSignOut, useSession } from '~/lib/auth-client';
 
 export function useAuth() {
   const { data: session } = useSession();
+  const signOutMutation = useSignOut();
   const [loading, setLoading] = useState(() => {
     // Check if OAuth is in progress from sessionStorage (only on client-side)
     if (typeof window === 'undefined') return false;
@@ -33,7 +34,7 @@ export function useAuth() {
   };
 
   const handleSignOut = async () => {
-    await authSignOut();
+    await signOutMutation.mutateAsync();
   };
 
   return {
