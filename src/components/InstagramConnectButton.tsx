@@ -1,6 +1,7 @@
 import { Instagram } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useRouter } from 'next/router';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';
 import { signInWithInstagram } from '~/lib/auth-client';
@@ -26,6 +27,7 @@ export function InstagramConnectButton({
 }: InstagramConnectButtonProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const handleClick = () => {
@@ -53,6 +55,10 @@ export function InstagramConnectButton({
         faqItems,
       }),
     );
+
+    // Save current locale to localStorage to preserve language preference after login
+    const currentLocale = router.locale || 'fr';
+    localStorage.setItem('preferredLocale', currentLocale);
 
     setLoading(true);
     // Use custom auth client to initiate Instagram OAuth
