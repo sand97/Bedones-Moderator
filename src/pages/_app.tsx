@@ -29,6 +29,21 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
   const getLayout =
     Component.getLayout ?? ((page) => <DefaultLayout>{page}</DefaultLayout>);
 
+  // Restore language preference from localStorage after OAuth login
+  useEffect(() => {
+    const preferredLocale = localStorage.getItem('preferredLocale');
+    const currentLocale = router.locale || 'fr';
+
+    // If user has a saved locale preference and it differs from current locale
+    if (preferredLocale && preferredLocale !== currentLocale) {
+      // Clear the preference to avoid infinite redirects
+      localStorage.removeItem('preferredLocale');
+
+      // Redirect to the preferred locale
+      router.push(router.pathname, router.asPath, { locale: preferredLocale });
+    }
+  }, [router]);
+
   // Sync i18next with Next.js router locale
   useEffect(() => {
     const locale = router.locale || 'fr';

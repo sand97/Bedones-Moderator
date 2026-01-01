@@ -31,14 +31,30 @@ async function handleCallback(
   console.log('[Instagram Callback] Handler called');
 
   const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+  const stateParam = url.searchParams.get('state');
 
   if (!code) {
     console.error('[Instagram Callback] Missing code parameter');
     throw new Error('/auth-error?error=missing_code');
   }
 
-  // Verify state parameter for CSRF protection
+  // Decode state parameter to extract CSRF token and locale
+  let csrfToken: string;
+  let locale = 'fr'; // Default to French
+
+  try {
+    if (!stateParam) {
+      throw new Error('Missing state parameter');
+    }
+    const stateData = JSON.parse(atob(stateParam));
+    csrfToken = stateData.csrf;
+    locale = stateData.locale || 'fr';
+  } catch (error) {
+    console.error('[Instagram Callback] Failed to decode state:', error);
+    throw new Error('/auth-error?error=invalid_state');
+  }
+
+  // Verify CSRF token from cookie
   let cookieHeader: string | undefined;
   if (headers instanceof Headers) {
     cookieHeader = headers.get('cookie') || '';
@@ -50,12 +66,12 @@ async function handleCallback(
   const stateCookie = cookies.find((c) =>
     c.startsWith('oauth_state_instagram='),
   );
-  const storedState = stateCookie?.split('=')[1];
+  const storedCsrfToken = stateCookie?.split('=')[1];
 
-  if (!storedState || storedState !== state) {
-    console.error('[Instagram Callback] State mismatch:', {
-      storedState,
-      state,
+  if (!storedCsrfToken || storedCsrfToken !== csrfToken) {
+    console.error('[Instagram Callback] CSRF token mismatch:', {
+      storedCsrfToken,
+      csrfToken,
     });
     throw new Error('/auth-error?error=invalid_state');
   }
@@ -265,7 +281,8 @@ async function handleCallback(
     'oauth_state_instagram=; Path=/; HttpOnly; Max-Age=0';
 
   // Redirect to Instagram dashboard
-  const dashboardUrl = new URL('/dashboard/instagram', appUrl);
+  // Include locale in redirect URL to preserve language preference
+  const dashboardUrl = new URL(`/${locale}/dashboard/instagram`, appUrl);
   if (isExistingUser) {
     dashboardUrl.searchParams.set('update', 'disabled');
   }
