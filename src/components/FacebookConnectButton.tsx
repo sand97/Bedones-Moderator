@@ -1,6 +1,7 @@
 import { FacebookIcon } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';
 import { useAuth } from '~/hooks/useAuth';
@@ -27,6 +28,7 @@ export function FacebookConnectButton({
   const { t } = useTranslation();
   const { toast } = useToast();
   const { loading, signIn } = useAuth();
+  const router = useRouter();
 
   const handleClick = () => {
     if (
@@ -53,6 +55,10 @@ export function FacebookConnectButton({
         faqItems,
       }),
     );
+
+    // Save current locale to localStorage to preserve language preference after login
+    const currentLocale = router.locale || 'fr';
+    localStorage.setItem('preferredLocale', currentLocale);
 
     // Use custom auth client to initiate Facebook OAuth
     signIn();

@@ -6,7 +6,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 function handleSignIn(
   url: URL,
   headers: Headers | NextApiRequest['headers'],
-): { location: string; setCookie: string[] } {
+): { location: string; setCookie: string } {
   const appId = process.env.FACEBOOK_APP_ID;
 
   // Get app URL from request headers (dynamic based on actual request)
@@ -29,14 +29,37 @@ function handleSignIn(
     throw new Error('Facebook App ID not configured');
   }
 
-  // Extract locale from URL path (e.g., /en/ or /fr/)
-  const pathMatch = url.pathname.match(/^\/(en|fr)\//);
-  const locale = pathMatch ? pathMatch[1] : 'fr';
+  // Detect user's locale from referer header or query parameter
+  let locale = 'fr'; // Default to French
+  let referer: string | null = null;
 
-  // Generate state for CSRF protection
-  const state = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+  if (headers instanceof Headers) {
+    referer = headers.get('referer');
+  } else {
+    referer = headers.referer || null;
+  }
+
+  // Check query parameter first
+  const langParam = url.searchParams.get('lang');
+  if (langParam === 'en' || langParam === 'fr') {
+    locale = langParam;
+  } else if (referer) {
+    // Extract locale from referer path (e.g., https://example.com/en/... -> 'en')
+    const refererUrl = new URL(referer);
+    const pathMatch = refererUrl.pathname.match(/^\/(en|fr)\//);
+    if (pathMatch) {
+      locale = pathMatch[1];
+    }
+  }
+
+  // Generate CSRF token
+  const csrfToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('');
+
+  // Encode state with both CSRF token and locale
+  const stateData = JSON.stringify({ csrf: csrfToken, locale });
+  const state = btoa(stateData);
 
   // Build Facebook OAuth URL
   const redirectUri = `${appUrl}/api/auth/callback/facebook`;
@@ -58,10 +81,10 @@ function handleSignIn(
   authUrl.searchParams.set('state', state);
   authUrl.searchParams.set('response_type', 'code');
 
-  // Store state in cookie for verification in callback
+  // Store CSRF token in cookie for verification in callback
   const isProduction = process.env.NODE_ENV === 'production';
   const stateCookie = [
-    `oauth_state=${state}`,
+    `oauth_state=${csrfToken}`,
     'Path=/',
     'HttpOnly',
     'SameSite=Lax',
@@ -72,22 +95,9 @@ function handleSignIn(
     stateCookie.push('Secure');
   }
 
-  // Store locale in cookie to preserve language preference
-  const localeCookie = [
-    `oauth_locale=${locale}`,
-    'Path=/',
-    'HttpOnly',
-    'SameSite=Lax',
-    'Max-Age=600', // 10 minutes
-  ];
-
-  if (isProduction) {
-    localeCookie.push('Secure');
-  }
-
   return {
     location: authUrl.toString(),
-    setCookie: [stateCookie.join('; '), localeCookie.join('; ')],
+    setCookie: stateCookie.join('; '),
   };
 }
 
@@ -124,13 +134,12 @@ export default async function handler(
     const url = new URL(request.url);
     const result = handleSignIn(url, request.headers);
 
-    const headers = new Headers();
-    headers.append('Location', result.location);
-    result.setCookie.forEach(cookie => headers.append('Set-Cookie', cookie));
-
     return new Response(null, {
       status: 302,
-      headers,
+      headers: {
+        Location: result.location,
+        'Set-Cookie': result.setCookie,
+      },
     });
   } catch (error) {
     console.error('[Facebook SignIn] Error:', error);

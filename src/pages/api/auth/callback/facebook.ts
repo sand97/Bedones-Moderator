@@ -30,14 +30,30 @@ async function handleCallback(
   console.log('[Facebook Callback] Handler called');
 
   const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+  const stateParam = url.searchParams.get('state');
 
   if (!code) {
     console.error('[Facebook Callback] Missing code parameter');
     throw new Error('/auth-error?error=missing_code');
   }
 
-  // Verify state parameter for CSRF protection
+  // Decode state parameter to extract CSRF token and locale
+  let csrfToken: string;
+  let locale = 'fr'; // Default to French
+
+  try {
+    if (!stateParam) {
+      throw new Error('Missing state parameter');
+    }
+    const stateData = JSON.parse(atob(stateParam));
+    csrfToken = stateData.csrf;
+    locale = stateData.locale || 'fr';
+  } catch (error) {
+    console.error('[Facebook Callback] Failed to decode state:', error);
+    throw new Error('/auth-error?error=invalid_state');
+  }
+
+  // Verify CSRF token from cookie
   let cookieHeader: string | undefined;
   if (headers instanceof Headers) {
     cookieHeader = headers.get('cookie') || '';
@@ -47,10 +63,10 @@ async function handleCallback(
 
   const cookies = cookieHeader.split(';').map((c) => c.trim());
   const stateCookie = cookies.find((c) => c.startsWith('oauth_state='));
-  const storedState = stateCookie?.split('=')[1];
+  const storedCsrfToken = stateCookie?.split('=')[1];
 
-  if (!storedState || storedState !== state) {
-    console.error('[Facebook Callback] State mismatch:', { storedState, state });
+  if (!storedCsrfToken || storedCsrfToken !== csrfToken) {
+    console.error('[Facebook Callback] CSRF token mismatch:', { storedCsrfToken, csrfToken });
     throw new Error('/auth-error?error=invalid_state');
   }
 
