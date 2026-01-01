@@ -41,7 +41,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '~/components/ui/tooltip';
-import { useSession, signOut } from '~/lib/auth-client';
+import { useSession, useSignOut } from '~/lib/auth-client';
 
 interface MenuItem {
   id: string;
@@ -61,6 +61,7 @@ export function AppSidebar() {
   const router = useRouter();
   const { t, i18n } = useTranslation();
   const { data: session } = useSession();
+  const signOutMutation = useSignOut();
 
   const menuSections: MenuSection[] = [
     {
@@ -162,8 +163,15 @@ export function AppSidebar() {
   };
 
   const handleLogout = async () => {
-    await signOut();
-    router.push('/');
+    try {
+      await signOutMutation.mutateAsync();
+      // Force full page reload to ensure cookie deletion is processed
+      window.location.href = '/';
+    } catch (error) {
+      console.error('Logout failed:', error);
+      // Redirect anyway to clear UI state
+      window.location.href = '/';
+    }
   };
 
   const handleLanguageToggle = async () => {
