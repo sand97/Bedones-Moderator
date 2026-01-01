@@ -55,9 +55,16 @@ const InstagramPage: NextPage = () => {
     // Redirect to login if not authenticated
     if (!sessionLoading && !session?.user) {
       router.push('/');
+      return;
+    }
+
+    // Clear localStorage if update is disabled (for existing users reconnecting)
+    const updateDisabled = router.query.update === 'disabled';
+    if (updateDisabled) {
+      localStorage.removeItem('moderationSettings');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, sessionLoading]);
+  }, [session, sessionLoading, router.query.update]);
 
   if (sessionLoading || accountsLoading) {
     return (

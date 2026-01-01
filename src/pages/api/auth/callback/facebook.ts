@@ -54,6 +54,10 @@ async function handleCallback(
     throw new Error('/auth-error?error=invalid_state');
   }
 
+  // Retrieve locale from cookie to preserve language preference
+  const localeCookie = cookies.find((c) => c.startsWith('oauth_locale='));
+  const locale = localeCookie?.split('=')[1] || 'fr';
+
   // Exchange code for access token
   const appId = process.env.FACEBOOK_APP_ID;
   const appSecret = process.env.FACEBOOK_APP_SECRET;
@@ -173,18 +177,20 @@ async function handleCallback(
   const isProduction = process.env.NODE_ENV === 'production';
   const sessionCookie = createSessionCookie(session.token, isProduction);
 
-  // Clear state cookie
+  // Clear state and locale cookies
   const clearStateCookie = 'oauth_state=; Path=/; HttpOnly; Max-Age=0';
+  const clearLocaleCookie = 'oauth_locale=; Path=/; HttpOnly; Max-Age=0';
 
   // Add update=disabled parameter for existing users to skip settings update
-  const dashboardUrl = new URL('/dashboard', appUrl);
+  // Include locale in path to preserve language preference
+  const dashboardUrl = new URL(`/${locale}/dashboard`, appUrl);
   if (isExistingUser) {
     dashboardUrl.searchParams.set('update', 'disabled');
   }
 
   return {
     location: dashboardUrl.toString(),
-    cookies: [sessionCookie, clearStateCookie],
+    cookies: [sessionCookie, clearStateCookie, clearLocaleCookie],
   };
 }
 

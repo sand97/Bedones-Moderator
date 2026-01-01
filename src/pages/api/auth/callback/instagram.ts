@@ -60,6 +60,10 @@ async function handleCallback(
     throw new Error('/auth-error?error=invalid_state');
   }
 
+  // Retrieve locale from cookie to preserve language preference
+  const localeCookie = cookies.find((c) => c.startsWith('oauth_locale_instagram='));
+  const locale = localeCookie?.split('=')[1] || 'fr';
+
   // Exchange code for access token (Instagram Platform API)
   const appId = process.env.INSTAGRAM_APP_ID;
   const appSecret = process.env.INSTAGRAM_APP_SECRET;
@@ -118,11 +122,12 @@ async function handleCallback(
 
   // Fetch Instagram user profile information using /me endpoint
   const meUrl = new URL('https://graph.instagram.com/me');
-  meUrl.searchParams.set('fields', 'id,user_id,username,account_type');
+  meUrl.searchParams.set('fields', 'id,user_id,username,account_type,profile_picture_url');
   meUrl.searchParams.set('access_token', accessToken);
 
   let username: string;
   let instagramBusinessAccountId: string;
+  let profilePictureUrl: string | null = null;
 
   const meResponse = await fetch(meUrl.toString());
   if (!meResponse.ok) {
@@ -139,9 +144,11 @@ async function handleCallback(
       user_id: number; // Instagram Professional Account ID (used in webhooks!)
       username: string;
       account_type?: string;
+      profile_picture_url?: string;
     } = await meResponse.json();
     username = profileData.username;
     instagramBusinessAccountId = profileData.user_id.toString();
+    profilePictureUrl = profileData.profile_picture_url || null;
   }
 
   // Find or create user (link to Instagram ID from token exchange)
@@ -220,7 +227,7 @@ async function handleCallback(
       provider: 'INSTAGRAM',
       username: username,
       name: username,
-      profilePictureUrl: null, // Can be fetched later if needed
+      profilePictureUrl: profilePictureUrl,
       followersCount: null,
       accessToken: encryptedToken,
       userId: user.id,
@@ -228,6 +235,7 @@ async function handleCallback(
     update: {
       username: username,
       name: username,
+      profilePictureUrl: profilePictureUrl,
       accessToken: encryptedToken,
       userId: user.id, // Update userId in case user is adding to existing account
     },
@@ -260,19 +268,22 @@ async function handleCallback(
   const isProduction = process.env.NODE_ENV === 'production';
   const sessionCookie = createSessionCookie(session.token, isProduction);
 
-  // Clear state cookie
+  // Clear state and locale cookies
   const clearStateCookie =
     'oauth_state_instagram=; Path=/; HttpOnly; Max-Age=0';
+  const clearLocaleCookie =
+    'oauth_locale_instagram=; Path=/; HttpOnly; Max-Age=0';
 
   // Redirect to Instagram dashboard
-  const dashboardUrl = new URL('/dashboard/instagram', appUrl);
+  // Include locale in path to preserve language preference
+  const dashboardUrl = new URL(`/${locale}/dashboard/instagram`, appUrl);
   if (isExistingUser) {
     dashboardUrl.searchParams.set('update', 'disabled');
   }
 
   return {
     location: dashboardUrl.toString(),
-    cookies: [sessionCookie, clearStateCookie],
+    cookies: [sessionCookie, clearStateCookie, clearLocaleCookie],
   };
 }
 
