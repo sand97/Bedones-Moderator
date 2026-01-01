@@ -165,10 +165,12 @@ export function AppSidebar() {
   const handleLogout = async () => {
     try {
       await signOutMutation.mutateAsync();
-      // Redirect to home page after successful logout
-      router.push('/');
+      // Force full page reload to ensure cookie deletion is processed
+      window.location.href = '/';
     } catch (error) {
       console.error('Logout failed:', error);
+      // Redirect anyway to clear UI state
+      window.location.href = '/';
     }
   };
 

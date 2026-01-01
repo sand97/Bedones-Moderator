@@ -148,9 +148,10 @@ export function createSessionCookie(
 
 /**
  * Create Set-Cookie header to delete session
+ * Must match the attributes used when creating the cookie for proper deletion
  */
 export function deleteSessionCookie(): string {
-  return `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; Max-Age=0`;
+  return `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`;
 }
 
 export type { User, Session };
