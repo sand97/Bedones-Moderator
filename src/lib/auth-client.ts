@@ -74,8 +74,22 @@ export function useSignOut() {
 
 /**
  * Legacy signOut function for compatibility
+ * Note: Prefer using useSignOut() hook in React components for better cache management
  */
 export async function signOut() {
-  await signOutRequest();
-  window.location.href = '/';
+  try {
+    await signOutRequest();
+
+    // Clear session from localStorage/sessionStorage if any
+    if (typeof window !== 'undefined') {
+      // Force cache clear by reloading the page
+      window.location.href = '/';
+    }
+  } catch (error) {
+    console.error('Sign out error:', error);
+    // Even if the request fails, redirect to clear local state
+    if (typeof window !== 'undefined') {
+      window.location.href = '/';
+    }
+  }
 }
