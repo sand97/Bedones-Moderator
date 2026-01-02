@@ -269,7 +269,7 @@ async function processCommentNotification(
 export default async function handler(
   req: NextApiRequest | Request,
   res?: NextApiResponse,
-) {
+): Promise<void | Response> {
   // Check if we're in Edge runtime by testing if req is a Web Request
   const isEdgeRuntime = req instanceof Request;
 
@@ -280,7 +280,8 @@ export default async function handler(
 
       if (!defaultPrisma) {
         console.error('[Webhook] No Prisma client available');
-        return res.status(500).end('Database not configured');
+        res.status(500).end('Database not configured');
+        return;
       }
 
       const nodeReq = req;
@@ -291,7 +292,8 @@ export default async function handler(
       // Handle GET request for webhook verification
       if (nodeReq.method === 'GET') {
         const result = handleVerification(url);
-        return res.status(result.status).end(result.body);
+        res.status(result.status).end(result.body);
+        return;
       }
 
       // Handle POST request for webhook notifications
@@ -323,17 +325,21 @@ export default async function handler(
           });
 
           // Respond quickly to Facebook
-          return res.status(200).end('EVENT_RECEIVED');
+          res.status(200).end('EVENT_RECEIVED');
+          return;
         } else {
-          return res.status(404).end('Not Found');
+          res.status(404).end('Not Found');
+          return;
         }
       }
 
       // Method not allowed
-      return res.status(405).end('Method Not Allowed');
+      res.status(405).end('Method Not Allowed');
+      return;
     } catch (error) {
       console.error('[Webhook] Error:', error);
-      return res.status(500).end('Internal Server Error');
+      res.status(500).end('Internal Server Error');
+      return;
     }
   }
 

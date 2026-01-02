@@ -37,7 +37,7 @@ const FacebookPage: NextPage = () => {
 
   const utils = trpc.useUtils();
 
-  const reconnectPages = trpc.auth.autoSyncFacebookPages.useMutation({
+  const _reconnectPages = trpc.auth.autoSyncFacebookPages.useMutation({
     onSuccess: () => {
       toast({
         title: t('facebook.pageSettings.pagesRefreshed'),

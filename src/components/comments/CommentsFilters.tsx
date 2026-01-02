@@ -22,7 +22,7 @@ interface CommentsFiltersProps {
   setDateFrom: (value: string) => void;
   dateTo: string;
   setDateTo: (value: string) => void;
-  pages?: Array<{ id: string; name: string }>;
+  pages?: { id: string; name: string }[];
   onClearFilters: () => void;
 }
 

@@ -44,7 +44,7 @@ export default async function handler(req: NextApiRequest | Request, res?: NextA
         return res.status(500).json({ error: 'Database not configured' });
       }
 
-      const token = getSessionToken((req as NextApiRequest).headers);
+      const token = getSessionToken((req).headers);
       if (token) {
         await deleteSession(defaultPrisma, token);
       }

@@ -39,7 +39,7 @@ const formatDate = (date: Date) => {
 interface Provider {
   id: string;
   name: string;
-  icon: typeof Facebook;
+  icon: React.ComponentType<{ className?: string }>;
   enabled: boolean;
 }
 

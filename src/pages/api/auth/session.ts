@@ -4,7 +4,6 @@ export const runtime = 'edge';
 import { getRequestContext } from '@cloudflare/next-on-pages';
 import { createPrismaWithD1, prisma as defaultPrisma } from '~/server/prisma';
 import { validateSession, SESSION_COOKIE_NAME } from '~/lib/auth';
-import type { PrismaClient } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 // Helper to get session token from headers (works with both Edge and Node.js)
@@ -45,7 +44,7 @@ export default async function handler(req: NextApiRequest | Request, res?: NextA
         return res.status(500).json({ error: 'Database not configured' });
       }
 
-      const token = getSessionToken((req as NextApiRequest).headers);
+      const token = getSessionToken((req).headers);
       if (!token) {
         return res.status(401).json({ error: 'Not authenticated' });
       }

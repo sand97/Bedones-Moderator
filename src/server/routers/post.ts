@@ -14,8 +14,9 @@ import { z } from 'zod';
  */
 const defaultPostSelect = {
   id: true,
-  title: true,
-  text: true,
+  pageId: true,
+  message: true,
+  permalinkUrl: true,
   createdAt: true,
   updatedAt: true,
 } satisfies Prisma.PostSelect;
@@ -88,14 +89,24 @@ export const postRouter = router({
   add: publicProcedure
     .input(
       z.object({
-        id: z.string().uuid().optional(),
-        title: z.string().min(1).max(32),
-        text: z.string().min(1),
+        id: z.string(),
+        pageId: z.string(),
+        message: z.string().min(1).optional(),
+        permalinkUrl: z.string().optional(),
       }),
     )
     .mutation(async ({ input, ctx }) => {
+      const data: Prisma.PostCreateInput = {
+        id: input.id,
+        page: {
+          connect: { id: input.pageId },
+        },
+        message: input.message,
+        permalinkUrl: input.permalinkUrl,
+      };
+
       const post = await ctx.db.post.create({
-        data: input,
+        data,
         select: defaultPostSelect,
       });
       return post;

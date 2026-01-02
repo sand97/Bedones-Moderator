@@ -14,7 +14,7 @@ const getBrowserLanguage = () => {
     }
 
     // Check path for locale (Next.js i18n routing)
-    const pathMatch = window.location.pathname.match(/^\/(en|fr)\//);
+    const pathMatch = /^\/(en|fr)\//.exec(window.location.pathname);
     if (pathMatch) {
       return pathMatch[1];
     }
