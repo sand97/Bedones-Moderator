@@ -24,7 +24,7 @@ try {
       prismaGlobal.prisma = defaultPrisma;
     }
   }
-} catch (error) {
+} catch {
   // In edge runtime, this will fail - that's expected
   console.log('Running in edge runtime - D1 adapter required');
 }

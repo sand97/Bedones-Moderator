@@ -22,7 +22,7 @@ async function handleCallback(
     host = headers.get('x-forwarded-host') || headers.get('host') || url.host;
   } else {
     protocol = (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
-    host = (headers['x-forwarded-host'] as string) || (headers.host as string) || url.host;
+    host = (headers['x-forwarded-host'] as string) || (headers.host!) || url.host;
   }
 
   const appUrl = `${protocol}://${host}`;
@@ -37,9 +37,8 @@ async function handleCallback(
     throw new Error('/auth-error?error=missing_code');
   }
 
-  // Decode state parameter to extract CSRF token and locale
+  // Decode state parameter to extract CSRF token
   let csrfToken: string;
-  let locale = 'fr'; // Default to French
 
   try {
     if (!stateParam) {
@@ -47,7 +46,6 @@ async function handleCallback(
     }
     const stateData = JSON.parse(atob(stateParam));
     csrfToken = stateData.csrf;
-    locale = stateData.locale || 'fr';
   } catch (error) {
     console.error('[Facebook Callback] Failed to decode state:', error);
     throw new Error('/auth-error?error=invalid_state');
@@ -226,7 +224,7 @@ export default async function handler(req: NextApiRequest | Request, res?: NextA
         return;
       }
 
-      const nodeReq = req as NextApiRequest;
+      const nodeReq = req;
       const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);
 
       const result = await handleCallback(url, nodeReq.headers, defaultPrisma);

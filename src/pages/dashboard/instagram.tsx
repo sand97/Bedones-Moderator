@@ -35,7 +35,7 @@ const InstagramPage: NextPage = () => {
 
   const utils = trpc.useUtils();
 
-  const reconnectAccounts = trpc.auth.autoSyncInstagramAccounts.useMutation({
+  const _reconnectAccounts = trpc.auth.autoSyncInstagramAccounts.useMutation({
     onSuccess: () => {
       toast({
         title: t('instagram.accountSettings.accountsRefreshed'),

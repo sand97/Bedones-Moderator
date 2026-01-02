@@ -23,13 +23,13 @@ export default async function handler(req: NextApiRequest | Request, res?: NextA
     const { env } = getRequestContext();
     cloudflareEnv = env;
     console.log('[tRPC] Running in Edge runtime with Cloudflare context');
-  } catch (error) {
+  } catch {
     console.log('[tRPC] Running in Node.js runtime (local development)');
   }
 
   // Handle Next.js API route (Node.js runtime)
   if (!isEdgeRuntime && res) {
-    const nodeReq = req as NextApiRequest;
+    const nodeReq = req;
 
     // Convert NextApiRequest to Request for fetchRequestHandler
     const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);

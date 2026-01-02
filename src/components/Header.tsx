@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
-import { Button } from '~/components/ui/button';
 import { useAuth } from '~/hooks/useAuth';
 import { cn } from '~/lib/utils';
 
@@ -9,9 +8,9 @@ interface HeaderProps {
 }
 
 export function Header({ className }: HeaderProps) {
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
   const router = useRouter();
-  const { session, signIn, signOut } = useAuth();
+  const { session } = useAuth();
 
   // const handleAuthClick = async () => {
   //   if (session?.user) {

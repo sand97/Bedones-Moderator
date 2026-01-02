@@ -1,6 +1,5 @@
 import { FacebookIcon } from 'lucide-react';
-import { useTranslation, Trans } from 'react-i18next';
-import Link from 'next/link';
+import { useTranslation } from 'react-i18next';
 import { useRouter } from 'next/router';
 import { Button } from '~/components/ui/button';
 import { useToast } from '~/hooks/use-toast';

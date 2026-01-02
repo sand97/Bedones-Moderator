@@ -13,8 +13,8 @@ interface CommentsPaginationProps {
 export function CommentsPagination({
   currentPage,
   totalPages,
-  pageSize,
-  total,
+  pageSize: _pageSize,
+  total: _total,
   onPageChange,
 }: CommentsPaginationProps) {
   const { t } = useTranslation();

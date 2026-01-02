@@ -46,7 +46,7 @@ function handleSignIn(
   } else if (referer) {
     // Extract locale from referer path (e.g., https://example.com/en/... -> 'en')
     const refererUrl = new URL(referer);
-    const pathMatch = refererUrl.pathname.match(/^\/(en|fr)\//);
+    const pathMatch = /^\/(en|fr)\//.exec(refererUrl.pathname);
     if (pathMatch) {
       locale = pathMatch[1];
     }
