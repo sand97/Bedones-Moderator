@@ -63,34 +63,34 @@ jobs:
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
 
-#  deploy:
-#    needs: build-and-push
-#    runs-on: ubuntu-latest
-#    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-#
-#    steps:
-#      - name: Deploy to Docker Swarm
-#        uses: appleboy/ssh-action@v1.0.3
-#        with:
-#          host: ${{ secrets.DEPLOY_HOST }}
-#          username: ${{ secrets.DEPLOY_USER }}
-#          key: ${{ secrets.DEPLOY_SSH_KEY }}
-#          script: |
-#            # Se connecter au registry GitHub
-#            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-#
-#            # Pull la dernière image
-#            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
-#
-#            # Mettre à jour le service avec rolling update (zero-downtime)
-#            docker service update \
-#              --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main \
-#              --with-registry-auth \
-#              ${{ env.STACK_NAME }}_${{ env.SERVICE_NAME }}
-#
-#            # Vérifier le statut du déploiement
-#            echo "Attente de la mise à jour du service..."
-#            sleep 5
-#            docker service ps ${{ env.STACK_NAME }}_${{ env.SERVICE_NAME }} --filter "desired-state=running" --format "{{.Name}} {{.Image}} {{.CurrentState}}"
-#
-#            echo "Déploiement terminé !"
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+
+    steps:
+      - name: Deploy to Docker Swarm
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          script: |
+            # Se connecter au registry GitHub
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull la dernière image
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+
+            # Mettre à jour le service avec rolling update (zero-downtime)
+            docker service update \
+              --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main \
+              --with-registry-auth \
+              ${{ env.STACK_NAME }}_${{ env.SERVICE_NAME }}
+
+            # Vérifier le statut du déploiement
+            echo "Attente de la mise à jour du service..."
+            sleep 5
+            docker service ps ${{ env.STACK_NAME }}_${{ env.SERVICE_NAME }} --filter "desired-state=running" --format "{{.Name}} {{.Image}} {{.CurrentState}}"
+
+            echo "Déploiement terminé !"
