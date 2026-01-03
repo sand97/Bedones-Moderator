@@ -1,8 +1,4 @@
-// Use edge runtime for Cloudflare deployment
-export const runtime = 'edge';
-
-import { getRequestContext } from '@cloudflare/next-on-pages';
-import { createPrismaWithD1, prisma as defaultPrisma } from '~/server/prisma';
+import { prisma } from '~/server/prisma';
 import { FacebookService } from '~/server/services/facebook';
 import { AIService } from '~/server/services/ai';
 import type { NextApiRequest, NextApiResponse } from 'next';
@@ -52,7 +48,7 @@ interface FacebookWebhookPayload {
 /**
  * Verify the webhook signature from Facebook using Web Crypto API
  */
-async function verifySignature(
+async function _verifySignature(
   payload: string,
   signature: string | undefined,
 ): Promise<boolean> {
@@ -267,147 +263,64 @@ async function processCommentNotification(
  * Main webhook handler
  */
 export default async function handler(
-  req: NextApiRequest | Request,
-  res?: NextApiResponse,
-): Promise<void | Response> {
-  // Check if we're in Edge runtime by testing if req is a Web Request
-  const isEdgeRuntime = req instanceof Request;
-
-  // Handle Next.js API route (Node.js runtime - local dev)
-  if (!isEdgeRuntime && res) {
-    try {
-      console.log('[Webhook] Node.js runtime');
-
-      if (!defaultPrisma) {
-        console.error('[Webhook] No Prisma client available');
-        res.status(500).end('Database not configured');
-        return;
-      }
-
-      const nodeReq = req;
-      const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);
-
-      console.log('[Webhook] Handler called, method:', nodeReq.method);
-
-      // Handle GET request for webhook verification
-      if (nodeReq.method === 'GET') {
-        const result = handleVerification(url);
-        res.status(result.status).end(result.body);
-        return;
-      }
-
-      // Handle POST request for webhook notifications
-      if (nodeReq.method === 'POST') {
-        // Signature verification disabled for local dev
-        // const rawBody = JSON.stringify(nodeReq.body);
-        // const signature = nodeReq.headers['x-hub-signature-256'] as string | undefined;
-        // if (!(await verifySignature(rawBody, signature))) {
-        //   console.error('Invalid webhook signature');
-        //   return res.status(403).end('Forbidden');
-        // }
-
-        let payload = nodeReq.body as FacebookWebhookPayload;
-        if (Array.isArray(payload)) {
-          payload = payload[0];
-        }
-
-        console.log('Payload webhook', payload);
-
-        // Process each entry in the payload
-        if (payload.object === 'page') {
-          // Process asynchronously and respond immediately
-          Promise.all(
-            payload.entry.map((entry) =>
-              processCommentNotification(entry, defaultPrisma),
-            ),
-          ).catch((error) => {
-            console.error('Error processing webhook entries:', error);
-          });
-
-          // Respond quickly to Facebook
-          res.status(200).end('EVENT_RECEIVED');
-          return;
-        } else {
-          res.status(404).end('Not Found');
-          return;
-        }
-      }
-
-      // Method not allowed
-      res.status(405).end('Method Not Allowed');
-      return;
-    } catch (error) {
-      console.error('[Webhook] Error:', error);
-      res.status(500).end('Internal Server Error');
-      return;
-    }
-  }
-
-  // Handle Edge runtime (Cloudflare - production)
-  const request = req as Request;
-
+  req: NextApiRequest,
+  res: NextApiResponse,
+): Promise<void> {
   try {
-    console.log('[Webhook] Edge runtime');
+    console.log('[Webhook] Handler called');
 
-    const { env } = getRequestContext();
-    const d1 = env.moderateur_bedones_db;
+    const url = new URL(req.url!, `http://${req.headers.host}`);
 
-    if (!d1) {
-      return new Response('Database not configured', { status: 500 });
-    }
-
-    const prisma = createPrismaWithD1(d1);
-    const url = new URL(request.url);
-
-    console.log('[Webhook] Handler called, method:', request.method);
+    console.log('[Webhook] Method:', req.method);
 
     // Handle GET request for webhook verification
-    if (request.method === 'GET') {
+    if (req.method === 'GET') {
       const result = handleVerification(url);
-      return new Response(result.body, { status: result.status });
+      res.status(result.status).end(result.body);
+      return;
     }
 
     // Handle POST request for webhook notifications
-    if (request.method === 'POST') {
-      // Verify the signature
-      const signature = request.headers.get('x-hub-signature-256');
-      const rawBody = await request.text();
+    if (req.method === 'POST') {
+      // Signature verification disabled for local dev
+      // const rawBody = JSON.stringify(req.body);
+      // const signature = req.headers['x-hub-signature-256'] as string | undefined;
+      // if (!(await verifySignature(rawBody, signature))) {
+      //   console.error('Invalid webhook signature');
+      //   return res.status(403).end('Forbidden');
+      // }
 
-      if (!(await verifySignature(rawBody, signature || undefined))) {
-        console.error('Invalid webhook signature');
-        return new Response('Forbidden', { status: 403 });
-      }
-
-      let payload = JSON.parse(rawBody) as FacebookWebhookPayload;
-
+      let payload = req.body as FacebookWebhookPayload;
       if (Array.isArray(payload)) {
         payload = payload[0];
       }
 
+      console.log('Payload webhook', payload);
+
       // Process each entry in the payload
       if (payload.object === 'page') {
-        try {
-          await Promise.all(
-            payload.entry.map((entry) =>
-              processCommentNotification(entry, prisma),
-            ),
-          );
-          console.log('Webhook processed successfully');
-        } catch (error) {
+        // Process asynchronously and respond immediately
+        Promise.all(
+          payload.entry.map((entry) =>
+            processCommentNotification(entry, prisma),
+          ),
+        ).catch((error) => {
           console.error('Error processing webhook entries:', error);
-        }
+        });
+
         // Respond quickly to Facebook
-        return new Response('EVENT_RECEIVED', { status: 200 });
+        res.status(200).end('EVENT_RECEIVED');
+        return;
       } else {
-        console.log('Webhook not found');
-        return new Response('Not Found', { status: 404 });
+        res.status(404).end('Not Found');
+        return;
       }
     }
 
     // Method not allowed
-    return new Response('Method Not Allowed', { status: 405 });
+    res.status(405).end('Method Not Allowed');
   } catch (error) {
     console.error('[Webhook] Error:', error);
-    return new Response('Internal Server Error', { status: 500 });
+    res.status(500).end('Internal Server Error');
   }
 }

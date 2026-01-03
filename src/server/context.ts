@@ -1,8 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/// <reference types="@cloudflare/workers-types" />
 import type { FetchCreateContextFnOptions } from '@trpc/server/adapters/fetch';
-import { createPrismaWithD1, prisma as defaultPrisma } from './prisma';
-import { getSessionTokenFromRequest, validateSession, SESSION_COOKIE_NAME } from '~/lib/auth';
+import { prisma } from './prisma';
+import { validateSession, SESSION_COOKIE_NAME } from '~/lib/auth';
 import type { Session, User } from '~/lib/auth';
 import type { PrismaClient } from '@prisma/client';
 
@@ -27,16 +25,10 @@ export async function createContextInner(opts: CreateContextOptions) {
 export type Context = Awaited<ReturnType<typeof createContextInner>>;
 
 /**
- * Helper to get session token from headers (works with both Edge and Node.js)
+ * Helper to get session token from headers
  */
-function getSessionToken(headers: Headers | Record<string, string | string[] | undefined>): string | null {
-  let cookieHeader: string | null | undefined;
-
-  if (headers instanceof Headers) {
-    cookieHeader = headers.get('cookie');
-  } else {
-    cookieHeader = headers.cookie as string | undefined;
-  }
+function getSessionToken(headers: Headers): string | null {
+  const cookieHeader = headers.get('cookie');
 
   console.log('[Context] Cookie header:', cookieHeader);
   console.log('[Context] Looking for cookie:', SESSION_COOKIE_NAME);
@@ -59,30 +51,17 @@ function getSessionToken(headers: Headers | Record<string, string | string[] | u
 }
 
 /**
- * Creates context for an incoming request (Edge Runtime / Fetch API)
+ * Creates context for an incoming request
  * @see https://trpc.io/docs/v11/context
  */
 export async function createContext(
-  opts: FetchCreateContextFnOptions & { cloudflareEnv?: any },
+  opts: FetchCreateContextFnOptions,
 ): Promise<Context> {
   // for API-response caching see https://trpc.io/docs/v11/caching
 
   console.log('[Context] Creating context');
-  console.log('[Context] Has cloudflareEnv:', !!opts.cloudflareEnv);
 
-  // Try to use Cloudflare D1, fall back to local development
-  let prisma: PrismaClient;
-
-  // In Cloudflare Workers environment, D1 database will be available in env
-  const d1 = opts.cloudflareEnv?.moderateur_bedones_db;
-
-  if (d1) {
-    console.log('[Context] Using D1 database (Edge runtime)');
-    prisma = createPrismaWithD1(d1);
-  } else if (defaultPrisma) {
-    console.log('[Context] Using local SQLite database (Node.js runtime)');
-    prisma = defaultPrisma;
-  } else {
+  if (!prisma) {
     console.error('[Context] No database available');
     throw new Error('Database not configured');
   }
