@@ -1,5 +1,5 @@
 import type { NextPage } from 'next';
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { trpc } from '~/utils/trpc';
 import { DashboardLayout } from '~/components/DashboardLayout';

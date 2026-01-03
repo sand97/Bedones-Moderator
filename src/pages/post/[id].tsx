@@ -15,12 +15,12 @@ function PostItem(props: { post: PostByIdOutput }) {
       <Link className="text-gray-300 underline mb-4" href="/">
         Home
       </Link>
-      <h1 className="text-4xl font-bold">{post.title}</h1>
+      <h1 className="text-4xl font-bold">Post {post.id}</h1>
       <em className="text-gray-400">
         Created {post.createdAt.toLocaleDateString('en-us')}
       </em>
 
-      <p className="py-4 break-all">{post.text}</p>
+      <p className="py-4 break-all">{post.message}</p>
 
       <h2 className="text-2xl font-semibold py-2">Raw data:</h2>
       <pre className="bg-gray-900 p-4 rounded-xl overflow-x-scroll">

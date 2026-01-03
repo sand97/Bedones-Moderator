@@ -1,64 +1,64 @@
-// Use edge runtime for Cloudflare deployment
-export const runtime = 'edge';
-
-import { getRequestContext } from '@cloudflare/next-on-pages';
 import type { PrismaClient } from '@prisma/client';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { createSession, createSessionCookie } from '~/lib/auth';
-import { createPrismaWithD1, prisma as defaultPrisma } from '~/server/prisma';
+import { prisma } from '~/server/prisma';
 
 async function handleCallback(
   url: URL,
-  headers: Headers | NextApiRequest['headers'],
+  headers: NextApiRequest['headers'],
   prisma: PrismaClient,
 ): Promise<{ location: string; cookies: string[] }> {
   // Get app URL from request headers (dynamic based on actual request)
-  let protocol: string;
-  let host: string;
-
-  if (headers instanceof Headers) {
-    protocol =
-      headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
-    host = headers.get('x-forwarded-host') || headers.get('host') || url.host;
-  } else {
-    protocol =
-      (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
-    host = (headers['x-forwarded-host'] as string) || headers.host! || url.host;
-  }
+  const protocol =
+    (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
+  const host = (headers['x-forwarded-host'] as string) || headers.host! || url.host;
 
   const appUrl = `${protocol}://${host}`;
 
   console.log('[Instagram Callback] Handler called');
 
   const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+  const stateParam = url.searchParams.get('state');
 
   if (!code) {
     console.error('[Instagram Callback] Missing code parameter');
     throw new Error('/auth-error?error=missing_code');
   }
 
-  // Verify state parameter for CSRF protection
-  let cookieHeader: string | undefined;
-  if (headers instanceof Headers) {
-    cookieHeader = headers.get('cookie') || '';
-  } else {
-    cookieHeader = headers.cookie || '';
+  // Decode state parameter to extract CSRF token
+  let csrfToken: string;
+
+  try {
+    if (!stateParam) {
+      throw new Error('Missing state parameter');
+    }
+    const stateData = JSON.parse(atob(stateParam));
+    csrfToken = stateData.csrf;
+  } catch (error) {
+    console.error('[Instagram Callback] Failed to decode state:', error);
+    throw new Error('/auth-error?error=invalid_state');
   }
+
+  // Verify CSRF token from cookie
+  const cookieHeader = headers.cookie || '';
 
   const cookies = cookieHeader.split(';').map((c) => c.trim());
   const stateCookie = cookies.find((c) =>
     c.startsWith('oauth_state_instagram='),
   );
-  const storedState = stateCookie?.split('=')[1];
+  const storedCsrfToken = stateCookie?.split('=')[1];
 
-  if (!storedState || storedState !== state) {
-    console.error('[Instagram Callback] State mismatch:', {
-      storedState,
-      state,
+  if (!storedCsrfToken || storedCsrfToken !== csrfToken) {
+    console.error('[Instagram Callback] CSRF token mismatch:', {
+      storedCsrfToken,
+      csrfToken,
     });
     throw new Error('/auth-error?error=invalid_state');
   }
+
+  // Retrieve locale from cookie to preserve language preference
+  const localeCookie = cookies.find((c) => c.startsWith('oauth_locale_instagram='));
+  const locale = localeCookie?.split('=')[1] || 'fr';
 
   // Exchange code for access token (Instagram Platform API)
   const appId = process.env.INSTAGRAM_APP_ID;
@@ -118,11 +118,12 @@ async function handleCallback(
 
   // Fetch Instagram user profile information using /me endpoint
   const meUrl = new URL('https://graph.instagram.com/me');
-  meUrl.searchParams.set('fields', 'id,user_id,username,account_type');
+  meUrl.searchParams.set('fields', 'id,user_id,username,account_type,profile_picture_url');
   meUrl.searchParams.set('access_token', accessToken);
 
   let username: string;
   let instagramBusinessAccountId: string;
+  let profilePictureUrl: string | null = null;
 
   const meResponse = await fetch(meUrl.toString());
   if (!meResponse.ok) {
@@ -139,9 +140,11 @@ async function handleCallback(
       user_id: number; // Instagram Professional Account ID (used in webhooks!)
       username: string;
       account_type?: string;
+      profile_picture_url?: string;
     } = await meResponse.json();
     username = profileData.username;
     instagramBusinessAccountId = profileData.user_id.toString();
+    profilePictureUrl = profileData.profile_picture_url || null;
   }
 
   // Find or create user (link to Instagram ID from token exchange)
@@ -220,7 +223,7 @@ async function handleCallback(
       provider: 'INSTAGRAM',
       username: username,
       name: username,
-      profilePictureUrl: null, // Can be fetched later if needed
+      profilePictureUrl: profilePictureUrl,
       followersCount: null,
       accessToken: encryptedToken,
       userId: user.id,
@@ -228,6 +231,7 @@ async function handleCallback(
     update: {
       username: username,
       name: username,
+      profilePictureUrl: profilePictureUrl,
       accessToken: encryptedToken,
       userId: user.id, // Update userId in case user is adding to existing account
     },
@@ -260,106 +264,49 @@ async function handleCallback(
   const isProduction = process.env.NODE_ENV === 'production';
   const sessionCookie = createSessionCookie(session.token, isProduction);
 
-  // Clear state cookie
+  // Clear state and locale cookies
   const clearStateCookie =
     'oauth_state_instagram=; Path=/; HttpOnly; Max-Age=0';
+  const clearLocaleCookie =
+    'oauth_locale_instagram=; Path=/; HttpOnly; Max-Age=0';
 
   // Redirect to Instagram dashboard
-  const dashboardUrl = new URL('/dashboard/instagram', appUrl);
+  // Include locale in path to preserve language preference
+  const dashboardUrl = new URL(`/${locale}/dashboard/instagram`, appUrl);
   if (isExistingUser) {
     dashboardUrl.searchParams.set('update', 'disabled');
   }
 
   return {
     location: dashboardUrl.toString(),
-    cookies: [sessionCookie, clearStateCookie],
+    cookies: [sessionCookie, clearStateCookie, clearLocaleCookie],
   };
 }
 
 export default async function handler(
-  req: NextApiRequest | Request,
-  res?: NextApiResponse,
+  req: NextApiRequest,
+  res: NextApiResponse,
 ) {
-  // Check if we're in Edge runtime by testing if req is a Web Request
-  const isEdgeRuntime = req instanceof Request;
-
-  // Handle Next.js API route (Node.js runtime)
-  if (!isEdgeRuntime && res) {
-    try {
-      console.log('[Instagram Callback] Node.js runtime');
-
-      if (!defaultPrisma) {
-        console.error('[Instagram Callback] No Prisma client available');
-        res.setHeader('Location', '/auth-error?error=database_not_configured');
-        res.status(302).end();
-        return;
-      }
-
-      const nodeReq = req;
-      const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);
-
-      const result = await handleCallback(url, nodeReq.headers, defaultPrisma);
-
-      console.log('[Instagram Callback] Setting cookies:', result.cookies);
-
-      // Set multiple cookies at once (using array to avoid overwriting)
-      res.setHeader('Set-Cookie', result.cookies);
-      res.setHeader('Location', result.location);
-      res.status(302).end();
-      return;
-    } catch (error) {
-      console.error('[Instagram Callback] Error:', error);
-      const errorPath =
-        error instanceof Error && error.message.startsWith('/')
-          ? error.message
-          : '/auth-error?error=unexpected_error';
-      res.setHeader('Location', errorPath);
-      res.status(302).end();
-      return;
-    }
-  }
-
-  // Handle Edge runtime (Cloudflare)
-  const request = req as Request;
-
   try {
-    console.log('[Instagram Callback] Edge runtime');
+    console.log('[Instagram Callback] Handler called');
 
-    const { env } = getRequestContext();
-    const d1 = env.moderateur_bedones_db;
+    const url = new URL(req.url!, `http://${req.headers.host}`);
 
-    if (!d1) {
-      return Response.redirect(
-        new URL('/auth-error?error=database_not_configured', request.url),
-        302,
-      );
-    }
+    const result = await handleCallback(url, req.headers, prisma);
 
-    const prisma = createPrismaWithD1(d1);
-    const url = new URL(request.url);
+    console.log('[Instagram Callback] Setting cookies:', result.cookies);
 
-    const result = await handleCallback(url, request.headers, prisma);
-
-    const headers = new Headers();
-    headers.append('Location', result.location);
-    result.cookies.forEach((cookie) => headers.append('Set-Cookie', cookie));
-
-    return new Response(null, {
-      status: 302,
-      headers,
-    });
+    // Set multiple cookies at once (using array to avoid overwriting)
+    res.setHeader('Set-Cookie', result.cookies);
+    res.setHeader('Location', result.location);
+    res.status(302).end();
   } catch (error) {
     console.error('[Instagram Callback] Error:', error);
-    console.error(
-      '[Instagram Callback] Error stack:',
-      error instanceof Error ? error.stack : 'No stack trace',
-    );
-
     const errorPath =
       error instanceof Error && error.message.startsWith('/')
         ? error.message
         : '/auth-error?error=unexpected_error';
-
-    return Response.redirect(new URL(errorPath, request.url), 302);
+    res.setHeader('Location', errorPath);
+    res.status(302).end();
   }
 }

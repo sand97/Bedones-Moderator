@@ -1,8 +1,4 @@
-// Use edge runtime for Cloudflare deployment
-export const runtime = 'edge';
-
-import { getRequestContext } from '@cloudflare/next-on-pages';
-import { createPrismaWithD1, prisma as defaultPrisma } from '~/server/prisma';
+import { prisma } from '~/server/prisma';
 import { createSession, createSessionCookie } from '~/lib/auth';
 import { FacebookService } from '~/server/services/facebook';
 import type { PrismaClient } from '@prisma/client';
@@ -10,49 +6,54 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 async function handleCallback(
   url: URL,
-  headers: Headers | NextApiRequest['headers'],
+  headers: NextApiRequest['headers'],
   prisma: PrismaClient,
 ): Promise<{ location: string; cookies: string[] }> {
   // Get app URL from request headers (dynamic based on actual request)
-  let protocol: string;
-  let host: string;
-
-  if (headers instanceof Headers) {
-    protocol = headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
-    host = headers.get('x-forwarded-host') || headers.get('host') || url.host;
-  } else {
-    protocol = (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
-    host = (headers['x-forwarded-host'] as string) || (headers.host as string) || url.host;
-  }
+  const protocol = (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
+  const host = (headers['x-forwarded-host'] as string) || (headers.host!) || url.host;
 
   const appUrl = `${protocol}://${host}`;
 
   console.log('[Facebook Callback] Handler called');
 
   const code = url.searchParams.get('code');
-  const state = url.searchParams.get('state');
+  const stateParam = url.searchParams.get('state');
 
   if (!code) {
     console.error('[Facebook Callback] Missing code parameter');
     throw new Error('/auth-error?error=missing_code');
   }
 
-  // Verify state parameter for CSRF protection
-  let cookieHeader: string | undefined;
-  if (headers instanceof Headers) {
-    cookieHeader = headers.get('cookie') || '';
-  } else {
-    cookieHeader = headers.cookie || '';
+  // Decode state parameter to extract CSRF token
+  let csrfToken: string;
+
+  try {
+    if (!stateParam) {
+      throw new Error('Missing state parameter');
+    }
+    const stateData = JSON.parse(atob(stateParam));
+    csrfToken = stateData.csrf;
+  } catch (error) {
+    console.error('[Facebook Callback] Failed to decode state:', error);
+    throw new Error('/auth-error?error=invalid_state');
   }
+
+  // Verify CSRF token from cookie
+  const cookieHeader = headers.cookie || '';
 
   const cookies = cookieHeader.split(';').map((c) => c.trim());
   const stateCookie = cookies.find((c) => c.startsWith('oauth_state='));
-  const storedState = stateCookie?.split('=')[1];
+  const storedCsrfToken = stateCookie?.split('=')[1];
 
-  if (!storedState || storedState !== state) {
-    console.error('[Facebook Callback] State mismatch:', { storedState, state });
+  if (!storedCsrfToken || storedCsrfToken !== csrfToken) {
+    console.error('[Facebook Callback] CSRF token mismatch:', { storedCsrfToken, csrfToken });
     throw new Error('/auth-error?error=invalid_state');
   }
+
+  // Retrieve locale from cookie to preserve language preference
+  const localeCookie = cookies.find((c) => c.startsWith('oauth_locale='));
+  const locale = localeCookie?.split('=')[1] || 'fr';
 
   // Exchange code for access token
   const appId = process.env.FACEBOOK_APP_ID;
@@ -173,94 +174,43 @@ async function handleCallback(
   const isProduction = process.env.NODE_ENV === 'production';
   const sessionCookie = createSessionCookie(session.token, isProduction);
 
-  // Clear state cookie
+  // Clear state and locale cookies
   const clearStateCookie = 'oauth_state=; Path=/; HttpOnly; Max-Age=0';
+  const clearLocaleCookie = 'oauth_locale=; Path=/; HttpOnly; Max-Age=0';
 
   // Add update=disabled parameter for existing users to skip settings update
-  const dashboardUrl = new URL('/dashboard', appUrl);
+  // Include locale in path to preserve language preference
+  const dashboardUrl = new URL(`/${locale}/dashboard`, appUrl);
   if (isExistingUser) {
     dashboardUrl.searchParams.set('update', 'disabled');
   }
 
   return {
     location: dashboardUrl.toString(),
-    cookies: [sessionCookie, clearStateCookie],
+    cookies: [sessionCookie, clearStateCookie, clearLocaleCookie],
   };
 }
 
-export default async function handler(req: NextApiRequest | Request, res?: NextApiResponse) {
-  // Check if we're in Edge runtime by testing if req is a Web Request
-  const isEdgeRuntime = req instanceof Request;
-
-  // Handle Next.js API route (Node.js runtime)
-  if (!isEdgeRuntime && res) {
-    try {
-      console.log('[Facebook Callback] Node.js runtime');
-
-      if (!defaultPrisma) {
-        console.error('[Facebook Callback] No Prisma client available');
-        res.setHeader('Location', '/auth-error?error=database_not_configured');
-        res.status(302).end();
-        return;
-      }
-
-      const nodeReq = req as NextApiRequest;
-      const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);
-
-      const result = await handleCallback(url, nodeReq.headers, defaultPrisma);
-
-      console.log('[Facebook Callback] Setting cookies:', result.cookies);
-
-      // Set multiple cookies at once (using array to avoid overwriting)
-      res.setHeader('Set-Cookie', result.cookies);
-      res.setHeader('Location', result.location);
-      res.status(302).end();
-      return;
-    } catch (error) {
-      console.error('[Facebook Callback] Error:', error);
-      const errorPath = error instanceof Error && error.message.startsWith('/')
-        ? error.message
-        : '/auth-error?error=unexpected_error';
-      res.setHeader('Location', errorPath);
-      res.status(302).end();
-      return;
-    }
-  }
-
-  // Handle Edge runtime (Cloudflare)
-  const request = req as Request;
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    console.log('[Facebook Callback] Edge runtime');
+    console.log('[Facebook Callback] Handler called');
 
-    const { env } = getRequestContext();
-    const d1 = env.moderateur_bedones_db;
+    const url = new URL(req.url!, `http://${req.headers.host}`);
 
-    if (!d1) {
-      return Response.redirect(new URL('/auth-error?error=database_not_configured', request.url), 302);
-    }
+    const result = await handleCallback(url, req.headers, prisma);
 
-    const prisma = createPrismaWithD1(d1);
-    const url = new URL(request.url);
+    console.log('[Facebook Callback] Setting cookies:', result.cookies);
 
-    const result = await handleCallback(url, request.headers, prisma);
-
-    const headers = new Headers();
-    headers.append('Location', result.location);
-    result.cookies.forEach(cookie => headers.append('Set-Cookie', cookie));
-
-    return new Response(null, {
-      status: 302,
-      headers,
-    });
+    // Set multiple cookies at once (using array to avoid overwriting)
+    res.setHeader('Set-Cookie', result.cookies);
+    res.setHeader('Location', result.location);
+    res.status(302).end();
   } catch (error) {
     console.error('[Facebook Callback] Error:', error);
-    console.error('[Facebook Callback] Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-
     const errorPath = error instanceof Error && error.message.startsWith('/')
       ? error.message
       : '/auth-error?error=unexpected_error';
-
-    return Response.redirect(new URL(errorPath, request.url), 302);
+    res.setHeader('Location', errorPath);
+    res.status(302).end();
   }
 }

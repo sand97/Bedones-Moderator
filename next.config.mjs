@@ -1,11 +1,5 @@
 // @ts-check
 
-// Setup Cloudflare bindings for local development
-if (process.env.NODE_ENV === 'development') {
-  const { setupDevPlatform } = await import('@cloudflare/next-on-pages/next-dev');
-  await setupDevPlatform();
-}
-
 /**
  * @type {import('next').NextConfig}
  * @see https://nextjs.org/docs/api-reference/next.config.js/introduction
@@ -27,10 +21,8 @@ export default {
   typescript: {
     ignoreBuildErrors: true,
   },
-  /** Configuration for Cloudflare Pages deployment */
-  images: {
-    unoptimized: true,
-  },
+  /** Standalone output for Docker deployment */
+  output: 'standalone',
   /** Allow cross-origin requests for development */
   allowedDevOrigins: ['moderator.bedones.local', 'moderator.bedones.com'],
   /** i18n configuration */
