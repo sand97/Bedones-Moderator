@@ -140,7 +140,7 @@ const FacebookPage: NextPage = () => {
         </button>
       </div>
 
-      {pages && pages.length === 0 && (
+      {pages?.length === 0 && (
         <Card>
           <CardContent className="p-6">
             <p className="text-gray-500">
