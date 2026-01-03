@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/server/prisma';
 import {
   createNotchPayPayment,
-  getNotchPayAmount,
+  getNotchPayMultiMonthAmount,
   getNotchPayPlanConfig,
 } from '@/lib/notchpay-utils';
 
@@ -33,10 +33,15 @@ export default async function handler(
       return res.status(401).json({ error: 'Session expired' });
     }
 
-    const { planKey, phone } = req.body;
+    const { planKey, phone, months = 1 } = req.body;
 
     if (!planKey) {
       return res.status(400).json({ error: 'Plan key is required' });
+    }
+
+    // Validate months (must be 1, 3, 6, or 12)
+    if (![1, 3, 6, 12].includes(months)) {
+      return res.status(400).json({ error: 'Invalid months value. Must be 1, 3, 6, or 12' });
     }
 
     const user = sessionData.user;
@@ -47,7 +52,7 @@ export default async function handler(
 
     // Get plan configuration
     const planConfig = getNotchPayPlanConfig(planKey);
-    const amountXaf = getNotchPayAmount(planKey);
+    const pricing = getNotchPayMultiMonthAmount(planKey, months as 1 | 3 | 6 | 12);
 
     // Generate a unique reference for this payment
     const reference = `moderateur_${user.id}_${Date.now()}`;
@@ -56,14 +61,20 @@ export default async function handler(
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const callbackUrl = `${baseUrl}/api/notchpay/callback?reference=${reference}`;
 
+    // Build description with discount info
+    let description = `Moderateur Bedones ${planConfig.name} - ${months} mois`;
+    if (pricing.discount > 0) {
+      description += ` (${pricing.discount}% de réduction)`;
+    }
+
     // Create NotchPay payment
     const payment = await createNotchPayPayment({
-      amount: amountXaf,
+      amount: Math.round(pricing.finalPrice), // Round to avoid decimal issues
       currency: 'XAF',
       email: user.email,
       phone: phone || undefined,
       reference,
-      description: `Moderateur Bedones ${planConfig.name} - ${planConfig.monthlyCommentLimit} comments/mois`,
+      description,
       callback: callbackUrl,
     });
 
@@ -87,17 +98,26 @@ export default async function handler(
     await prisma.payment.create({
       data: {
         subscriptionId: subscription.id,
-        amount: amountXaf,
+        amount: pricing.finalPrice,
         currency: 'XAF',
         status: 'PENDING',
         paymentProvider: 'NOTCHPAY',
         notchpayTransactionId: reference,
         notchpayReference: reference,
+        monthsPurchased: months,
+        discountPercentage: pricing.discount,
+        baseAmount: pricing.totalBase,
         metadata: JSON.stringify({
           planKey,
           tier: planConfig.tier,
           planName: planConfig.name,
-          monthlyCommentLimit: planConfig.monthlyCommentLimit,
+          monthlyModerationCredits: planConfig.monthlyModerationCredits,
+          monthlyFaqCredits: planConfig.monthlyFaqCredits,
+          months,
+          discount: pricing.discount,
+          basePrice: pricing.basePrice,
+          totalBase: pricing.totalBase,
+          discountAmount: pricing.discountAmount,
         }),
       },
     });
@@ -106,6 +126,14 @@ export default async function handler(
     return res.status(200).json({
       url: payment.authorization_url,
       reference: payment.transaction.reference,
+      pricing: {
+        basePrice: pricing.basePrice,
+        months,
+        totalBase: pricing.totalBase,
+        discount: pricing.discount,
+        discountAmount: pricing.discountAmount,
+        finalPrice: pricing.finalPrice,
+      },
     });
   } catch (error) {
     console.error('NotchPay checkout error:', error);

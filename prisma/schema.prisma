@@ -109,11 +109,35 @@ model Page {
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   settings          PageSettings?
   posts             Post[]
+  credits           PageCredits?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
   @@index([userId])
   @@index([provider])
+}
+
+model PageCredits {
+  id                 String   @id @default(cuid())
+  pageId             String   @unique
+  page               Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  // Credit balances
+  moderationCredits  Int      @default(0) // Credits for spam/undesired comment detection
+  faqCredits         Int      @default(0) // Credits for FAQ auto-responses
+
+  // Free trial credits (given once per page)
+  freeCreditsGiven   Boolean  @default(false) // Track if this page received initial free credits
+  freeCreditsAmount  Int      @default(0) // How many free credits were given
+
+  // Usage tracking
+  totalModerationsUsed Int    @default(0) // Lifetime moderation count
+  totalFaqRepliesUsed  Int    @default(0) // Lifetime FAQ replies sent
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([pageId])
 }
 
 model PageSettings {
@@ -185,22 +209,33 @@ model Subscription {
   tier                  SubscriptionTier @default(FREE)
   planName              String? // "Starter", "Pro", "Business"
 
-  // Stripe Integration
+  // Stripe Integration (for card payments - auto-renewing)
   stripePriceId         String?
   stripeProductId       String?
   stripeSubscriptionId  String?
   stripeCustomerId      String?
 
-  // NotchPay Integration
+  // NotchPay Integration (for mobile money - manual multi-month)
   notchpayCustomerEmail String?
   notchpayCustomerPhone String?
 
-  // Usage limits (per month)
-  monthlyCommentLimit   Int              @default(100) // FREE = 100, STARTER = 1000, PRO = 5000, BUSINESS = 20000
-  currentMonthUsage     Int              @default(0)
-  usageResetDate        DateTime? // When to reset monthly usage
+  // Credit allocations (monthly refresh for active subscription)
+  monthlyModerationCredits Int           @default(0) // How many moderation credits allocated per month
+  monthlyFaqCredits        Int           @default(0) // How many FAQ credits allocated per month
 
-  expiresAt             DateTime? // null for FREE tier
+  // Legacy field (keep for backwards compatibility)
+  monthlyCommentLimit   Int              @default(100) // Deprecated: use monthlyModerationCredits instead
+  currentMonthUsage     Int              @default(0) // Deprecated
+
+  // Multi-month purchase tracking (for NotchPay)
+  monthsPurchased       Int              @default(1) // How many months were paid for
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+
+  // Renewal tracking
+  usageResetDate        DateTime? // When to reset monthly usage
+  expiresAt             DateTime? // null for FREE tier, or end of purchased period
+
   createdAt             DateTime         @default(now())
   updatedAt             DateTime         @updatedAt
   payments              Payment[]
@@ -213,16 +248,21 @@ model Payment {
   id                    String          @id @default(cuid())
   subscriptionId        String
   subscription          Subscription    @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-  amount                Float
+  amount                Float // Final amount paid (after discount)
   currency              String          @default("XAF") // FCFA (West/Central Africa) or USD
   status                PaymentStatus   @default(PENDING)
   paymentProvider       PaymentProvider
 
-  // Stripe Fields
+  // Multi-month purchase details
+  monthsPurchased       Int             @default(1) // Number of months purchased
+  discountPercentage    Float           @default(0) // Discount applied (e.g., 5, 10, 20)
+  baseAmount            Float? // Original price before discount
+
+  // Stripe Fields (for recurring subscriptions)
   stripePaymentIntentId String?
   stripeChargeId        String?
 
-  // NotchPay Fields
+  // NotchPay Fields (for one-time multi-month purchases)
   notchpayTransactionId String?
   notchpayReference     String?
 

@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { PLAN_CONFIGS } from './subscription-utils';
+import { PLAN_CONFIGS, calculateMultiMonthPrice } from './subscription-utils';
 import type { SubscriptionTier } from '@prisma/client';
 
 const NOTCHPAY_API_URL = 'https://api.notchpay.co';
@@ -135,14 +135,36 @@ export function verifyNotchPaySignature(
 }
 
 /**
- * Get plan amount in XAF (FCFA)
+ * Get plan amount in XAF (FCFA) - Legacy function
  */
 export function getNotchPayAmount(planKey: string): number {
   const plan = PLAN_CONFIGS[planKey];
   if (!plan) {
     throw new Error(`Invalid plan key: ${planKey}`);
   }
-  return plan.price.monthly;
+  return plan.price.monthlyXaf;
+}
+
+/**
+ * Get plan amount with multi-month discount
+ */
+export function getNotchPayMultiMonthAmount(
+  planKey: string,
+  months: 1 | 3 | 6 | 12
+): {
+  basePrice: number;
+  totalBase: number;
+  discount: number;
+  discountAmount: number;
+  finalPrice: number;
+  months: number;
+} {
+  const pricing = calculateMultiMonthPrice(planKey, months, 'XAF');
+
+  return {
+    ...pricing,
+    months,
+  };
 }
 
 /**
@@ -150,8 +172,10 @@ export function getNotchPayAmount(planKey: string): number {
  */
 export function getNotchPayPlanConfig(planKey: string): {
   tier: SubscriptionTier;
-  monthlyCommentLimit: number;
+  monthlyModerationCredits: number;
+  monthlyFaqCredits: number;
   priceXaf: number;
+  priceUsd: number;
   name: string;
 } {
   const plan = PLAN_CONFIGS[planKey];
@@ -160,8 +184,10 @@ export function getNotchPayPlanConfig(planKey: string): {
   }
   return {
     tier: plan.tier,
-    monthlyCommentLimit: plan.monthlyCommentLimit,
-    priceXaf: plan.price.monthly,
+    monthlyModerationCredits: plan.monthlyModerationCredits,
+    monthlyFaqCredits: plan.monthlyFaqCredits,
+    priceXaf: plan.price.monthlyXaf,
+    priceUsd: plan.price.monthlyUsd,
     name: plan.name,
   };
 }
