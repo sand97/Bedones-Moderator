@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
+import { Globe, HelpCircle } from 'lucide-react';
 import { useAuth } from '~/hooks/useAuth';
 import { cn } from '~/lib/utils';
 
@@ -8,7 +10,7 @@ interface HeaderProps {
 }
 
 export function Header({ className }: HeaderProps) {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const router = useRouter();
   const { session } = useAuth();
 
@@ -49,8 +51,16 @@ export function Header({ className }: HeaderProps) {
             className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium bg-white hover:bg-gray-100 border border-gray-300 transition-colors"
             title="Switch language"
           >
+            <Globe className="h-4 w-4" strokeWidth={1} />
             {router.locale === 'en' ? 'Français' : 'English'}
           </button>
+          <Link
+            href="/help"
+            className="flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium bg-white hover:bg-gray-100 border border-gray-300 transition-colors"
+          >
+            <HelpCircle className="h-4 w-4" strokeWidth={1} />
+            {t('header.help')}
+          </Link>
           {/* <Button
             variant="outline"
             className="bg-white hover:bg-gray-50"
