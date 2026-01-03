@@ -1,27 +1,14 @@
-// Use edge runtime for Cloudflare deployment
-export const runtime = 'edge';
-
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 function handleSignIn(
   url: URL,
-  headers: Headers | NextApiRequest['headers'],
+  headers: NextApiRequest['headers'],
 ): { location: string; setCookie: string } {
   const appId = process.env.FACEBOOK_APP_ID;
 
   // Get app URL from request headers (dynamic based on actual request)
-  let protocol: string;
-  let host: string;
-
-  if (headers instanceof Headers) {
-    protocol =
-      headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
-    host = headers.get('x-forwarded-host') || headers.get('host') || url.host;
-  } else {
-    protocol =
-      (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
-    host = (headers['x-forwarded-host'] as string) || headers.host! || url.host;
-  }
+  const protocol = (headers['x-forwarded-proto'] as string) || url.protocol.replace(':', '');
+  const host = (headers['x-forwarded-host'] as string) || headers.host! || url.host;
 
   const appUrl = `${protocol}://${host}`;
 
@@ -31,13 +18,7 @@ function handleSignIn(
 
   // Detect user's locale from referer header or query parameter
   let locale = 'fr'; // Default to French
-  let referer: string | null = null;
-
-  if (headers instanceof Headers) {
-    referer = headers.get('referer');
-  } else {
-    referer = headers.referer || null;
-  }
+  const referer = headers.referer || null;
 
   // Check query parameter first
   const langParam = url.searchParams.get('lang');
@@ -101,51 +82,16 @@ function handleSignIn(
   };
 }
 
-export default async function handler(
-  req: NextApiRequest | Request,
-  res?: NextApiResponse,
-) {
-  // Check if we're in Edge runtime by testing if req is a Web Request
-  const isEdgeRuntime = req instanceof Request;
-
-  // Handle Next.js API route (Node.js runtime)
-  if (!isEdgeRuntime && res) {
-    try {
-      const nodeReq = req;
-      const url = new URL(nodeReq.url!, `http://${nodeReq.headers.host}`);
-
-      const result = handleSignIn(url, nodeReq.headers);
-
-      res.setHeader('Set-Cookie', result.setCookie);
-      res.setHeader('Location', result.location);
-      res.status(302).end();
-      return;
-    } catch (error) {
-      console.error('[Facebook SignIn] Error:', error);
-      res.status(500).json({ error: 'Facebook sign in failed' });
-      return;
-    }
-  }
-
-  // Handle Edge runtime (Cloudflare)
-  const request = req as Request;
-
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
-    const url = new URL(request.url);
-    const result = handleSignIn(url, request.headers);
+    const url = new URL(req.url!, `http://${req.headers.host}`);
+    const result = handleSignIn(url, req.headers);
 
-    return new Response(null, {
-      status: 302,
-      headers: {
-        Location: result.location,
-        'Set-Cookie': result.setCookie,
-      },
-    });
+    res.setHeader('Set-Cookie', result.setCookie);
+    res.setHeader('Location', result.location);
+    res.status(302).end();
   } catch (error) {
     console.error('[Facebook SignIn] Error:', error);
-    return new Response(JSON.stringify({ error: 'Facebook sign in failed' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    res.status(500).json({ error: 'Facebook sign in failed' });
   }
 }
