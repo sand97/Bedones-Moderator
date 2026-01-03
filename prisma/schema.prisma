@@ -15,21 +15,42 @@ enum Provider {
   INSTAGRAM
 }
 
+enum SubscriptionTier {
+  FREE
+  STARTER
+  PRO
+  BUSINESS
+}
+
+enum PaymentProvider {
+  STRIPE
+  NOTCHPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
 model User {
-  id                String    @id @default(cuid())
-  email             String?   @unique
+  id                String        @id @default(cuid())
+  email             String?       @unique
   name              String?
   image             String?
-  emailVerified     Boolean   @default(false)
-  facebookId        String?   @unique
-  instagramId       String?   @unique
+  emailVerified     Boolean       @default(false)
+  facebookId        String?       @unique
+  instagramId       String?       @unique
   accessToken       String? // Encrypted access token
   accessTokenExpiry DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
   pages             Page[]
   sessions          Session[]
   accounts          Account[]
+  subscription      Subscription?
+  usageTracking     UsageTracking[]
 }
 
 model Session {
@@ -155,4 +176,87 @@ model Post {
   updatedAt    DateTime  @updatedAt
 
   @@index([pageId])
+}
+
+model Subscription {
+  id                    String           @id @default(cuid())
+  userId                String           @unique
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier                  SubscriptionTier @default(FREE)
+  planName              String? // "Starter", "Pro", "Business"
+
+  // Stripe Integration
+  stripePriceId         String?
+  stripeProductId       String?
+  stripeSubscriptionId  String?
+  stripeCustomerId      String?
+
+  // NotchPay Integration
+  notchpayCustomerEmail String?
+  notchpayCustomerPhone String?
+
+  // Usage limits (per month)
+  monthlyCommentLimit   Int              @default(100) // FREE = 100, STARTER = 1000, PRO = 5000, BUSINESS = 20000
+  currentMonthUsage     Int              @default(0)
+  usageResetDate        DateTime? // When to reset monthly usage
+
+  expiresAt             DateTime? // null for FREE tier
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  payments              Payment[]
+
+  @@index([userId])
+  @@index([tier])
+}
+
+model Payment {
+  id                    String          @id @default(cuid())
+  subscriptionId        String
+  subscription          Subscription    @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  amount                Float
+  currency              String          @default("XAF") // FCFA (West/Central Africa) or USD
+  status                PaymentStatus   @default(PENDING)
+  paymentProvider       PaymentProvider
+
+  // Stripe Fields
+  stripePaymentIntentId String?
+  stripeChargeId        String?
+
+  // NotchPay Fields
+  notchpayTransactionId String?
+  notchpayReference     String?
+
+  metadata              String? // JSON string for additional data
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([stripePaymentIntentId])
+  @@index([notchpayTransactionId])
+}
+
+model UsageTracking {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date              DateTime @default(now()) // Date of usage
+
+  // AI Usage
+  commentsAnalyzed  Int      @default(0) // Number of comments analyzed by AI
+  tokensUsed        Int      @default(0) // Approximate tokens consumed
+
+  // Platform breakdown
+  facebookComments  Int      @default(0)
+  instagramComments Int      @default(0)
+
+  // Cost tracking (for analytics)
+  estimatedCost     Float    @default(0.0) // In USD
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date])
+  @@unique([userId, date])
 }
