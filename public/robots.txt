@@ -1,0 +1,9 @@
+# robots.txt pour Moderateur Bedones
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# Sitemap
+Sitemap: https://moderator.bedones.com/sitemap.xml

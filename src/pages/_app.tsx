@@ -4,6 +4,7 @@ import type { ReactElement, ReactNode } from 'react';
 import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 import { DefaultLayout } from '~/components/DefaultLayout';
 import { Toaster } from '~/components/ui/toaster';
@@ -56,6 +57,7 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
     <>
       {getLayout(<Component {...pageProps} />)}
       <Toaster />
+      <GoogleAnalytics gaId="G-ZEJZ4EPXE9" />
     </>
   );
 }) as AppType;

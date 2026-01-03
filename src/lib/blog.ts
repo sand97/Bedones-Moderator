@@ -1,0 +1,98 @@
+import fs from 'fs';
+import path from 'path';
+import matter from 'gray-matter';
+
+export interface BlogArticle {
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string;
+  readTime: string;
+  publishedAt: string;
+  author: {
+    name: string;
+    role: string;
+  };
+  image: string;
+  content: string;
+}
+
+const contentDirectory = path.join(process.cwd(), 'src/content/blog');
+
+export function getAllArticles(): BlogArticle[] {
+  // Check if directory exists
+  if (!fs.existsSync(contentDirectory)) {
+    console.warn(`Blog directory not found: ${contentDirectory}`);
+    return [];
+  }
+
+  const fileNames = fs.readdirSync(contentDirectory);
+  const articles = fileNames
+    .filter((fileName) => fileName.endsWith('.md') && fileName !== 'README.md')
+    .map((fileName) => {
+      const slug = fileName.replace(/\.md$/, '');
+      const fullPath = path.join(contentDirectory, fileName);
+      const fileContents = fs.readFileSync(fullPath, 'utf8');
+      const { data, content } = matter(fileContents);
+
+      const article: BlogArticle = {
+        slug,
+        title: data.title,
+        excerpt: data.excerpt,
+        category: data.category,
+        readTime: data.readTime,
+        publishedAt: data.publishedAt,
+        author: data.author,
+        image: data.image,
+        content,
+      };
+
+      return article;
+    });
+
+  // Sort by date (most recent first)
+  return articles.sort((a, b) => {
+    return new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime();
+  });
+}
+
+export function getArticleBySlug(slug: string): BlogArticle | undefined {
+  try {
+    const fullPath = path.join(contentDirectory, `${slug}.md`);
+
+    if (!fs.existsSync(fullPath)) {
+      return undefined;
+    }
+
+    const fileContents = fs.readFileSync(fullPath, 'utf8');
+    const { data, content } = matter(fileContents);
+
+    const article: BlogArticle = {
+      slug,
+      title: data.title,
+      excerpt: data.excerpt,
+      category: data.category,
+      readTime: data.readTime,
+      publishedAt: data.publishedAt,
+      author: data.author,
+      image: data.image,
+      content,
+    };
+
+    return article;
+  } catch (error) {
+    console.error(`Error reading article ${slug}:`, error);
+    return undefined;
+  }
+}
+
+export function getAllSlugs(): string[] {
+  if (!fs.existsSync(contentDirectory)) {
+    return [];
+  }
+
+  const fileNames = fs.readdirSync(contentDirectory);
+  return fileNames
+    .filter((fileName) => fileName.endsWith('.md') && fileName !== 'README.md')
+    .map((fileName) => fileName.replace(/\.md$/, ''));
+}

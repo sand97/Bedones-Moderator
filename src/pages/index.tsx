@@ -5,6 +5,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { FacebookConnectButton } from '~/components/FacebookConnectButton';
 import { InstagramConnectButton } from '~/components/InstagramConnectButton';
 import { Header } from '~/components/Header';
+import { Footer } from '~/components/Footer';
 import {
   IntelligentFAQSection,
   type FAQItem,
@@ -148,6 +149,7 @@ const IndexPage: NextPageWithLayout = () => {
         />
       </div> */}
       </div>
+      <Footer />
     </>
   );
 };
