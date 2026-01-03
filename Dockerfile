@@ -11,8 +11,8 @@ RUN corepack enable && corepack prepare pnpm@10.13.1 --activate
 
 # Copy package files
 COPY package.json pnpm-lock.yaml* ./
-# Install dependencies
-RUN pnpm install --frozen-lockfile
+# Install dependencies (skip scripts to avoid prisma generate without schema)
+RUN pnpm install --frozen-lockfile --ignore-scripts
 
 # Rebuild the source code only when needed
 FROM base AS builder

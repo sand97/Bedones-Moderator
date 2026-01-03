@@ -196,7 +196,7 @@ export class InstagramService {
       select: { accessToken: true, provider: true },
     });
 
-    if (!page || page.provider !== 'INSTAGRAM') {
+    if (page?.provider !== 'INSTAGRAM') {
       throw new Error('Instagram account not found');
     }
 

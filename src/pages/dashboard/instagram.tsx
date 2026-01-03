@@ -138,7 +138,7 @@ const InstagramPage: NextPage = () => {
         </button>
       </div>
 
-      {accounts && accounts.length === 0 && (
+      {accounts?.length === 0 && (
         <Card>
           <CardContent className="p-6">
             <p className="text-gray-500">
