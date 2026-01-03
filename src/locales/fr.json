@@ -5,7 +5,8 @@
   },
   "header": {
     "connection": "Connexion",
-    "signOut": "Déconnexion"
+    "signOut": "Déconnexion",
+    "help": "Aide"
   },
   "undesiredComments": {
     "title": "Filtrer les commentaires indésirables",
@@ -130,6 +131,61 @@
         "title": "Échec de la synchronisation des pages",
         "message": "Nous vous avons authentifié avec succès, mais une erreur s'est produite lors de la récupération de vos pages Facebook. Veuillez contacter le support avec ce code d'erreur pour que nous puissions vous aider."
       }
+    }
+  },
+  "helpPage": {
+    "title": "Besoin d'aide ?",
+    "subtitle": "Trouvez une réponse rapide ou envoyez-nous un message. Nous répondons généralement sous 24 h.",
+    "faq": {
+      "title": "Questions fréquentes",
+      "description": "Commencez par les questions les plus courantes.",
+      "items": {
+        "connect": {
+          "question": "Comment connecter mon compte Facebook ou Instagram ?",
+          "answer": "Depuis la page de connexion, choisissez Facebook ou Instagram et validez l'accès. Vos pages et comptes apparaîtront ensuite dans le tableau de bord."
+        },
+        "missingPages": {
+          "question": "Pourquoi mes pages ou comptes n'apparaissent pas ?",
+          "answer": "Assurez-vous d'être administrateur de la page et que le compte Instagram professionnel est bien lié à Facebook. Puis actualisez la liste dans les paramètres."
+        },
+        "moderation": {
+          "question": "Comment fonctionne la modération ?",
+          "answer": "Nous analysons les commentaires avec l'IA et appliquons l'action choisie (masquer ou supprimer). Vous pouvez modifier ces réglages à tout moment."
+        },
+        "faqRules": {
+          "question": "Comment mettre à jour les réponses FAQ intelligentes ?",
+          "answer": "Ouvrez les paramètres Facebook ou Instagram et ajoutez, modifiez ou supprimez des règles FAQ."
+        },
+        "history": {
+          "question": "Où voir les commentaires modérés ?",
+          "answer": "Rendez-vous sur la page Commentaires du tableau de bord pour consulter les actions et filtres."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contacter le support",
+      "description": "Expliquez votre besoin et nous vous répondrons."
+    },
+    "form": {
+      "name": "Nom",
+      "email": "Email",
+      "topic": "Sujet",
+      "topicPlaceholder": "Choisir un sujet",
+      "message": "Message",
+      "submit": "Envoyer la demande",
+      "sending": "Envoi...",
+      "supportHours": "Réponse sous 24 h (lun-ven)",
+      "successTitle": "Demande envoyée",
+      "successDescription": "Merci ! Nous reviendrons vers vous rapidement.",
+      "errorTitle": "Envoi impossible",
+      "errorDescription": "Réessayez dans quelques instants."
+    },
+    "topics": {
+      "general": "Question générale",
+      "account": "Accès au compte",
+      "moderation": "Paramètres de modération",
+      "billing": "Facturation et abonnement",
+      "bug": "Signaler un bug"
     }
   },
   "illustration": {

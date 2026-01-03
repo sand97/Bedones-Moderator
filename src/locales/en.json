@@ -5,7 +5,8 @@
   },
   "header": {
     "connection": "Connection",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "help": "Help"
   },
   "undesiredComments": {
     "title": "Filter Undesired Comments",
@@ -130,6 +131,61 @@
         "title": "Page Synchronization Failed",
         "message": "We successfully authenticated you, but encountered an error while retrieving your Facebook pages. Please contact support with this error code so we can assist you."
       }
+    }
+  },
+  "helpPage": {
+    "title": "Need help?",
+    "subtitle": "Find quick answers or send us a message. We usually reply within 24 hours.",
+    "faq": {
+      "title": "Frequently asked questions",
+      "description": "Start here for the most common questions.",
+      "items": {
+        "connect": {
+          "question": "How do I connect my Facebook or Instagram account?",
+          "answer": "From the login page, choose Facebook or Instagram and approve access. Once connected, your pages and accounts appear in the dashboard."
+        },
+        "missingPages": {
+          "question": "Why don't I see my pages or accounts?",
+          "answer": "Make sure you are an admin on the page and that the Instagram business account is linked to Facebook. Then refresh the list in settings."
+        },
+        "moderation": {
+          "question": "How does moderation work?",
+          "answer": "We analyze comments with AI and apply the action you selected (hide or delete). You can change these settings anytime."
+        },
+        "faqRules": {
+          "question": "How do I update intelligent FAQ replies?",
+          "answer": "Open your Facebook or Instagram settings and add, edit, or remove FAQ rules."
+        },
+        "history": {
+          "question": "Where can I see moderated comments?",
+          "answer": "Go to the Comments page in your dashboard to review actions and filters."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contact support",
+      "description": "Tell us what you need and we'll get back to you."
+    },
+    "form": {
+      "name": "Name",
+      "email": "Email",
+      "topic": "Topic",
+      "topicPlaceholder": "Select a topic",
+      "message": "Message",
+      "submit": "Send request",
+      "sending": "Sending...",
+      "supportHours": "Support response within 24h (Mon–Fri)",
+      "successTitle": "Request sent",
+      "successDescription": "Thanks! We'll get back to you soon.",
+      "errorTitle": "Unable to send",
+      "errorDescription": "Please try again in a moment."
+    },
+    "topics": {
+      "general": "General question",
+      "account": "Account access",
+      "moderation": "Moderation settings",
+      "billing": "Billing & subscription",
+      "bug": "Report a bug"
     }
   },
   "illustration": {
