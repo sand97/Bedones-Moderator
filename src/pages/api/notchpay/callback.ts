@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { prisma } from '@/server/prisma';
 import { verifyNotchPayPayment } from '@/lib/notchpay-utils';
 import { getNextResetDate } from '@/lib/subscription-utils';
+import { refillMonthlyCredits } from '@/lib/credit-utils';
 import type { SubscriptionTier } from '@prisma/client';
 
 export default async function handler(
@@ -51,28 +52,48 @@ export default async function handler(
 
       const tier = metadata.tier as SubscriptionTier;
       const planName = metadata.planName as string;
-      const monthlyCommentLimit = metadata.monthlyCommentLimit as number;
+      const monthlyModerationCredits = metadata.monthlyModerationCredits as number;
+      const monthlyFaqCredits = metadata.monthlyFaqCredits as number;
+      const months = metadata.months as number || 1;
 
-      // Calculate expiration date (30 days from now)
-      const expiresAt = new Date();
-      expiresAt.setDate(expiresAt.getDate() + 30);
+      // Calculate period dates
+      const now = new Date();
+      const currentPeriodStart = now;
+      const currentPeriodEnd = new Date(now);
+      currentPeriodEnd.setMonth(currentPeriodEnd.getMonth() + months);
 
-      // Calculate next usage reset date
+      // Calculate next usage reset date (beginning of next month)
       const usageResetDate = getNextResetDate();
 
-      // Update subscription
-      await prisma.subscription.update({
+      // Update subscription with multi-month support
+      const updatedSubscription = await prisma.subscription.update({
         where: { id: payment.subscriptionId },
         data: {
           tier,
           planName,
-          monthlyCommentLimit,
-          currentMonthUsage: 0, // Reset usage
+          monthlyModerationCredits,
+          monthlyFaqCredits,
+          monthsPurchased: months,
+          currentPeriodStart,
+          currentPeriodEnd,
+          // Legacy fields (keep for backwards compatibility)
+          monthlyCommentLimit: monthlyModerationCredits,
+          currentMonthUsage: 0,
           usageResetDate,
-          expiresAt,
+          expiresAt: currentPeriodEnd,
           updatedAt: new Date(),
         },
       });
+
+      // Refill credits for all user's pages
+      const creditRefill = await refillMonthlyCredits(
+        payment.subscription.userId,
+        updatedSubscription
+      );
+
+      console.log(
+        `💳 Credits refilled for ${creditRefill.pagesRefilled} pages (${creditRefill.totalCreditsAdded} total credits)`
+      );
 
       // Update payment status
       await prisma.payment.update({
@@ -83,9 +104,14 @@ export default async function handler(
         },
       });
 
-      console.log(`✅ Payment successful for user ${payment.subscription.userId}`);
+      console.log(
+        `✅ Payment successful for user ${payment.subscription.userId} - ${months} month(s) of ${planName}`
+      );
       return res.redirect('/dashboard?payment=success');
-    } else if (verification.transaction.status === 'failed' || verification.transaction.status === 'cancelled') {
+    } else if (
+      verification.transaction.status === 'failed' ||
+      verification.transaction.status === 'cancelled'
+    ) {
       // Update payment status
       await prisma.payment.update({
         where: { id: payment.id },
