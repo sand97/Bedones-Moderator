@@ -40,26 +40,41 @@ export default async function handler(
     }
 
     const userId = sessionData.userId;
-    const { emailSubscribed } = req.body;
+    const { emailSubscribed, emailTransactional } = req.body;
 
     // Validate input
-    if (typeof emailSubscribed !== 'boolean') {
+    if (emailSubscribed !== undefined && typeof emailSubscribed !== 'boolean') {
       return res.status(400).json({ error: 'Invalid emailSubscribed value' });
+    }
+    if (emailTransactional !== undefined && typeof emailTransactional !== 'boolean') {
+      return res.status(400).json({ error: 'Invalid emailTransactional value' });
+    }
+
+    // Build update data object
+    const updateData: {
+      emailSubscribed?: boolean;
+      emailTransactional?: boolean;
+    } = {};
+
+    if (emailSubscribed !== undefined) {
+      updateData.emailSubscribed = emailSubscribed;
+    }
+    if (emailTransactional !== undefined) {
+      updateData.emailTransactional = emailTransactional;
     }
 
     // Update user preferences
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: {
-        emailSubscribed,
-      },
+      data: updateData,
     });
 
-    console.log(`[Email Preferences] User ${userId} updated emailSubscribed to ${emailSubscribed}`);
+    console.log(`[Email Preferences] User ${userId} updated preferences:`, updateData);
 
     return res.status(200).json({
       success: true,
       emailSubscribed: updatedUser.emailSubscribed,
+      emailTransactional: updatedUser.emailTransactional,
     });
   } catch (error) {
     console.error('[Email Preferences] Error:', error);

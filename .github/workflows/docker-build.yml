@@ -9,7 +9,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: bedones-moderator
+  IMAGE_NAME: ${{ github.repository }}
   STACK_NAME: moderateur-bedones-stack
   SERVICE_NAME: app
 
@@ -79,12 +79,14 @@ jobs:
             # Se connecter au registry GitHub
             echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
+            IMAGE_REF="$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main" | tr '[:upper:]' '[:lower:]')"
+
             # Pull la dernière image
-            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
+            docker pull "${IMAGE_REF}"
 
             # Mettre à jour le service avec rolling update (zero-downtime)
             docker service update \
-              --image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main \
+              --image "${IMAGE_REF}" \
               --with-registry-auth \
               ${{ env.STACK_NAME }}_${{ env.SERVICE_NAME }}
 

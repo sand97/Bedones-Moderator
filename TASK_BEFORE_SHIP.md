@@ -10,6 +10,18 @@ Last updated: 2026-01-04
 - [x] Database schema with Prisma (including Payment & Subscription models)
 - [x] Privacy & Terms pages
 - [x] Basic dashboard structure
+- [x] **Email System (Resend)** - Complete transactional & marketing email infrastructure
+  - [x] Resend integration with batch API
+  - [x] Black/White minimalist email templates
+  - [x] Welcome email (after email verification)
+  - [x] Email verification (for social auth users)
+  - [x] Payment confirmation emails (success/failed)
+  - [x] Subscription expiration alerts (7 days + expired)
+  - [x] Low credits warning emails
+  - [x] Blog-to-email system (with scheduled sends)
+  - [x] Email tracking (opens, clicks via Resend webhooks)
+  - [x] Unsubscribe system
+  - [x] User preference management (emailSubscribed field)
 
 ### 🚧 In Progress
 
@@ -64,14 +76,16 @@ Last updated: 2026-01-04
 - [x] Add filtering and sorting
 
 #### 7. Implement Account Features
-**Status:** ⏳ Not started | **Priority:** MEDIUM (GDPR compliance)
-- [ ] Create account page
-- [ ] User can update their email (after validation code send by mail)
-- [ ] Create delete account modal/popup
-- [ ] Implement account deletion logic
-- [ ] Implement email notification preferences in page
-- [ ] Data cleanup (cascade delete)
-- [ ] Confirmation flow
+**Status:** ✅ Completed | **Priority:** MEDIUM (GDPR compliance)
+- [x] Create account page (/dashboard/account)
+- [x] User can update their email (with verification code sent by email)
+- [x] Resend verification email button when email not verified
+- [x] Create delete account modal/popup (with DELETE confirmation)
+- [x] Implement account deletion logic (API: /api/user/delete-account)
+- [x] Implement email notification preferences (marketing + transactional emails)
+- [x] Data cleanup (cascade delete all user data)
+- [x] Confirmation flow (type DELETE to confirm)
+- [x] Added emailTransactional field to User model (Prisma migration applied)
 
 #### 8. Pages Layout Adjustments
 **Status:** ✅ Completed | **Priority:** LOW
@@ -103,18 +117,65 @@ Last updated: 2026-01-04
 - [ ] Uptime monitoring setup
 
 ### 📋 Deferred for Later
-- [ ] Email notifications (waiting for email service setup)
-  - Welcome email
-  - Password reset
-  - Payment confirmation
-  - Moderation alerts
-  - Usage limit alerts
+- [ ] Password reset email (not yet implemented, but infrastructure ready)
+- [ ] Moderation alerts (not yet implemented, but infrastructure ready)
 
 ### 📝 Notes
-- Email service deferred: Domain on Cloudflare, no email provider configured yet
+- ✅ Email System (Resend) - Complete infrastructure with batch sending, tracking, and blog integration
 - ✅ Google Analytics (G-ZEJZ4EPXE9) - Integrated with full e-commerce tracking
 - Sentry DSN will be provided by Bruce
 - Project reference: `/Users/bruce/Documents/project/tcf/tcf-web-app`
+
+### 🎯 Email System Implementation Details
+**Provider:** Resend (API-based, modern email service)
+
+**Files Created:**
+- `src/lib/email/mailer.ts` - Resend integration with sendEmail() and sendBatchEmails()
+- `src/lib/email/templates.ts` - 7 Black/White minimalist email templates
+- `src/lib/email/blog-to-email.ts` - Markdown to HTML email converter
+- `src/pages/api/email/track/open.ts` - Email open tracking (1x1 pixel)
+- `src/pages/api/email/track/click.ts` - Email click tracking + redirect
+- `src/pages/api/email/unsubscribe.ts` - Unsubscribe handler
+- `src/pages/api/webhooks/resend.ts` - Resend webhook for delivery/open/click/bounce events
+- `src/pages/api/user/add-email.ts` - Add email to social auth account
+- `src/pages/api/user/verify-email.ts` - Email verification handler
+- `src/pages/api/cron/send-blog-emails.ts` - Daily cron for blog email campaigns
+
+**Database Models:**
+- `EmailCampaign` - Campaign tracking with statistics
+- `EmailLog` - Individual email tracking (PENDING → SENT → DELIVERED → OPENED → CLICKED)
+- `EmailClick` - Click tracking records
+- Added `emailSubscribed` field to User model
+
+**Email Templates (Black/White Minimalist):**
+1. Payment Success - Receipt with credits added
+2. Payment Failed - Retry CTA with reason
+3. Subscription Expired - Feedback request + renewal CTA
+4. Subscription Expiring (7 days) - Renewal reminder
+5. Low Credits Warning - Usage alert + upgrade CTA
+6. Email Verification - 24h token verification
+7. Welcome Email - Onboarding after verification
+
+**Key Features:**
+- **Batch sending** via `resend.batch.send()` (up to 100 emails/call)
+- **Individual tracking** per recipient (unique tracking ID, unsubscribe link)
+- **Blog-to-email** with frontmatter scheduling (`sendEmailAt: "2026-01-10"`)
+- **Resend webhooks** for real-time delivery/open/click tracking
+- **Transactional emails** integrated in payment callback and cron jobs
+- **Privacy compliant** with unsubscribe and emailSubscribed preferences
+
+**TODOs Implemented:**
+- ✅ src/pages/api/notchpay/callback.ts:110 - Payment success email
+- ✅ src/pages/api/notchpay/callback.ts:124 - Payment failed email
+- ✅ src/lib/cron-utils.ts:151 - Subscription expired email
+- ✅ src/lib/cron-utils.ts:221 - Expiring soon reminder
+- ✅ src/lib/cron-utils.ts:230 - Low credits warning
+
+**Setup Required:**
+1. Add `RESEND_API_KEY` to production .env
+2. Configure Resend webhook: `https://moderator.bedones.local/api/webhooks/resend`
+3. Set up cron job for `/api/cron/send-blog-emails` (daily at 10:00 AM)
+4. Verify sender domain in Resend dashboard
 
 ### 🎯 Google Analytics Implementation Details
 **Files Created:**

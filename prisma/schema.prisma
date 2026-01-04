@@ -66,24 +66,25 @@ enum EmailStatus {
 }
 
 model User {
-  id                String        @id @default(cuid())
-  email             String?       @unique
-  name              String?
-  image             String?
-  emailVerified     Boolean       @default(false)
-  emailSubscribed   Boolean       @default(true) // User wants to receive marketing emails
-  facebookId        String?       @unique
-  instagramId       String?       @unique
-  accessToken       String? // Encrypted access token
-  accessTokenExpiry DateTime?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  pages             Page[]
-  sessions          Session[]
-  accounts          Account[]
-  subscription      Subscription?
-  usageTracking     UsageTracking[]
-  emailLogs         EmailLog[]
+  id                  String        @id @default(cuid())
+  email               String?       @unique
+  name                String?
+  image               String?
+  emailVerified       Boolean       @default(false)
+  emailSubscribed     Boolean       @default(true) // User wants to receive marketing emails
+  emailTransactional  Boolean       @default(true) // User wants to receive transactional emails (billing, account)
+  facebookId          String?       @unique
+  instagramId         String?       @unique
+  accessToken         String? // Encrypted access token
+  accessTokenExpiry   DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+  pages               Page[]
+  sessions            Session[]
+  accounts            Account[]
+  subscription        Subscription?
+  usageTracking       UsageTracking[]
+  emailLogs           EmailLog[]
 }
 
 model Session {

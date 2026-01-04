@@ -29,7 +29,9 @@ const DashboardAccountPage: NextPage = () => {
 
   const [email, setEmail] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
   const [emailSubscribed, setEmailSubscribed] = useState(true);
+  const [emailTransactional, setEmailTransactional] = useState(true);
   const [emailPrefLoading, setEmailPrefLoading] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -45,6 +47,7 @@ const DashboardAccountPage: NextPage = () => {
     if (session?.user) {
       setEmail(session.user.email || '');
       setEmailSubscribed(session.user.emailSubscribed ?? true);
+      setEmailTransactional(session.user.emailTransactional ?? true);
     }
   }, [session?.user]);
 
@@ -90,18 +93,60 @@ const DashboardAccountPage: NextPage = () => {
     }
   };
 
-  const handleEmailPreferencesUpdate = async (checked: boolean) => {
+  const handleResendVerification = async () => {
+    if (!session?.user) return;
+
+    setResendLoading(true);
+    try {
+      const response = await fetch('/api/user/resend-verification', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast({
+          title: t('accountPage.email.resendSuccess'),
+          description: t('accountPage.email.resendSuccessDescription'),
+        });
+      } else {
+        toast({
+          title: t('accountPage.email.resendError'),
+          description: data.error || t('accountPage.email.resendErrorDescription'),
+          variant: 'destructive',
+        });
+      }
+    } catch (error) {
+      console.error('Resend verification error:', error);
+      toast({
+        title: t('accountPage.email.resendError'),
+        description: t('accountPage.email.resendErrorDescription'),
+        variant: 'destructive',
+      });
+    } finally {
+      setResendLoading(false);
+    }
+  };
+
+  const handleEmailPreferencesUpdate = async (type: 'marketing' | 'transactional', checked: boolean) => {
     if (!session?.user) return;
 
     setEmailPrefLoading(true);
-    setEmailSubscribed(checked);
+
+    if (type === 'marketing') {
+      setEmailSubscribed(checked);
+    } else {
+      setEmailTransactional(checked);
+    }
 
     try {
       const response = await fetch('/api/user/update-email-preferences', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          emailSubscribed: checked,
+          ...(type === 'marketing' && { emailSubscribed: checked }),
+          ...(type === 'transactional' && { emailTransactional: checked }),
         }),
       });
 
@@ -110,14 +155,22 @@ const DashboardAccountPage: NextPage = () => {
       if (response.ok) {
         toast({
           title: t('accountPage.preferences.success'),
-          description: checked
-            ? t('accountPage.preferences.subscribedDescription')
-            : t('accountPage.preferences.unsubscribedDescription'),
+          description: type === 'marketing'
+            ? (checked
+                ? t('accountPage.preferences.subscribedDescription')
+                : t('accountPage.preferences.unsubscribedDescription'))
+            : (checked
+                ? t('accountPage.preferences.transactionalEnabledDescription')
+                : t('accountPage.preferences.transactionalDisabledDescription')),
         });
         await refetchSession();
       } else {
         // Revert on error
-        setEmailSubscribed(!checked);
+        if (type === 'marketing') {
+          setEmailSubscribed(!checked);
+        } else {
+          setEmailTransactional(!checked);
+        }
         toast({
           title: t('accountPage.preferences.error'),
           description: data.error || t('accountPage.preferences.errorDescription'),
@@ -127,7 +180,11 @@ const DashboardAccountPage: NextPage = () => {
     } catch (error) {
       console.error('Email preferences error:', error);
       // Revert on error
-      setEmailSubscribed(!checked);
+      if (type === 'marketing') {
+        setEmailSubscribed(!checked);
+      } else {
+        setEmailTransactional(!checked);
+      }
       toast({
         title: t('accountPage.preferences.error'),
         description: t('accountPage.preferences.errorDescription'),
@@ -224,9 +281,20 @@ const DashboardAccountPage: NextPage = () => {
                   required
                 />
                 {session.user.email && !session.user.emailVerified && (
-                  <div className="flex items-center gap-2 text-sm text-amber-600">
-                    <AlertTriangle className="h-4 w-4" />
-                    <span>{t('accountPage.email.notVerified')}</span>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-amber-600">
+                      <AlertTriangle className="h-4 w-4" />
+                      <span>{t('accountPage.email.notVerified')}</span>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleResendVerification}
+                      disabled={resendLoading}
+                    >
+                      {resendLoading ? t('accountPage.email.resending') : t('accountPage.email.resend')}
+                    </Button>
                   </div>
                 )}
                 {session.user.email && session.user.emailVerified && (
@@ -252,10 +320,10 @@ const DashboardAccountPage: NextPage = () => {
             </div>
             <CardDescription>{t('accountPage.preferences.description')}</CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label htmlFor="email-notifications" className="font-medium">
+                <Label htmlFor="marketing-emails" className="font-medium">
                   {t('accountPage.preferences.marketingEmails')}
                 </Label>
                 <p className="text-sm text-muted-foreground">
@@ -263,9 +331,28 @@ const DashboardAccountPage: NextPage = () => {
                 </p>
               </div>
               <Switch
-                id="email-notifications"
+                id="marketing-emails"
                 checked={emailSubscribed}
-                onCheckedChange={handleEmailPreferencesUpdate}
+                onCheckedChange={(checked) => handleEmailPreferencesUpdate('marketing', checked)}
+                disabled={emailPrefLoading}
+              />
+            </div>
+
+            <Separator />
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label htmlFor="transactional-emails" className="font-medium">
+                  {t('accountPage.preferences.transactionalEmails')}
+                </Label>
+                <p className="text-sm text-muted-foreground">
+                  {t('accountPage.preferences.transactionalEmailsDescription')}
+                </p>
+              </div>
+              <Switch
+                id="transactional-emails"
+                checked={emailTransactional}
+                onCheckedChange={(checked) => handleEmailPreferencesUpdate('transactional', checked)}
                 disabled={emailPrefLoading}
               />
             </div>
