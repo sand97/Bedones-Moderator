@@ -4,7 +4,13 @@ import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '~/components/DashboardLayout';
 import { Skeleton } from '~/components/ui/skeleton';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
@@ -20,12 +26,22 @@ import {
 } from '~/components/ui/dialog';
 import { trpc } from '~/utils/trpc';
 import { toast } from '~/hooks/use-toast';
-import { Mail, Shield, Trash2, CheckCircle2, AlertTriangle } from 'lucide-react';
+import {
+  Mail,
+  Shield,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+} from 'lucide-react';
 
 const DashboardAccountPage: NextPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { data: session, isLoading: sessionLoading, refetch: refetchSession } = trpc.auth.getSession.useQuery();
+  const {
+    data: session,
+    isLoading: sessionLoading,
+    refetch: refetchSession,
+  } = trpc.auth.getSession.useQuery();
 
   const [email, setEmail] = useState('');
   const [emailLoading, setEmailLoading] = useState(false);
@@ -113,7 +129,8 @@ const DashboardAccountPage: NextPage = () => {
       } else {
         toast({
           title: t('accountPage.email.resendError'),
-          description: data.error || t('accountPage.email.resendErrorDescription'),
+          description:
+            data.error || t('accountPage.email.resendErrorDescription'),
           variant: 'destructive',
         });
       }
@@ -129,7 +146,10 @@ const DashboardAccountPage: NextPage = () => {
     }
   };
 
-  const handleEmailPreferencesUpdate = async (type: 'marketing' | 'transactional', checked: boolean) => {
+  const handleEmailPreferencesUpdate = async (
+    type: 'marketing' | 'transactional',
+    checked: boolean,
+  ) => {
     if (!session?.user) return;
 
     setEmailPrefLoading(true);
@@ -155,13 +175,14 @@ const DashboardAccountPage: NextPage = () => {
       if (response.ok) {
         toast({
           title: t('accountPage.preferences.success'),
-          description: type === 'marketing'
-            ? (checked
+          description:
+            type === 'marketing'
+              ? checked
                 ? t('accountPage.preferences.subscribedDescription')
-                : t('accountPage.preferences.unsubscribedDescription'))
-            : (checked
+                : t('accountPage.preferences.unsubscribedDescription')
+              : checked
                 ? t('accountPage.preferences.transactionalEnabledDescription')
-                : t('accountPage.preferences.transactionalDisabledDescription')),
+                : t('accountPage.preferences.transactionalDisabledDescription'),
         });
         await refetchSession();
       } else {
@@ -173,7 +194,8 @@ const DashboardAccountPage: NextPage = () => {
         }
         toast({
           title: t('accountPage.preferences.error'),
-          description: data.error || t('accountPage.preferences.errorDescription'),
+          description:
+            data.error || t('accountPage.preferences.errorDescription'),
           variant: 'destructive',
         });
       }
@@ -266,7 +288,9 @@ const DashboardAccountPage: NextPage = () => {
               <Mail className="h-5 w-5" />
               <CardTitle>{t('accountPage.email.title')}</CardTitle>
             </div>
-            <CardDescription>{t('accountPage.email.description')}</CardDescription>
+            <CardDescription>
+              {t('accountPage.email.description')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleEmailUpdate} className="space-y-4">
@@ -281,20 +305,9 @@ const DashboardAccountPage: NextPage = () => {
                   required
                 />
                 {session.user.email && !session.user.emailVerified && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-amber-600">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>{t('accountPage.email.notVerified')}</span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResendVerification}
-                      disabled={resendLoading}
-                    >
-                      {resendLoading ? t('accountPage.email.resending') : t('accountPage.email.resend')}
-                    </Button>
+                  <div className="flex items-center gap-2 text-sm text-amber-600">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>{t('accountPage.email.notVerified')}</span>
                   </div>
                 )}
                 {session.user.email && session.user.emailVerified && (
@@ -304,9 +317,30 @@ const DashboardAccountPage: NextPage = () => {
                   </div>
                 )}
               </div>
-              <Button type="submit" disabled={emailLoading || !email}>
-                {emailLoading ? t('accountPage.email.updating') : t('accountPage.email.update')}
-              </Button>
+              <div className="flex gap-3">
+                <Button
+                  type="submit"
+                  disabled={emailLoading || !email}
+                  className="flex-1"
+                >
+                  {emailLoading
+                    ? t('accountPage.email.updating')
+                    : t('accountPage.email.update')}
+                </Button>
+                {session.user.email && !session.user.emailVerified && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleResendVerification}
+                    disabled={resendLoading}
+                    className="flex-1"
+                  >
+                    {resendLoading
+                      ? t('accountPage.email.resending')
+                      : t('accountPage.email.resend')}
+                  </Button>
+                )}
+              </div>
             </form>
           </CardContent>
         </Card>
@@ -318,7 +352,9 @@ const DashboardAccountPage: NextPage = () => {
               <Shield className="h-5 w-5" />
               <CardTitle>{t('accountPage.preferences.title')}</CardTitle>
             </div>
-            <CardDescription>{t('accountPage.preferences.description')}</CardDescription>
+            <CardDescription>
+              {t('accountPage.preferences.description')}
+            </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex items-center justify-between">
@@ -333,7 +369,9 @@ const DashboardAccountPage: NextPage = () => {
               <Switch
                 id="marketing-emails"
                 checked={emailSubscribed}
-                onCheckedChange={(checked) => handleEmailPreferencesUpdate('marketing', checked)}
+                onCheckedChange={(checked) =>
+                  handleEmailPreferencesUpdate('marketing', checked)
+                }
                 disabled={emailPrefLoading}
               />
             </div>
@@ -352,7 +390,9 @@ const DashboardAccountPage: NextPage = () => {
               <Switch
                 id="transactional-emails"
                 checked={emailTransactional}
-                onCheckedChange={(checked) => handleEmailPreferencesUpdate('transactional', checked)}
+                onCheckedChange={(checked) =>
+                  handleEmailPreferencesUpdate('transactional', checked)
+                }
                 disabled={emailPrefLoading}
               />
             </div>
@@ -364,9 +404,13 @@ const DashboardAccountPage: NextPage = () => {
           <CardHeader>
             <div className="flex items-center gap-2">
               <Trash2 className="h-5 w-5 text-red-600" />
-              <CardTitle className="text-red-600">{t('accountPage.delete.title')}</CardTitle>
+              <CardTitle className="text-red-600">
+                {t('accountPage.delete.title')}
+              </CardTitle>
             </div>
-            <CardDescription>{t('accountPage.delete.description')}</CardDescription>
+            <CardDescription>
+              {t('accountPage.delete.description')}
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <Button
@@ -435,7 +479,9 @@ const DashboardAccountPage: NextPage = () => {
               onClick={handleDeleteAccount}
               disabled={deleteLoading || deleteConfirmText !== 'DELETE'}
             >
-              {deleteLoading ? t('accountPage.delete.deleting') : t('accountPage.delete.confirmButton')}
+              {deleteLoading
+                ? t('accountPage.delete.deleting')
+                : t('accountPage.delete.confirmButton')}
             </Button>
           </DialogFooter>
         </DialogContent>
