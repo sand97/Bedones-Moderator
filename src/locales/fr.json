@@ -533,5 +533,56 @@
     "date": "Date",
     "cost": "Coût",
     "noHistoryData": "Aucun historique d'utilisation disponible"
+  },
+  "accountPage": {
+    "title": "Paramètres du compte",
+    "email": {
+      "title": "Adresse e-mail",
+      "description": "Gérez votre adresse e-mail et son statut de vérification",
+      "label": "E-mail",
+      "placeholder": "votre@email.com",
+      "update": "Mettre à jour l'e-mail",
+      "updating": "Mise à jour...",
+      "verified": "E-mail vérifié",
+      "notVerified": "E-mail non vérifié. Veuillez consulter votre boîte de réception.",
+      "success": "E-mail mis à jour",
+      "successDescription": "Un e-mail de vérification a été envoyé à votre boîte de réception. Veuillez vérifier votre e-mail.",
+      "error": "Échec de la mise à jour de l'e-mail",
+      "errorDescription": "Une erreur s'est produite lors de la mise à jour de votre e-mail. Veuillez réessayer."
+    },
+    "preferences": {
+      "title": "Préférences e-mail",
+      "description": "Gérez vos préférences de notification par e-mail",
+      "marketingEmails": "E-mails marketing",
+      "marketingEmailsDescription": "Recevoir des mises à jour, des astuces et du contenu promotionnel",
+      "success": "Préférences mises à jour",
+      "subscribedDescription": "Vous recevrez désormais les e-mails marketing",
+      "unsubscribedDescription": "Vous ne recevrez plus les e-mails marketing",
+      "error": "Échec de la mise à jour des préférences",
+      "errorDescription": "Une erreur s'est produite lors de la mise à jour de vos préférences. Veuillez réessayer."
+    },
+    "delete": {
+      "title": "Supprimer le compte",
+      "description": "Supprimer définitivement votre compte et toutes les données associées. Cette action est irréversible.",
+      "button": "Supprimer le compte",
+      "dialogTitle": "Êtes-vous absolument sûr ?",
+      "dialogDescription": "Cette action est permanente et ne peut pas être annulée. Toutes vos données seront définitivement supprimées.",
+      "confirmLabel": "Tapez DELETE pour confirmer",
+      "confirmHint": "Tapez le mot DELETE en lettres capitales pour confirmer la suppression",
+      "confirmError": "Échec de la confirmation",
+      "confirmErrorDescription": "Veuillez taper DELETE exactement comme indiqué pour confirmer",
+      "warningTitle": "Cela supprimera définitivement :",
+      "warningItem1": "Toutes vos pages et comptes Instagram",
+      "warningItem2": "Tous vos paramètres de modération et règles FAQ",
+      "warningItem3": "Tout l'historique des commentaires et des données d'analyse",
+      "warningItem4": "Votre abonnement et historique de paiement",
+      "cancel": "Annuler",
+      "confirmButton": "Supprimer mon compte",
+      "deleting": "Suppression...",
+      "success": "Compte supprimé",
+      "successDescription": "Votre compte a été définitivement supprimé. Redirection...",
+      "error": "Échec de la suppression du compte",
+      "errorDescription": "Une erreur s'est produite lors de la suppression de votre compte. Veuillez réessayer ou contacter le support."
+    }
   }
 }

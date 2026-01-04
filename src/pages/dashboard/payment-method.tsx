@@ -173,48 +173,50 @@ export default function PaymentMethodPage() {
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-2xl font-bold">{currentData?.planConfig.name}</h3>
-                    <p className="text-sm text-muted-foreground">
-                      {currentData?.planConfig.monthlyModerationCredits.toLocaleString()} {t('payment.moderationCredits')} + {' '}
-                      {currentData?.planConfig.monthlyFaqCredits.toLocaleString()} {t('payment.faqCredits')}
-                    </p>
-                  </div>
-                  <div className="text-right">
                     {currentData?.subscription?.tier !== 'FREE' && (
-                      <div className="text-2xl font-bold">
-                        {formatCurrency(currentData?.planConfig.price.monthly || 0, 'USD')}
-                        <span className="text-sm font-normal text-muted-foreground">/mo</span>
-                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        {formatCurrency(currentData?.planConfig.price.monthly || 0, 'USD')}/mois
+                      </p>
                     )}
                   </div>
+                  {currentData?.subscription?.expiresAt && (
+                    <div className="text-right">
+                      <div className="flex items-center gap-2 text-sm">
+                        <Calendar className="size-4" />
+                        <span>
+                          {t('payment.expiresIn')} {stats?.daysRemaining} {t('payment.days')}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {new Date(currentData.subscription.expiresAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  )}
                 </div>
-
-                {currentData?.subscription?.expiresAt && (
-                  <div className="flex items-center gap-2 text-sm">
-                    <Calendar className="size-4" />
-                    <span>
-                      {t('payment.expiresIn')} {stats?.daysRemaining} {t('payment.days')}
-                      {' '}({new Date(currentData.subscription.expiresAt).toLocaleDateString()})
-                    </span>
-                  </div>
-                )}
 
                 <Separator />
 
-                {/* Total Credits */}
+                {/* Available Credits */}
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">{t('payment.totalModerationCredits')}</p>
-                    <p className="text-2xl font-bold">{currentData?.creditsInfo.totalModerationCredits.toLocaleString()}</p>
+                    <p className="text-sm font-medium text-muted-foreground">{t('payment.availableCredits')}</p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold">{currentData?.creditsInfo.totalModerationCredits.toLocaleString()}</p>
+                      <span className="text-sm text-muted-foreground">{t('payment.moderation')}</span>
+                    </div>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">{t('payment.totalFaqCredits')}</p>
-                    <p className="text-2xl font-bold">{currentData?.creditsInfo.totalFaqCredits.toLocaleString()}</p>
+                    <p className="text-sm font-medium text-muted-foreground">&nbsp;</p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold">{currentData?.creditsInfo.totalFaqCredits.toLocaleString()}</p>
+                      <span className="text-sm text-muted-foreground">FAQ</span>
+                    </div>
                   </div>
                 </div>
 
-                {/*<div className="text-sm text-muted-foreground">*/}
-                {/*  {t('payment.creditsAcross')} {currentData?.creditsInfo.pageCount} {t('payment.pages')}*/}
-                {/*</div>*/}
+                <div className="text-xs text-muted-foreground">
+                  {t('payment.creditsAcross')} {currentData?.creditsInfo.pageCount} {t('payment.pages')}
+                </div>
               </div>
             )}
           </CardContent>

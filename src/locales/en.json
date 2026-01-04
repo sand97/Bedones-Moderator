@@ -469,8 +469,8 @@
     "faqCredits": "FAQ credits",
     "expiresIn": "Expires in",
     "days": "days",
-    "totalModerationCredits": "Total Moderation Credits",
-    "totalFaqCredits": "Total FAQ Credits",
+    "totalModerationCredits": "Moderation Credits",
+    "totalFaqCredits": "FAQ Credits",
     "creditsAcross": "Across",
     "pages": "pages",
     "selectPlan": "Select Plan",
@@ -533,5 +533,56 @@
     "date": "Date",
     "cost": "Cost",
     "noHistoryData": "No usage history available yet"
+  },
+  "accountPage": {
+    "title": "Account Settings",
+    "email": {
+      "title": "Email Address",
+      "description": "Manage your email address and verification status",
+      "label": "Email",
+      "placeholder": "your@email.com",
+      "update": "Update Email",
+      "updating": "Updating...",
+      "verified": "Email verified",
+      "notVerified": "Email not verified. Please check your inbox.",
+      "success": "Email updated",
+      "successDescription": "A verification email has been sent to your inbox. Please check your email to verify.",
+      "error": "Failed to update email",
+      "errorDescription": "An error occurred while updating your email. Please try again."
+    },
+    "preferences": {
+      "title": "Email Preferences",
+      "description": "Manage your email notification preferences",
+      "marketingEmails": "Marketing emails",
+      "marketingEmailsDescription": "Receive updates, tips, and promotional content",
+      "success": "Preferences updated",
+      "subscribedDescription": "You will now receive marketing emails",
+      "unsubscribedDescription": "You will no longer receive marketing emails",
+      "error": "Failed to update preferences",
+      "errorDescription": "An error occurred while updating your preferences. Please try again."
+    },
+    "delete": {
+      "title": "Delete Account",
+      "description": "Permanently delete your account and all associated data. This action cannot be undone.",
+      "button": "Delete Account",
+      "dialogTitle": "Are you absolutely sure?",
+      "dialogDescription": "This action is permanent and cannot be undone. All your data will be permanently deleted.",
+      "confirmLabel": "Type DELETE to confirm",
+      "confirmHint": "Type the word DELETE in capital letters to confirm deletion",
+      "confirmError": "Confirmation failed",
+      "confirmErrorDescription": "Please type DELETE exactly as shown to confirm",
+      "warningTitle": "This will permanently delete:",
+      "warningItem1": "All your pages and Instagram accounts",
+      "warningItem2": "All moderation settings and FAQ rules",
+      "warningItem3": "All comment history and analysis data",
+      "warningItem4": "Your subscription and payment history",
+      "cancel": "Cancel",
+      "confirmButton": "Delete My Account",
+      "deleting": "Deleting...",
+      "success": "Account deleted",
+      "successDescription": "Your account has been permanently deleted. Redirecting...",
+      "error": "Failed to delete account",
+      "errorDescription": "An error occurred while deleting your account. Please try again or contact support."
+    }
   }
 }
