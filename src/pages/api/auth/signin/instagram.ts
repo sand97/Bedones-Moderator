@@ -1,4 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { rateLimit, RateLimitPresets } from '../../../../lib/rate-limit';
 
 function handleSignIn(
   url: URL,
@@ -96,6 +97,11 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse,
 ) {
+  // Rate limiting: 5 attempts per 15 minutes for auth
+  if (!rateLimit(req, res, RateLimitPresets.AUTH)) {
+    return; // Response already sent
+  }
+
   try {
     const url = new URL(req.url!, `http://${req.headers.host}`);
 

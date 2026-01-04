@@ -16,9 +16,14 @@ import { AppSidebar } from './app-sidebar';
 interface DashboardLayoutProps {
   children: React.ReactNode;
   pageTitle?: string;
+  headerRight?: React.ReactNode;
 }
 
-export function DashboardLayout({ children, pageTitle }: DashboardLayoutProps) {
+export function DashboardLayout({
+  children,
+  pageTitle,
+  headerRight,
+}: DashboardLayoutProps) {
   const fullTitle = pageTitle
     ? `Bedones Moderator | ${pageTitle}`
     : 'Bedones Moderator';
@@ -42,6 +47,11 @@ export function DashboardLayout({ children, pageTitle }: DashboardLayoutProps) {
                   </BreadcrumbItem>
                 </BreadcrumbList>
               </Breadcrumb>
+            )}
+            {headerRight && (
+              <div className="ml-auto flex items-center gap-2">
+                {headerRight}
+              </div>
             )}
           </header>
           <div className="flex flex-1 flex-col p-4">{children}</div>

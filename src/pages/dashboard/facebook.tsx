@@ -116,11 +116,12 @@ const FacebookPage: NextPage = () => {
   }
 
   return (
-    <DashboardLayout pageTitle={t('facebook.pageSettings.title')}>
-      <div className="mb-6 flex gap-3">
+    <DashboardLayout
+      pageTitle={t('facebook.pageSettings.title')}
+      headerRight={
         <button
           onClick={() => signIn()}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 border border-transparent rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          className="inline-flex items-center gap-2 rounded-md border border-transparent bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
         >
           <svg
             className="h-4 w-4"
@@ -136,10 +137,12 @@ const FacebookPage: NextPage = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          {t('facebook.pageSettings.addPage')}
+          <span className="hidden sm:inline">
+            {t('facebook.pageSettings.addPage')}
+          </span>
         </button>
-      </div>
-
+      }
+    >
       {pages?.length === 0 && (
         <Card>
           <CardContent className="p-6">

@@ -5,7 +5,8 @@
   },
   "header": {
     "connection": "Connexion",
-    "signOut": "Déconnexion"
+    "signOut": "Déconnexion",
+    "help": "Aide"
   },
   "undesiredComments": {
     "title": "Filtrer les commentaires indésirables",
@@ -132,6 +133,62 @@
       }
     }
   },
+  "helpPage": {
+    "title": "Besoin d'aide ?",
+    "subtitle": "Trouvez une réponse rapide ou envoyez-nous un message. Nous répondons généralement sous 24 h.",
+    "faq": {
+      "title": "Questions fréquentes",
+      "description": "Commencez par les questions les plus courantes.",
+      "items": {
+        "connect": {
+          "question": "Comment connecter mon compte Facebook ou Instagram ?",
+          "answer": "Depuis la page de connexion, choisissez Facebook ou Instagram et validez l'accès. Vos pages et comptes apparaîtront ensuite dans le tableau de bord."
+        },
+        "missingPages": {
+          "question": "Pourquoi mes pages ou comptes n'apparaissent pas ?",
+          "answer": "Assurez-vous d'être administrateur de la page et que le compte Instagram professionnel est bien lié à Facebook. Puis actualisez la liste dans les paramètres."
+        },
+        "moderation": {
+          "question": "Comment fonctionne la modération ?",
+          "answer": "Nous analysons les commentaires avec l'IA et appliquons l'action choisie (masquer ou supprimer). Vous pouvez modifier ces réglages à tout moment."
+        },
+        "faqRules": {
+          "question": "Comment mettre à jour les réponses FAQ intelligentes ?",
+          "answer": "Ouvrez les paramètres Facebook ou Instagram et ajoutez, modifiez ou supprimez des règles FAQ."
+        },
+        "history": {
+          "question": "Où voir les commentaires modérés ?",
+          "answer": "Rendez-vous sur la page Commentaires du tableau de bord pour consulter les actions et filtres."
+        }
+      }
+    },
+    "contact": {
+      "title": "Contacter le support",
+      "description": "Expliquez votre besoin et nous vous répondrons."
+    },
+    "form": {
+      "name": "Nom",
+      "email": "Email",
+      "topic": "Sujet",
+      "topicPlaceholder": "Choisir un sujet",
+      "message": "Message",
+      "submit": "Envoyer la demande",
+      "sending": "Envoi...",
+      "supportHours": "Réponse sous 24 h (lun-ven)",
+      "successTitle": "Demande envoyée",
+      "successDescription": "Votre demande a bien été prise en compte. Nous reviendrons vers vous rapidement.",
+      "close": "Fermer",
+      "errorTitle": "Envoi impossible",
+      "errorDescription": "Réessayez dans quelques instants."
+    },
+    "topics": {
+      "general": "Question générale",
+      "account": "Accès au compte",
+      "moderation": "Paramètres de modération",
+      "billing": "Facturation et abonnement",
+      "bug": "Signaler un bug"
+    }
+  },
   "illustration": {
     "case1": {
       "message": "Mouf salle chien",
@@ -256,5 +313,225 @@
       "next": "Suivant",
       "page": "Page {{current}} sur {{total}}"
     }
+  },
+  "legalPage": {
+    "metaTitle": "Mentions légales - Bedones Moderator",
+    "title": "Mentions légales",
+    "subtitle": "Retrouvez nos documents juridiques pour l'utilisation, la confidentialité et la facturation de Bedones Moderator.",
+    "cards": {
+      "terms": {
+        "description": "Les règles d'utilisation du service et les responsabilités des utilisateurs."
+      },
+      "privacy": {
+        "description": "Comment nous collectons, utilisons et protégeons vos données."
+      },
+      "sales": {
+        "description": "Les modalités d'abonnement, de paiement et de résiliation."
+      },
+      "cta": "En savoir plus"
+    }
+  },
+  "legalArticle": {
+    "updatedLabel": "Dernière mise à jour :"
+  },
+  "legalDocuments": {
+    "terms": {
+      "title": "Conditions générales d'utilisation (CGU)",
+      "metaTitle": "Conditions générales d'utilisation - Bedones Moderator"
+    },
+    "privacy": {
+      "title": "Politique de confidentialité",
+      "metaTitle": "Politique de confidentialité - Bedones Moderator"
+    },
+    "sales": {
+      "title": "Conditions générales de vente (CGV)",
+      "metaTitle": "Conditions générales de vente - Bedones Moderator"
+    }
+  },
+  "cgv": {
+    "intro": "Les présentes conditions générales de vente (CGV) encadrent la souscription et le paiement des services Bedones Moderator. Elles complètent les Conditions générales d'utilisation et s'appliquent à toute commande.",
+    "sections": [
+      {
+        "title": "1. Objet et champ d'application",
+        "paragraphs": [
+          "Les CGV définissent les conditions de vente des abonnements au service Bedones Moderator.",
+          "Elles s'appliquent à tout client qui souscrit un plan payant, qu'il agisse en tant que professionnel ou consommateur."
+        ]
+      },
+      {
+        "title": "2. Offre et disponibilité du service",
+        "paragraphs": [
+          "Les fonctionnalités proposées sont décrites sur le site et peuvent évoluer afin d'améliorer le service.",
+          "Nous pouvons suspendre temporairement l'accès pour maintenance ou mise à jour, en informant le client lorsque cela est possible."
+        ]
+      },
+      {
+        "title": "3. Tarifs",
+        "paragraphs": [
+          "Les prix sont indiqués en euros, toutes taxes comprises ou hors taxes selon le cas, et affichés avant validation de la commande.",
+          "Bedones Moderator se réserve le droit de modifier ses tarifs ; les nouveaux tarifs s'appliquent lors du renouvellement ou de toute nouvelle commande."
+        ]
+      },
+      {
+        "title": "4. Paiement",
+        "paragraphs": [
+          "Le paiement s'effectue par carte bancaire ou tout autre moyen proposé lors de la commande.",
+          "La souscription est confirmée après validation du paiement. En cas d'échec, l'accès peut être suspendu."
+        ]
+      },
+      {
+        "title": "5. Facturation et renouvellement",
+        "paragraphs": [
+          "Les abonnements sont facturés à l'avance sur une base mensuelle ou annuelle selon le plan choisi.",
+          "Sauf résiliation, l'abonnement se renouvelle automatiquement à chaque échéance.",
+          "Les factures sont mises à disposition dans l'espace client ou transmises par email."
+        ]
+      },
+      {
+        "title": "6. Droit de rétractation",
+        "paragraphs": [
+          "Si vous êtes un consommateur, vous disposez d'un délai de 14 jours pour exercer votre droit de rétractation, sauf si l'exécution du service a commencé avec votre accord.",
+          "Les professionnels ne bénéficient pas du droit de rétractation, sauf disposition légale contraire."
+        ]
+      },
+      {
+        "title": "7. Résiliation",
+        "paragraphs": [
+          "Vous pouvez résilier à tout moment depuis votre espace client ou en contactant le support.",
+          "La résiliation prend effet à la fin de la période en cours ; aucun remboursement partiel n'est effectué, sauf obligation légale."
+        ]
+      },
+      {
+        "title": "8. Obligations du client",
+        "paragraphs": [
+          "En utilisant le service, vous vous engagez à :"
+        ],
+        "items": [
+          "Fournir des informations exactes et à jour.",
+          "Maintenir les accès requis (comptes Facebook ou Instagram) pour le fonctionnement du service.",
+          "Respecter les lois applicables et les règles des plateformes."
+        ]
+      },
+      {
+        "title": "9. Responsabilité",
+        "paragraphs": [
+          "Bedones Moderator est soumis à une obligation de moyens ; le service est fourni \"en l'état\".",
+          "Nous ne saurions être tenus responsables des dommages indirects ou pertes de revenus liés à l'utilisation du service."
+        ]
+      },
+      {
+        "title": "10. Support",
+        "paragraphs": [
+          "Le support est disponible par email à support@bedones.com.",
+          "Nous faisons notre possible pour répondre sous 24 à 48 heures ouvrées."
+        ]
+      },
+      {
+        "title": "11. Données personnelles",
+        "paragraphs": [
+          "Le traitement des données personnelles est décrit dans notre Politique de confidentialité.",
+          "En utilisant le service, vous acceptez ces traitements."
+        ]
+      },
+      {
+        "title": "12. Droit applicable et litiges",
+        "paragraphs": [
+          "Les présentes CGV sont régies par le droit français.",
+          "En cas de litige, les parties chercheront une solution amiable avant toute action judiciaire."
+        ]
+      }
+    ]
+  },
+  "errors": {
+    "404": {
+      "title": "Page introuvable",
+      "message": "Désolé, la page que vous recherchez n'existe pas ou a été déplacée.",
+      "goHome": "Retour à l'accueil",
+      "contactSupport": "Contacter le support"
+    },
+    "500": {
+      "title": "Erreur serveur",
+      "message": "Une erreur inattendue s'est produite. Notre équipe a été notifiée et travaille à résoudre le problème.",
+      "tryAgain": "Réessayer",
+      "goHome": "Retour à l'accueil",
+      "contactSupport": "Contacter le support si le problème persiste"
+    }
+  },
+  "payment": {
+    "title": "Méthode de paiement",
+    "currentPlan": "Plan actuel",
+    "currentPlanDescription": "Votre abonnement actif et vos crédits",
+    "availablePlans": "Plans disponibles",
+    "availablePlansDescription": "Choisissez le plan qui correspond à vos besoins",
+    "paymentHistory": "Historique des paiements",
+    "paymentHistoryDescription": "Consultez vos transactions passées",
+    "moderationCredits": "crédits de modération",
+    "faqCredits": "crédits FAQ",
+    "expiresIn": "Expire dans",
+    "days": "jours",
+    "totalModerationCredits": "Total crédits de modération",
+    "totalFaqCredits": "Total crédits FAQ",
+    "creditsAcross": "Sur",
+    "pages": "pages",
+    "selectPlan": "Sélectionner ce plan",
+    "upgradeTo": "Passer à",
+    "choosePaymentMethod": "Choisissez votre méthode de paiement",
+    "creditCard": "Carte de crédit/débit",
+    "mobileMoney": "Mobile Money",
+    "selectDuration": "Sélectionner la durée",
+    "month": "mois",
+    "months": "mois",
+    "phoneNumber": "Numéro de téléphone",
+    "basePrice": "Prix de base",
+    "discount": "Réduction",
+    "total": "Total",
+    "proceedToPayment": "Procéder au paiement",
+    "date": "Date",
+    "description": "Description",
+    "amount": "Montant",
+    "status": "Statut",
+    "completed": "Terminé",
+    "pending": "En attente",
+    "failed": "Échoué",
+    "noPayments": "Aucun historique de paiement"
+  },
+  "usage": {
+    "title": "Utilisation",
+    "totalCredits": "Total des crédits",
+    "moderationCredits": "Crédits de modération",
+    "faqCredits": "Crédits FAQ",
+    "acrossPages": "Sur {{count}} pages",
+    "totalAnalyzed": "Total analysé",
+    "last30Days": "30 derniers jours",
+    "estimatedCost": "Coût estimé",
+    "aiProcessingCost": "Coût de traitement IA",
+    "currentPeriod": "Période actuelle",
+    "currentPeriodDescription": "Votre utilisation pour ce cycle de facturation",
+    "usage": "Utilisation",
+    "nearLimit": "Limite approchée",
+    "nearLimitDescription": "Il vous reste {{remaining}} crédits. Pensez à upgrader pour éviter toute interruption.",
+    "resetsOn": "Réinitialise le",
+    "byPage": "Par page",
+    "byPlatform": "Par plateforme",
+    "history": "Historique",
+    "topPages": "Pages les plus utilisées",
+    "topPagesDescription": "Pages avec la plus grande consommation de crédits",
+    "posts": "publications",
+    "mod": "mod",
+    "faq": "FAQ",
+    "noData": "Aucune donnée d'utilisation disponible",
+    "allPages": "Toutes les pages",
+    "page": "Page",
+    "totalUsed": "Total utilisé",
+    "platformBreakdown": "Répartition par plateforme",
+    "platformBreakdownDescription": "Distribution de l'utilisation par plateforme",
+    "comments": "commentaires",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "usageHistory": "Historique d'utilisation",
+    "usageHistoryDescription": "Détail quotidien de votre utilisation",
+    "date": "Date",
+    "cost": "Coût",
+    "noHistoryData": "Aucun historique d'utilisation disponible"
   }
 }

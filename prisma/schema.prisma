@@ -15,21 +15,75 @@ enum Provider {
   INSTAGRAM
 }
 
+enum SubscriptionTier {
+  FREE
+  STARTER
+  PRO
+  BUSINESS
+}
+
+enum PaymentProvider {
+  STRIPE
+  NOTCHPAY
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum CampaignType {
+  WELCOME
+  VERIFICATION
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  SUBSCRIPTION_EXPIRED
+  SUBSCRIPTION_EXPIRING
+  LOW_CREDITS
+  NEWSLETTER
+  BLOG_ARTICLE
+  ANNOUNCEMENT
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  FAILED
+}
+
 model User {
-  id                String    @id @default(cuid())
-  email             String?   @unique
+  id                String        @id @default(cuid())
+  email             String?       @unique
   name              String?
   image             String?
-  emailVerified     Boolean   @default(false)
-  facebookId        String?   @unique
-  instagramId       String?   @unique
+  emailVerified     Boolean       @default(false)
+  emailSubscribed   Boolean       @default(true) // User wants to receive marketing emails
+  facebookId        String?       @unique
+  instagramId       String?       @unique
   accessToken       String? // Encrypted access token
   accessTokenExpiry DateTime?
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
   pages             Page[]
   sessions          Session[]
   accounts          Account[]
+  subscription      Subscription?
+  usageTracking     UsageTracking[]
+  emailLogs         EmailLog[]
 }
 
 model Session {
@@ -88,11 +142,35 @@ model Page {
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   settings          PageSettings?
   posts             Post[]
+  credits           PageCredits?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
   @@index([userId])
   @@index([provider])
+}
+
+model PageCredits {
+  id                 String   @id @default(cuid())
+  pageId             String   @unique
+  page               Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+
+  // Credit balances
+  moderationCredits  Int      @default(0) // Credits for spam/undesired comment detection
+  faqCredits         Int      @default(0) // Credits for FAQ auto-responses
+
+  // Free trial credits (given once per page)
+  freeCreditsGiven   Boolean  @default(false) // Track if this page received initial free credits
+  freeCreditsAmount  Int      @default(0) // How many free credits were given
+
+  // Usage tracking
+  totalModerationsUsed Int    @default(0) // Lifetime moderation count
+  totalFaqRepliesUsed  Int    @default(0) // Lifetime FAQ replies sent
+
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@index([pageId])
 }
 
 model PageSettings {
@@ -155,4 +233,186 @@ model Post {
   updatedAt    DateTime  @updatedAt
 
   @@index([pageId])
+}
+
+model Subscription {
+  id                    String           @id @default(cuid())
+  userId                String           @unique
+  user                  User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tier                  SubscriptionTier @default(FREE)
+  planName              String? // "Starter", "Pro", "Business"
+
+  // Stripe Integration (for card payments - auto-renewing)
+  stripePriceId         String?
+  stripeProductId       String?
+  stripeSubscriptionId  String?
+  stripeCustomerId      String?
+
+  // NotchPay Integration (for mobile money - manual multi-month)
+  notchpayCustomerEmail String?
+  notchpayCustomerPhone String?
+
+  // Credit allocations (monthly refresh for active subscription)
+  monthlyModerationCredits Int           @default(0) // How many moderation credits allocated per month
+  monthlyFaqCredits        Int           @default(0) // How many FAQ credits allocated per month
+
+  // Legacy field (keep for backwards compatibility)
+  monthlyCommentLimit   Int              @default(100) // Deprecated: use monthlyModerationCredits instead
+  currentMonthUsage     Int              @default(0) // Deprecated
+
+  // Multi-month purchase tracking (for NotchPay)
+  monthsPurchased       Int              @default(1) // How many months were paid for
+  currentPeriodStart    DateTime?
+  currentPeriodEnd      DateTime?
+
+  // Renewal tracking
+  usageResetDate        DateTime? // When to reset monthly usage
+  expiresAt             DateTime? // null for FREE tier, or end of purchased period
+
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  payments              Payment[]
+
+  @@index([userId])
+  @@index([tier])
+}
+
+model Payment {
+  id                    String          @id @default(cuid())
+  subscriptionId        String
+  subscription          Subscription    @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  amount                Float // Final amount paid (after discount)
+  currency              String          @default("XAF") // FCFA (West/Central Africa) or USD
+  status                PaymentStatus   @default(PENDING)
+  paymentProvider       PaymentProvider
+
+  // Multi-month purchase details
+  monthsPurchased       Int             @default(1) // Number of months purchased
+  discountPercentage    Float           @default(0) // Discount applied (e.g., 5, 10, 20)
+  baseAmount            Float? // Original price before discount
+
+  // Stripe Fields (for recurring subscriptions)
+  stripePaymentIntentId String?
+  stripeChargeId        String?
+
+  // NotchPay Fields (for one-time multi-month purchases)
+  notchpayTransactionId String?
+  notchpayReference     String?
+
+  metadata              String? // JSON string for additional data
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
+
+  @@index([subscriptionId])
+  @@index([status])
+  @@index([stripePaymentIntentId])
+  @@index([notchpayTransactionId])
+}
+
+model UsageTracking {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date              DateTime @default(now()) // Date of usage
+
+  // AI Usage
+  commentsAnalyzed  Int      @default(0) // Number of comments analyzed by AI
+  tokensUsed        Int      @default(0) // Approximate tokens consumed
+
+  // Platform breakdown
+  facebookComments  Int      @default(0)
+  instagramComments Int      @default(0)
+
+  // Cost tracking (for analytics)
+  estimatedCost     Float    @default(0.0) // In USD
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date])
+  @@unique([userId, date])
+}
+
+model EmailCampaign {
+  id              String         @id @default(cuid())
+  name            String // Internal campaign name
+  type            CampaignType
+  status          CampaignStatus @default(DRAFT)
+  subject         String // Email subject line
+  previewText     String? // Email preview text (optional)
+
+  // Scheduling
+  scheduledAt     DateTime? // When to send (null = manual)
+  sentAt          DateTime? // When it was actually sent
+
+  // Tracking statistics (aggregated from EmailLog)
+  totalSent       Int @default(0)
+  totalDelivered  Int @default(0)
+  totalOpened     Int @default(0)
+  totalClicked    Int @default(0)
+  totalBounced    Int @default(0)
+  totalFailed     Int @default(0)
+
+  // Relations
+  emailLogs       EmailLog[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model EmailLog {
+  id              String        @id @default(cuid())
+  campaignId      String
+  campaign        EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  recipientEmail  String // Email address where it was sent
+  status          EmailStatus   @default(PENDING)
+
+  // Resend tracking
+  resendId        String? // Resend email ID for tracking
+  trackingId      String        @unique @default(cuid()) // Our internal tracking ID
+
+  // Timestamps
+  sentAt          DateTime? // When email was sent
+  deliveredAt     DateTime? // When Resend confirmed delivery
+  openedAt        DateTime? // First open timestamp
+  clickedAt       DateTime? // First click timestamp
+  bouncedAt       DateTime? // Bounce timestamp
+
+  // Counters
+  openCount       Int @default(0) // Total opens
+  clickCount      Int @default(0) // Total clicks
+
+  // Error tracking
+  errorMessage    String? // Error details if failed
+
+  // Relations
+  clicks          EmailClick[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([campaignId])
+  @@index([userId])
+  @@index([status])
+  @@index([trackingId])
+  @@index([resendId])
+}
+
+model EmailClick {
+  id          String   @id @default(cuid())
+  emailLogId  String
+  emailLog    EmailLog @relation(fields: [emailLogId], references: [id], onDelete: Cascade)
+
+  url         String // URL that was clicked
+  clickedAt   DateTime @default(now())
+
+  @@index([emailLogId])
 }
