@@ -133,25 +133,23 @@ export default function BlogArticlePage({ article, relatedArticles }: BlogArticl
                       href={`/blog/${relatedArticle.slug}`}
                       className="group"
                     >
-                      <article className="h-full flex flex-col rounded-3xl border border-border/70 bg-card p-4 transition-colors duration-200 hover:border-black">
-                        <div className="relative mb-4 h-40 overflow-hidden rounded-lg">
-                          <Image
-                            src={relatedArticle.image}
-                            alt={relatedArticle.title}
-                            fill
-                            className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-                          />
-                        </div>
-                        <div className="inline-flex w-fit items-center gap-2 mb-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                          {relatedArticle.category}
-                        </div>
-                        <h3 className="font-semibold group-hover:text-primary transition-colors">
-                          {relatedArticle.title}
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
-                          {relatedArticle.excerpt}
-                        </p>
-                      </article>
+                      <div className="relative h-48 mb-4 rounded-lg overflow-hidden">
+                        <Image
+                          src={relatedArticle.image}
+                          alt={relatedArticle.title}
+                          fill
+                          className="object-cover transition-transform group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="inline-block mb-2 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                        {relatedArticle.category}
+                      </div>
+                      <h3 className="font-semibold group-hover:text-primary transition-colors">
+                        {relatedArticle.title}
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-2 line-clamp-2">
+                        {relatedArticle.excerpt}
+                      </p>
                     </Link>
                   ))}
                 </div>

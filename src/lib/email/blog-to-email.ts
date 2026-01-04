@@ -163,30 +163,20 @@ export function generateBlogEmail(article: BlogArticle): {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${article.excerpt}">
   <title>${article.title}</title>
-  <style>
-    /* Force white background - Gmail dark mode fix */
-    body {
-      margin: 0 !important;
-      padding: 0 !important;
-      background-color: #ffffff !important;
-      background-image: linear-gradient(#ffffff, #ffffff) !important;
-    }
-  </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #FFFFFF;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF;">
     <tr>
-      <td align="center" style="padding: 40px 20px; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="max-width: 600px; width: 100%; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);">
+      <td align="center" style="padding: 40px 20px;">
+        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%;">
 
-          <!-- Logo -->
+          <!-- Header: Black background with white logo -->
           <tr>
-            <td align="left" style="padding: 0 0 24px 0; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
-              <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="24" cy="24" r="24" fill="#000000"/>
-                <text x="24" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="24" font-weight="600" fill="#FFFFFF" text-anchor="middle">B</text>
-              </svg>
-              <p style="margin: 8px 0 0 0; color: #717171; font-size: 14px;">
+            <td style="background-color: #000000; padding: 30px 40px; text-align: center;">
+              <h1 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
+                ⚫ Moderateur Bedones
+              </h1>
+              <p style="margin: 10px 0 0 0; color: #CCCCCC; font-size: 14px;">
                 ${article.category}
               </p>
             </td>
@@ -195,7 +185,7 @@ export function generateBlogEmail(article: BlogArticle): {
           <!-- Featured Image -->
           ${article.image ? `
           <tr>
-            <td style="padding: 0; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
+            <td style="padding: 0; border-left: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0;">
               <img src="${article.image}" alt="${article.title}" style="width: 100%; height: auto; display: block;" />
             </td>
           </tr>
@@ -203,28 +193,28 @@ export function generateBlogEmail(article: BlogArticle): {
 
           <!-- Article Content -->
           <tr>
-            <td style="background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff); padding: 40px 0; color: #222222;" bgcolor="#ffffff">
+            <td style="background-color: #FFFFFF; padding: 40px; border-left: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0;">
 
               <!-- Article Title -->
-              <h1 style="margin: 0 0 16px 0; color: #000000 !important; font-size: 26px; font-weight: 600; line-height: 1.3;">
+              <h1 style="margin: 0 0 15px 0; color: #000000; font-size: 28px; font-weight: 600; line-height: 1.2;">
                 ${article.title}
               </h1>
 
               <!-- Article Meta -->
-              <p style="margin: 0 0 24px 0; color: #717171 !important; font-size: 14px;">
+              <p style="margin: 0 0 30px 0; color: #999999; font-size: 14px;">
                 Par ${article.author.name} • ${article.readTime} de lecture
               </p>
 
               <!-- Article Body -->
-              <div style="margin-bottom: 24px; color: #222222 !important;">
+              <div style="margin-bottom: 30px;">
                 ${styledContent}
               </div>
 
               <!-- Read More CTA -->
-              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
+              <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
                 <tr>
-                  <td style="background-color: #000000; border-radius: 8px; text-align: center;" bgcolor="#000000">
-                    <a href="${articleUrl}" style="display: inline-block; padding: 14px 24px; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px;">
+                  <td style="background-color: #000000; text-align: center;">
+                    <a href="${articleUrl}" style="display: inline-block; padding: 16px 40px; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 16px;">
                       Lire l'article complet
                     </a>
                   </td>
@@ -234,14 +224,14 @@ export function generateBlogEmail(article: BlogArticle): {
             </td>
           </tr>
 
-          <!-- Footer -->
+          <!-- Footer: Light gray background -->
           <tr>
-            <td style="background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff); padding: 40px 0 0 0; text-align: left;" bgcolor="#ffffff">
-              <p style="margin: 0 0 8px 0; color: #717171 !important; font-size: 14px; line-height: 1.5;">
-                © ${new Date().getFullYear()} Moderateur Bedones
+            <td style="background-color: #F5F5F5; padding: 30px 40px; border-top: 1px solid #E0E0E0; text-align: center;">
+              <p style="margin: 0 0 10px 0; color: #666666; font-size: 12px; line-height: 1.5;">
+                © ${new Date().getFullYear()} Moderateur Bedones. Tous droits réservés.
               </p>
-              <p style="margin: 0; font-size: 14px;">
-                <a href="{{unsubscribeUrl}}" style="color: #717171 !important; text-decoration: underline;">Se désabonner</a>
+              <p style="margin: 0; font-size: 12px;">
+                <a href="{{unsubscribeUrl}}" style="color: #666666; text-decoration: underline;">Se désabonner</a>
               </p>
             </td>
           </tr>

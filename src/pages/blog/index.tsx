@@ -23,12 +23,11 @@ export default function BlogPage({ articles }: BlogPageProps) {
       />
       <JsonLd type="website" />
       <div className="flex min-h-screen flex-col">
-        <div className="app-grid-bg relative overflow-hidden flex-1 flex flex-col">
-          <Header />
+        <Header />
 
-          <main className="flex-1">
-            {/* Hero Section */}
-            <section className="relative py-20 px-4">
+        <main className="flex-1">
+          {/* Hero Section */}
+          <section className="relative py-20 px-4 bg-gradient-to-br from-primary/10 via-primary/5 to-background">
             <div className="container mx-auto max-w-6xl text-center">
               <h1 className="text-4xl md:text-5xl font-bold mb-6">
                 {t('blog.hero.title', 'Blog')}
@@ -39,56 +38,55 @@ export default function BlogPage({ articles }: BlogPageProps) {
             </div>
           </section>
 
-            {/* Articles Grid */}
-            <section className="py-16 px-4">
-              <div className="container mx-auto max-w-6xl">
-                {articles.length === 0 ? (
-                  <div className="text-center py-12">
-                    <p className="text-muted-foreground">
-                      {t('blog.noArticles', 'Aucun article disponible pour le moment.')}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {articles.map((article) => (
-                      <Link
-                        key={article.slug}
-                        href={`/blog/${article.slug}`}
-                        className="group"
-                      >
-                        <article className="h-full flex flex-col rounded-3xl border border-border/70 bg-card p-4 transition-colors duration-200 hover:border-black">
-                          <div className="relative mb-4 h-48 overflow-hidden rounded-lg">
-                            <Image
-                              src={article.image}
-                              alt={article.title}
-                              fill
-                              className="object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-                            />
+          {/* Articles Grid */}
+          <section className="py-16 px-4">
+            <div className="container mx-auto max-w-6xl">
+              {articles.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">
+                    {t('blog.noArticles', 'Aucun article disponible pour le moment.')}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {articles.map((article) => (
+                    <Link
+                      key={article.slug}
+                      href={`/blog/${article.slug}`}
+                      className="group"
+                    >
+                      <article className="h-full flex flex-col bg-card border rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
+                        <div className="relative h-48">
+                          <Image
+                            src={article.image}
+                            alt={article.title}
+                            fill
+                            className="object-cover transition-transform group-hover:scale-105"
+                          />
+                        </div>
+                        <div className="p-6 flex-1 flex flex-col">
+                          <div className="inline-block w-fit mb-3 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                            {article.category}
                           </div>
-                          <div className="flex flex-1 flex-col">
-                            <div className="inline-flex w-fit items-center gap-2 mb-3 px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium">
-                              {article.category}
-                            </div>
-                            <h2 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
-                              {article.title}
-                            </h2>
-                            <p className="text-muted-foreground mb-4 flex-1 line-clamp-3">
-                              {article.excerpt}
-                            </p>
-                            <div className="flex items-center justify-between text-sm text-muted-foreground">
-                              <span>{article.author.name}</span>
-                              <span>{article.readTime}</span>
-                            </div>
+                          <h2 className="text-xl font-semibold mb-3 group-hover:text-primary transition-colors">
+                            {article.title}
+                          </h2>
+                          <p className="text-muted-foreground mb-4 flex-1 line-clamp-3">
+                            {article.excerpt}
+                          </p>
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
+                            <span>{article.author.name}</span>
+                            <span>{article.readTime}</span>
                           </div>
-                        </article>
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </section>
-          </main>
-        </div>
+                        </div>
+                      </article>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </section>
+        </main>
 
         <Footer />
       </div>
