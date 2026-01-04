@@ -1,27 +1,36 @@
 import Head from 'next/head';
+import { useTranslation } from 'react-i18next';
 import { Header } from '~/components/Header';
-import { Card, CardContent } from '~/components/ui/card';
+import { Footer } from '~/components/Footer';
 import type { NextPageWithLayout } from './_app';
 
 const PrivacyPage: NextPageWithLayout = () => {
+  const { t, i18n } = useTranslation();
+  const updatedAt = new Intl.DateTimeFormat(i18n.language, {
+    dateStyle: 'long',
+  }).format(new Date());
 
   return (
     <>
       <Head>
-        <title>Privacy Policy - Bedones Moderator</title>
+        <title>{t('legalDocuments.privacy.metaTitle')}</title>
       </Head>
       <div className="min-h-screen bg-[#FDFDFD] bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:80px_80px] relative overflow-hidden">
         <Header className="pt-4 pb-8" />
-        <div className="container mx-auto px-4 pb-12 max-w-4xl relative z-10">
-          <Card>
-            <CardContent className="p-8 prose prose-sm max-w-none">
-              <h1 className="text-3xl font-bold mb-6">Privacy Policy</h1>
-              <p className="text-gray-600 mb-6">
-                Last updated: {new Date().toLocaleDateString('en-US')}
+        <main className="container mx-auto px-4 pb-12 max-w-4xl relative z-10">
+          <article className="mx-auto max-w-3xl">
+            <header className="mb-10">
+              <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 mb-3">
+                {t('legalDocuments.privacy.title')}
+              </h1>
+              <p className="text-sm text-gray-500">
+                {t('legalArticle.updatedLabel')} {updatedAt}
               </p>
+            </header>
 
+            <div className="text-gray-700 leading-relaxed">
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">1. Introduction</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">1. Introduction</h2>
                 <p className="mb-4">
                   Bedones Moderator ("we", "our", or "us") is committed to
                   protecting your privacy. This Privacy Policy explains how we
@@ -37,7 +46,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   2. Information We Collect
                 </h2>
                 <p className="mb-4">
@@ -89,7 +98,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   3. How We Use Your Information
                 </h2>
                 <p className="mb-4">We use the collected information to:</p>
@@ -122,7 +131,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   4. AI Processing and Data Analysis
                 </h2>
                 <p className="mb-4">
@@ -146,7 +155,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   5. Data Sharing and Disclosure
                 </h2>
                 <p className="mb-4">We may share your information with:</p>
@@ -184,7 +193,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">6. Data Security</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">6. Data Security</h2>
                 <p className="mb-4">
                   We implement appropriate technical and organizational security
                   measures to protect your information, including:
@@ -204,7 +213,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   7. Data Retention
                 </h2>
                 <p className="mb-4">
@@ -229,7 +238,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   8. Your Rights and Choices
                 </h2>
                 <p className="mb-4">You have the right to:</p>
@@ -258,7 +267,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   9. Third-Party Links
                 </h2>
                 <p className="mb-4">
@@ -270,7 +279,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   10. Children's Privacy
                 </h2>
                 <p className="mb-4">
@@ -282,7 +291,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   11. International Data Transfers
                 </h2>
                 <p className="mb-4">
@@ -298,7 +307,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   12. Changes to This Privacy Policy
                 </h2>
                 <p className="mb-4">
@@ -313,7 +322,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">13. GDPR Compliance</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">13. GDPR Compliance</h2>
                 <p className="mb-4">
                   If you are in the European Economic Area (EEA), you have
                   certain data protection rights under the General Data
@@ -334,7 +343,7 @@ const PrivacyPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">14. Contact Us</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">14. Contact Us</h2>
                 <p className="mb-4">
                   If you have any questions about this Privacy Policy, please
                   contact us:
@@ -347,10 +356,11 @@ const PrivacyPage: NextPageWithLayout = () => {
                   For GDPR-related inquiries: privacy@bedones.com
                 </p>
               </section>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </article>
+        </main>
       </div>
+      <Footer />
     </>
   );
 };

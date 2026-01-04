@@ -1,9 +1,7 @@
 import { useTranslation } from 'react-i18next';
-import { Button } from '~/components/ui/button';
 import { Skeleton } from '~/components/ui/skeleton';
 import { CommentsTable } from './CommentsTable';
 import { CommentsPagination } from './CommentsPagination';
-import { Filter } from 'lucide-react';
 
 interface Comment {
   id: string;
@@ -34,7 +32,6 @@ interface CommentsListCardProps {
   pagination?: Pagination;
   isLoading: boolean;
   onPageChange: (page: number) => void;
-  onOpenFilters: () => void;
 }
 
 export function CommentsListCard({
@@ -42,30 +39,11 @@ export function CommentsListCard({
   pagination,
   isLoading,
   onPageChange,
-  onOpenFilters,
 }: CommentsListCardProps) {
   const { t } = useTranslation();
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight">
-            {t('comments.list.title')}
-          </h2>
-          {pagination && (
-            <p className="text-sm text-muted-foreground">
-              {pagination.total} {t('comments.list.total')}
-            </p>
-          )}
-        </div>
-        <Button variant="outline" onClick={onOpenFilters}>
-          <Filter className="mr-2 h-4 w-4" />
-          {t('comments.filters.filter')}
-        </Button>
-      </div>
-
       {/* Content */}
       {isLoading ? (
         <div className="space-y-4">

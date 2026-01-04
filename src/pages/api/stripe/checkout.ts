@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
-import { prisma } from '@/server/prisma';
-import { PLAN_CONFIGS } from '@/lib/subscription-utils';
+import { prisma } from '../../../server/prisma';
+import { PLAN_CONFIGS } from '../../../lib/subscription-utils';
 import type { SubscriptionTier } from '@prisma/client';
+import { rateLimit, RateLimitPresets } from '../../../lib/rate-limit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
@@ -18,6 +19,11 @@ const PLAN_TO_TIER: Record<string, SubscriptionTier> = {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Rate limiting: Standard limit for checkout (30 requests per minute)
+  if (!rateLimit(req, res, RateLimitPresets.STANDARD)) {
+    return; // Response already sent
   }
 
   try {
@@ -65,7 +71,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (!customerId) {
       const customer = await stripe.customers.create({
-        email: user.email!,
+        email: user.email,
         name: user.name || undefined,
         metadata: {
           userId: user.id,
@@ -115,7 +121,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         userEmail: user.email || '',
       },
       payment_intent_data: {
-        receipt_email: user.email!,
+        receipt_email: user.email,
         description: `Abonnement ${planConfig.name} - Moderateur Bedones`,
       },
       invoice_creation: {

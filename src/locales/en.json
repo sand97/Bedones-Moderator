@@ -176,7 +176,8 @@
       "sending": "Sending...",
       "supportHours": "Support response within 24h (Mon–Fri)",
       "successTitle": "Request sent",
-      "successDescription": "Thanks! We'll get back to you soon.",
+      "successDescription": "Your request has been received. We'll get back to you soon.",
+      "close": "Close",
       "errorTitle": "Unable to send",
       "errorDescription": "Please try again in a moment."
     },
@@ -312,5 +313,225 @@
       "next": "Next",
       "page": "Page {{current}} of {{total}}"
     }
+  },
+  "legalPage": {
+    "metaTitle": "Legal Mentions - Bedones Moderator",
+    "title": "Legal Mentions",
+    "subtitle": "Find the legal documents for usage, privacy, and billing of Bedones Moderator.",
+    "cards": {
+      "terms": {
+        "description": "How the service can be used and the responsibilities of users."
+      },
+      "privacy": {
+        "description": "How we collect, use, and protect your data."
+      },
+      "sales": {
+        "description": "Subscription, payment, and cancellation terms."
+      },
+      "cta": "Learn more"
+    }
+  },
+  "legalArticle": {
+    "updatedLabel": "Last updated:"
+  },
+  "legalDocuments": {
+    "terms": {
+      "title": "Terms of Service",
+      "metaTitle": "Terms of Service - Bedones Moderator"
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "metaTitle": "Privacy Policy - Bedones Moderator"
+    },
+    "sales": {
+      "title": "Terms of Sale",
+      "metaTitle": "Terms of Sale - Bedones Moderator"
+    }
+  },
+  "cgv": {
+    "intro": "These Terms of Sale (CGV) govern subscription and payment for Bedones Moderator services. They complement the Terms of Service and apply to any order.",
+    "sections": [
+      {
+        "title": "1. Scope",
+        "paragraphs": [
+          "These Terms of Sale define the conditions for purchasing subscriptions to the Bedones Moderator service.",
+          "They apply to any customer subscribing to a paid plan, whether acting as a professional or a consumer."
+        ]
+      },
+      {
+        "title": "2. Service offering and availability",
+        "paragraphs": [
+          "The features are described on the website and may evolve to improve the service.",
+          "We may temporarily suspend access for maintenance or updates, and will inform the customer when possible."
+        ]
+      },
+      {
+        "title": "3. Pricing",
+        "paragraphs": [
+          "Prices are indicated in euros and displayed before order confirmation, inclusive or exclusive of taxes as applicable.",
+          "Bedones Moderator may update its prices; new prices apply on renewal or new orders."
+        ]
+      },
+      {
+        "title": "4. Payment",
+        "paragraphs": [
+          "Payment is made by bank card or any other method offered at checkout.",
+          "The subscription is confirmed after payment is validated. If payment fails, access may be suspended."
+        ]
+      },
+      {
+        "title": "5. Billing and renewal",
+        "paragraphs": [
+          "Subscriptions are billed in advance on a monthly or annual basis depending on the plan.",
+          "Unless canceled, the subscription renews automatically at each term.",
+          "Invoices are available in the customer account or sent by email."
+        ]
+      },
+      {
+        "title": "6. Right of withdrawal",
+        "paragraphs": [
+          "If you are a consumer, you have 14 days to exercise your right of withdrawal, unless the service has started with your consent.",
+          "Professionals do not benefit from a right of withdrawal unless required by law."
+        ]
+      },
+      {
+        "title": "7. Cancellation",
+        "paragraphs": [
+          "You may cancel at any time from your customer area or by contacting support.",
+          "Cancellation takes effect at the end of the current period; no partial refunds are provided unless required by law."
+        ]
+      },
+      {
+        "title": "8. Customer obligations",
+        "paragraphs": [
+          "By using the service, you agree to:"
+        ],
+        "items": [
+          "Provide accurate and up-to-date information.",
+          "Maintain the required access (Facebook or Instagram accounts) for the service to operate.",
+          "Comply with applicable laws and platform rules."
+        ]
+      },
+      {
+        "title": "9. Liability",
+        "paragraphs": [
+          "Bedones Moderator is subject to a best-efforts obligation; the service is provided \"as is\".",
+          "We are not liable for indirect damages or loss of revenue related to the use of the service."
+        ]
+      },
+      {
+        "title": "10. Support",
+        "paragraphs": [
+          "Support is available by email at support@bedones.com.",
+          "We aim to respond within 24 to 48 business hours."
+        ]
+      },
+      {
+        "title": "11. Personal data",
+        "paragraphs": [
+          "Personal data processing is described in our Privacy Policy.",
+          "By using the service, you accept these processing activities."
+        ]
+      },
+      {
+        "title": "12. Governing law and disputes",
+        "paragraphs": [
+          "These Terms of Sale are governed by French law.",
+          "In case of dispute, the parties will seek an amicable solution before any legal action."
+        ]
+      }
+    ]
+  },
+  "errors": {
+    "404": {
+      "title": "Page Not Found",
+      "message": "Sorry, the page you are looking for doesn't exist or has been moved.",
+      "goHome": "Go to Home",
+      "contactSupport": "Contact Support"
+    },
+    "500": {
+      "title": "Server Error",
+      "message": "An unexpected error occurred. Our team has been notified and is working to resolve the issue.",
+      "tryAgain": "Try Again",
+      "goHome": "Go to Home",
+      "contactSupport": "Contact support if the problem persists"
+    }
+  },
+  "payment": {
+    "title": "Payment Method",
+    "currentPlan": "Current Plan",
+    "currentPlanDescription": "Your active subscription and credits",
+    "availablePlans": "Available Plans",
+    "availablePlansDescription": "Choose the plan that fits your needs",
+    "paymentHistory": "Payment History",
+    "paymentHistoryDescription": "View your past transactions",
+    "moderationCredits": "moderation credits",
+    "faqCredits": "FAQ credits",
+    "expiresIn": "Expires in",
+    "days": "days",
+    "totalModerationCredits": "Total Moderation Credits",
+    "totalFaqCredits": "Total FAQ Credits",
+    "creditsAcross": "Across",
+    "pages": "pages",
+    "selectPlan": "Select Plan",
+    "upgradeTo": "Upgrade to",
+    "choosePaymentMethod": "Choose your payment method",
+    "creditCard": "Credit/Debit Card",
+    "mobileMoney": "Mobile Money",
+    "selectDuration": "Select duration",
+    "month": "month",
+    "months": "months",
+    "phoneNumber": "Phone Number",
+    "basePrice": "Base price",
+    "discount": "Discount",
+    "total": "Total",
+    "proceedToPayment": "Proceed to Payment",
+    "date": "Date",
+    "description": "Description",
+    "amount": "Amount",
+    "status": "Status",
+    "completed": "Completed",
+    "pending": "Pending",
+    "failed": "Failed",
+    "noPayments": "No payment history yet"
+  },
+  "usage": {
+    "title": "Usage",
+    "totalCredits": "Total Credits",
+    "moderationCredits": "Moderation Credits",
+    "faqCredits": "FAQ Credits",
+    "acrossPages": "Across {{count}} pages",
+    "totalAnalyzed": "Total Analyzed",
+    "last30Days": "Last 30 days",
+    "estimatedCost": "Estimated Cost",
+    "aiProcessingCost": "AI processing cost",
+    "currentPeriod": "Current Period",
+    "currentPeriodDescription": "Your usage for this billing cycle",
+    "usage": "Usage",
+    "nearLimit": "Approaching Limit",
+    "nearLimitDescription": "You have {{remaining}} credits remaining. Consider upgrading to avoid interruption.",
+    "resetsOn": "Resets on",
+    "byPage": "By Page",
+    "byPlatform": "By Platform",
+    "history": "History",
+    "topPages": "Top Pages by Usage",
+    "topPagesDescription": "Pages with the highest credit consumption",
+    "posts": "posts",
+    "mod": "mod",
+    "faq": "FAQ",
+    "noData": "No usage data available",
+    "allPages": "All Pages",
+    "page": "Page",
+    "totalUsed": "Total Used",
+    "platformBreakdown": "Platform Breakdown",
+    "platformBreakdownDescription": "Usage distribution across platforms",
+    "comments": "comments",
+    "facebook": "Facebook",
+    "instagram": "Instagram",
+    "usageHistory": "Usage History",
+    "usageHistoryDescription": "Daily breakdown of your usage",
+    "date": "Date",
+    "cost": "Cost",
+    "noHistoryData": "No usage history available yet"
   }
 }

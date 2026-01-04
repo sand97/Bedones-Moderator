@@ -4,9 +4,17 @@
  * Automated tasks for subscription renewals and credit management
  */
 
-import { prisma } from '@/server/prisma';
+import { prisma } from '../server/prisma';
 import { refillMonthlyCredits } from './credit-utils';
 import { getNextResetDate } from './subscription-utils';
+
+// Email utilities - reserved for future use when email service is configured
+import { sendEmail as _sendEmail } from './email/mailer';
+import {
+  subscriptionExpiredEmail as _subscriptionExpiredEmail,
+  subscriptionExpiringSoonEmail as _subscriptionExpiringSoonEmail,
+  lowCreditsEmail as _lowCreditsEmail,
+} from './email/templates';
 
 export interface CronJobResult {
   success: boolean;
@@ -148,7 +156,26 @@ export async function dailyCreditRenewalJob(): Promise<CronJobResult> {
           `⬇️ Downgraded expired subscription for user ${subscription.user.email} to FREE tier`
         );
 
-        // TODO: Send email notification to user about expiration
+        // Send email notification to user about expiration
+        if (subscription.user.email && subscription.user.emailVerified) {
+          const emailTemplate = subscriptionExpiredEmail({
+            userName: subscription.user.name || subscription.user.email,
+            planName: subscription.planName || 'Plan',
+            expiredAt: subscription.expiresAt || new Date(),
+          });
+
+          await sendEmail({
+            to: subscription.user.email,
+            subject: emailTemplate.subject,
+            html: emailTemplate.html,
+            previewText: emailTemplate.previewText,
+            userId: subscription.userId,
+            campaignType: 'SUBSCRIPTION_EXPIRED',
+            campaignName: 'subscription-expired',
+          });
+
+          console.log(`📧 Subscription expired email sent to ${subscription.user.email}`);
+        }
       } catch (error) {
         const errorMsg = `Failed to expire subscription for user ${subscription.userId}: ${error instanceof Error ? error.message : 'Unknown error'}`;
         console.error(`❌ ${errorMsg}`);
@@ -208,6 +235,8 @@ export async function weeklyReminderJob(): Promise<{
           select: {
             id: true,
             email: true,
+            name: true,
+            emailVerified: true,
           },
         },
       },
@@ -218,16 +247,109 @@ export async function weeklyReminderJob(): Promise<{
     );
 
     for (const subscription of expiringSubscriptions) {
-      // TODO: Send email reminder
-      console.log(
-        `📩 Reminder: Subscription for ${subscription.user.email} expires on ${subscription.expiresAt}`
-      );
+      // Send email reminder
+      if (subscription.user.email && subscription.user.emailVerified && subscription.expiresAt) {
+        const now = new Date();
+        const daysRemaining = Math.ceil(
+          (subscription.expiresAt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)
+        );
+
+        const emailTemplate = subscriptionExpiringSoonEmail({
+          userName: subscription.user.name || subscription.user.email,
+          planName: subscription.planName || 'Plan',
+          expiresAt: subscription.expiresAt,
+          daysRemaining,
+        });
+
+        await sendEmail({
+          to: subscription.user.email,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+          previewText: emailTemplate.previewText,
+          userId: subscription.userId,
+          campaignType: 'SUBSCRIPTION_EXPIRING',
+          campaignName: 'subscription-expiring-7days',
+        });
+
+        console.log(
+          `📧 Reminder email sent to ${subscription.user.email} - expires on ${subscription.expiresAt?.toISOString() || 'unknown'}`
+        );
+      } else {
+        console.log(
+          `📩 Reminder: Subscription for ${subscription.user.email} expires on ${subscription.expiresAt?.toISOString() || 'unknown'} (no verified email)`
+        );
+      }
       result.reminders++;
     }
 
     // Find users with low credits (< 10% remaining)
-    // This would require fetching all pages and their credits
-    // TODO: Implement low credit warnings
+    const usersWithPages = await prisma.user.findMany({
+      where: {
+        subscription: {
+          tier: {
+            not: 'FREE',
+          },
+        },
+        pages: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+        email: true,
+        name: true,
+        emailVerified: true,
+        subscription: true,
+        pages: {
+          include: {
+            credits: true,
+          },
+        },
+      },
+    });
+
+    for (const user of usersWithPages) {
+      if (!user.subscription) continue;
+
+      // Calculate total credits across all pages
+      let totalCredits = 0;
+      let totalRemaining = 0;
+
+      for (const page of user.pages) {
+        if (page.credits) {
+          totalCredits += user.subscription.monthlyModerationCredits + user.subscription.monthlyFaqCredits;
+          totalRemaining += page.credits.moderationCredits + page.credits.faqCredits;
+        }
+      }
+
+      if (totalCredits === 0) continue;
+
+      const percentageRemaining = (totalRemaining / totalCredits) * 100;
+
+      // Send email if user has less than 10% credits remaining
+      if (percentageRemaining < 10 && percentageRemaining > 0 && user.email && user.emailVerified) {
+        const emailTemplate = lowCreditsEmail({
+          userName: user.name || user.email,
+          planName: user.subscription.planName || 'Plan',
+          creditsRemaining: totalRemaining,
+          totalCredits,
+          percentageRemaining,
+        });
+
+        await sendEmail({
+          to: user.email,
+          subject: emailTemplate.subject,
+          html: emailTemplate.html,
+          previewText: emailTemplate.previewText,
+          userId: user.id,
+          campaignType: 'LOW_CREDITS',
+          campaignName: 'low-credits-warning',
+        });
+
+        console.log(`📧 Low credits email sent to ${user.email} (${Math.round(percentageRemaining)}% remaining)`);
+        result.reminders++;
+      }
+    }
 
     console.log(`✅ Weekly reminder job completed: ${result.reminders} reminders sent`);
 

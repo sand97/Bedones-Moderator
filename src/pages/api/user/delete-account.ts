@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '@/server/prisma';
-import { deleteSessionCookie } from '@/lib/auth';
+import { prisma } from '../../../server/prisma';
+import { deleteSessionCookie } from '../../../lib/auth';
+import { rateLimit, RateLimitPresets } from '../../../lib/rate-limit';
 
 export default async function handler(
   req: NextApiRequest,
@@ -8,6 +9,11 @@ export default async function handler(
 ) {
   if (req.method !== 'DELETE' && req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Rate limiting: Strict limit for account deletion (5 requests per minute)
+  if (!rateLimit(req, res, RateLimitPresets.STRICT)) {
+    return; // Response already sent
   }
 
   try {

@@ -258,7 +258,7 @@ export function AppSidebar() {
           {/* Need Help? */}
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/help">
+              <Link href="/dashboard/help">
                 <HelpCircle />
                 <span>{t('sidebar.needHelp')}</span>
               </Link>
@@ -268,7 +268,7 @@ export function AppSidebar() {
           {/* Legal Mentions */}
           <SidebarMenuItem>
             <SidebarMenuButton asChild>
-              <Link href="/legal">
+              <Link href="/dashboard/legal">
                 <FileText />
                 <span>{t('sidebar.legalMentions')}</span>
               </Link>

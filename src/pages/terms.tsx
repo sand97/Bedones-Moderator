@@ -1,27 +1,36 @@
 import Head from 'next/head';
+import { useTranslation } from 'react-i18next';
 import { Header } from '~/components/Header';
-import { Card, CardContent } from '~/components/ui/card';
+import { Footer } from '~/components/Footer';
 import type { NextPageWithLayout } from './_app';
 
 const TermsPage: NextPageWithLayout = () => {
+  const { t, i18n } = useTranslation();
+  const updatedAt = new Intl.DateTimeFormat(i18n.language, {
+    dateStyle: 'long',
+  }).format(new Date());
 
   return (
     <>
       <Head>
-        <title>Terms of Service - Bedones Moderator</title>
+        <title>{t('legalDocuments.terms.metaTitle')}</title>
       </Head>
       <div className="min-h-screen bg-[#FDFDFD] bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:80px_80px] relative overflow-hidden">
         <Header className="pt-4 pb-8" />
-        <div className="container mx-auto px-4 pb-12 max-w-4xl relative z-10">
-          <Card>
-            <CardContent className="p-8 prose prose-sm max-w-none">
-              <h1 className="text-3xl font-bold mb-6">Terms of Service</h1>
-              <p className="text-gray-600 mb-6">
-                Last updated: {new Date().toLocaleDateString('en-US')}
+        <main className="container mx-auto px-4 pb-12 max-w-4xl relative z-10">
+          <article className="mx-auto max-w-3xl">
+            <header className="mb-10">
+              <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 mb-3">
+                {t('legalDocuments.terms.title')}
+              </h1>
+              <p className="text-sm text-gray-500">
+                {t('legalArticle.updatedLabel')} {updatedAt}
               </p>
+            </header>
 
+            <div className="text-gray-700 leading-relaxed">
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   1. Agreement to Terms
                 </h2>
                 <p className="mb-4">
@@ -37,7 +46,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   2. Service Description
                 </h2>
                 <p className="mb-4">Bedones Moderator provides:</p>
@@ -62,7 +71,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   3. Eligibility and Access
                 </h2>
                 <p className="mb-4">To use the Service, you must:</p>
@@ -86,7 +95,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   4. User Obligations
                 </h2>
                 <p className="mb-4">By using the Service, you agree to:</p>
@@ -116,7 +125,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   5. Responsibilities and Limitations
                 </h2>
                 <p className="mb-4">
@@ -158,7 +167,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   6. Intellectual Property
                 </h2>
                 <p className="mb-4">
@@ -173,7 +182,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   7. Suspension and Termination
                 </h2>
                 <p className="mb-4">
@@ -196,7 +205,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   8. Modifications to Service and Terms
                 </h2>
                 <p className="mb-4">
@@ -211,7 +220,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   9. Data Protection
                 </h2>
                 <p className="mb-4">
@@ -227,7 +236,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   10. Governing Law and Jurisdiction
                 </h2>
                 <p className="mb-4">
@@ -238,7 +247,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">11. Contact</h2>
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">11. Contact</h2>
                 <p className="mb-4">
                   For any questions regarding these Terms, you can contact us
                   at:
@@ -251,7 +260,7 @@ const TermsPage: NextPageWithLayout = () => {
               </section>
 
               <section className="mb-8">
-                <h2 className="text-2xl font-semibold mb-4">
+                <h2 className="text-2xl font-semibold text-gray-900 mb-4">
                   12. General Provisions
                 </h2>
                 <p className="mb-4">
@@ -264,10 +273,11 @@ const TermsPage: NextPageWithLayout = () => {
                   constitute a waiver of that right.
                 </p>
               </section>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </article>
+        </main>
       </div>
+      <Footer />
     </>
   );
 };

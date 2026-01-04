@@ -34,12 +34,44 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum CampaignType {
+  WELCOME
+  VERIFICATION
+  PAYMENT_SUCCESS
+  PAYMENT_FAILED
+  SUBSCRIPTION_EXPIRED
+  SUBSCRIPTION_EXPIRING
+  LOW_CREDITS
+  NEWSLETTER
+  BLOG_ARTICLE
+  ANNOUNCEMENT
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  CANCELLED
+}
+
+enum EmailStatus {
+  PENDING
+  SENT
+  DELIVERED
+  OPENED
+  CLICKED
+  BOUNCED
+  FAILED
+}
+
 model User {
   id                String        @id @default(cuid())
   email             String?       @unique
   name              String?
   image             String?
   emailVerified     Boolean       @default(false)
+  emailSubscribed   Boolean       @default(true) // User wants to receive marketing emails
   facebookId        String?       @unique
   instagramId       String?       @unique
   accessToken       String? // Encrypted access token
@@ -51,6 +83,7 @@ model User {
   accounts          Account[]
   subscription      Subscription?
   usageTracking     UsageTracking[]
+  emailLogs         EmailLog[]
 }
 
 model Session {
@@ -299,4 +332,87 @@ model UsageTracking {
   @@index([userId])
   @@index([date])
   @@unique([userId, date])
+}
+
+model EmailCampaign {
+  id              String         @id @default(cuid())
+  name            String // Internal campaign name
+  type            CampaignType
+  status          CampaignStatus @default(DRAFT)
+  subject         String // Email subject line
+  previewText     String? // Email preview text (optional)
+
+  // Scheduling
+  scheduledAt     DateTime? // When to send (null = manual)
+  sentAt          DateTime? // When it was actually sent
+
+  // Tracking statistics (aggregated from EmailLog)
+  totalSent       Int @default(0)
+  totalDelivered  Int @default(0)
+  totalOpened     Int @default(0)
+  totalClicked    Int @default(0)
+  totalBounced    Int @default(0)
+  totalFailed     Int @default(0)
+
+  // Relations
+  emailLogs       EmailLog[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([type])
+  @@index([status])
+  @@index([scheduledAt])
+}
+
+model EmailLog {
+  id              String        @id @default(cuid())
+  campaignId      String
+  campaign        EmailCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  recipientEmail  String // Email address where it was sent
+  status          EmailStatus   @default(PENDING)
+
+  // Resend tracking
+  resendId        String? // Resend email ID for tracking
+  trackingId      String        @unique @default(cuid()) // Our internal tracking ID
+
+  // Timestamps
+  sentAt          DateTime? // When email was sent
+  deliveredAt     DateTime? // When Resend confirmed delivery
+  openedAt        DateTime? // First open timestamp
+  clickedAt       DateTime? // First click timestamp
+  bouncedAt       DateTime? // Bounce timestamp
+
+  // Counters
+  openCount       Int @default(0) // Total opens
+  clickCount      Int @default(0) // Total clicks
+
+  // Error tracking
+  errorMessage    String? // Error details if failed
+
+  // Relations
+  clicks          EmailClick[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([campaignId])
+  @@index([userId])
+  @@index([status])
+  @@index([trackingId])
+  @@index([resendId])
+}
+
+model EmailClick {
+  id          String   @id @default(cuid())
+  emailLogId  String
+  emailLog    EmailLog @relation(fields: [emailLogId], references: [id], onDelete: Cascade)
+
+  url         String // URL that was clicked
+  clickedAt   DateTime @default(now())
+
+  @@index([emailLogId])
 }

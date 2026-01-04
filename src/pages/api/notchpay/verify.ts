@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { verifyNotchPayPayment } from '@/lib/notchpay-utils';
+import { verifyNotchPayPayment } from '../../../lib/notchpay-utils';
 
 export default async function handler(
   req: NextApiRequest,

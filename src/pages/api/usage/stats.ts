@@ -1,6 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '@/server/prisma';
-import { getUserUsageStats } from '@/lib/usage-tracking';
+import { prisma } from '../../../server/prisma';
+import { getUserUsageStats } from '../../../lib/usage-tracking';
 
 export default async function handler(
   req: NextApiRequest,

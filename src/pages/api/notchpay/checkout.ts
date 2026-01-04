@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '@/server/prisma';
+import { prisma } from '../../../server/prisma';
 import {
   createNotchPayPayment,
   getNotchPayMultiMonthAmount,
   getNotchPayPlanConfig,
-} from '@/lib/notchpay-utils';
+} from '../../../lib/notchpay-utils';
 
 export default async function handler(
   req: NextApiRequest,
