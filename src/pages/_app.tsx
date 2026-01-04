@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next';
 import { GoogleAnalytics } from '@next/third-parties/google';
 
 import { DefaultLayout } from '~/components/DefaultLayout';
+import { AnalyticsIdentifier } from '~/components/AnalyticsIdentifier';
+import { PurchaseTracker } from '~/components/PurchaseTracker';
 import { Toaster } from '~/components/ui/toaster';
 import { trpc } from '~/utils/trpc';
 import '~/styles/globals.css';
@@ -26,14 +28,19 @@ type AppPropsWithLayout = AppProps & {
 const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
   const router = useRouter();
   const { i18n } = useTranslation();
+  const locale = router.locale ?? router.defaultLocale ?? 'fr';
 
   const getLayout =
     Component.getLayout ?? ((page) => <DefaultLayout>{page}</DefaultLayout>);
 
+  if (i18n.language !== locale) {
+    i18n.changeLanguage(locale);
+  }
+
   // Restore language preference from localStorage after OAuth login
   useEffect(() => {
     const preferredLocale = localStorage.getItem('preferredLocale');
-    const currentLocale = router.locale || 'fr';
+    const currentLocale = locale;
 
     // If user has a saved locale preference and it differs from current locale
     if (preferredLocale && preferredLocale !== currentLocale) {
@@ -43,18 +50,12 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
       // Redirect to the preferred locale
       router.push(router.pathname, router.asPath, { locale: preferredLocale });
     }
-  }, [router]);
-
-  // Sync i18next with Next.js router locale
-  useEffect(() => {
-    const locale = router.locale || 'fr';
-    if (i18n.language !== locale) {
-      i18n.changeLanguage(locale);
-    }
-  }, [router.locale, i18n]);
+  }, [router, locale]);
 
   return (
     <>
+      <AnalyticsIdentifier />
+      <PurchaseTracker />
       {getLayout(<Component {...pageProps} />)}
       <Toaster />
       <GoogleAnalytics gaId="G-ZEJZ4EPXE9" />

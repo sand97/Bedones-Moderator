@@ -114,11 +114,12 @@ const InstagramPage: NextPage = () => {
   }
 
   return (
-    <DashboardLayout pageTitle={t('instagram.accountSettings.title')}>
-      <div className="mb-6 flex gap-3">
+    <DashboardLayout
+      pageTitle={t('instagram.accountSettings.title')}
+      headerRight={
         <button
           onClick={() => signInWithInstagram()}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-purple-600 to-pink-600 border border-transparent rounded-md hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500"
+          className="inline-flex items-center gap-2 rounded-md border border-transparent bg-gradient-to-r from-purple-600 to-pink-600 px-4 py-2 text-sm font-medium text-white hover:from-purple-700 hover:to-pink-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
         >
           <svg
             className="h-4 w-4"
@@ -134,10 +135,12 @@ const InstagramPage: NextPage = () => {
               d="M12 4v16m8-8H4"
             />
           </svg>
-          {t('instagram.accountSettings.addAccount')}
+          <span className="hidden sm:inline">
+            {t('instagram.accountSettings.addAccount')}
+          </span>
         </button>
-      </div>
-
+      }
+    >
       {accounts?.length === 0 && (
         <Card>
           <CardContent className="p-6">

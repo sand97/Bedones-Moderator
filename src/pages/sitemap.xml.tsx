@@ -6,8 +6,10 @@ function generateSiteMap() {
   // Static pages
   const staticPages = [
     '',
+    '/legal',
     '/privacy',
     '/terms',
+    '/cgv',
     '/blog',
   ];
 

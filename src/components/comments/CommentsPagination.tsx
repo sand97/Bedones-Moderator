@@ -1,6 +1,5 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '~/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CommentsPaginationProps {
   currentPage: number;
@@ -13,25 +12,38 @@ interface CommentsPaginationProps {
 export function CommentsPagination({
   currentPage,
   totalPages,
-  pageSize: _pageSize,
-  total: _total,
+  pageSize,
+  total,
   onPageChange,
 }: CommentsPaginationProps) {
   const { t } = useTranslation();
 
+  if (totalPages <= 1) {
+    return null;
+  }
+
+  const from = (currentPage - 1) * pageSize + 1;
+  const to = Math.min(currentPage * pageSize, total);
+
   return (
-    <div className="flex flex-col items-center justify-center gap-4 mt-6">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-between mt-4">
+      <div className="text-sm text-muted-foreground">
+        {t('comments.pagination.showing', {
+          from,
+          to,
+          total,
+        })}
+      </div>
+      <div className="flex gap-2">
         <Button
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage - 1)}
-          disabled={currentPage === 1 || totalPages <= 1}
+          disabled={currentPage === 1}
         >
-          <ChevronLeft className="h-4 w-4" />
           {t('comments.pagination.previous')}
         </Button>
-        <div className="text-sm">
+        <div className="flex items-center px-3 text-sm">
           {t('comments.pagination.page', {
             current: currentPage,
             total: totalPages,
@@ -41,10 +53,9 @@ export function CommentsPagination({
           variant="outline"
           size="sm"
           onClick={() => onPageChange(currentPage + 1)}
-          disabled={currentPage === totalPages || totalPages <= 1}
+          disabled={currentPage >= totalPages}
         >
           {t('comments.pagination.next')}
-          <ChevronRight className="h-4 w-4" />
         </Button>
       </div>
     </div>

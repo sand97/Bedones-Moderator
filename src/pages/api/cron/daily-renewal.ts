@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { dailyCreditRenewalJob, verifyCronToken } from '@/lib/cron-utils';
+import { dailyCreditRenewalJob, verifyCronToken } from '../../../lib/cron-utils';
 
 /**
  * Daily Cron Job: Credit Renewal

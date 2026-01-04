@@ -8,6 +8,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import { useTranslation } from 'react-i18next';
 import { CommentsFilters } from '~/components/comments/CommentsFilters';
 import { CommentsListCard } from '~/components/comments/CommentsListCard';
+import { Button } from '~/components/ui/button';
 import {
   Sheet,
   SheetContent,
@@ -15,6 +16,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from '~/components/ui/sheet';
+import { Filter } from 'lucide-react';
 
 const CommentsPage: NextPage = () => {
   const router = useRouter();
@@ -102,14 +104,29 @@ const CommentsPage: NextPage = () => {
     return null;
   }
 
+  const commentsCount = !commentsLoading
+    ? commentsData?.pagination?.total ?? commentsData?.comments?.length
+    : undefined;
+  const pageTitle =
+    commentsCount !== undefined
+      ? `${t('comments.title')} (${commentsCount})`
+      : t('comments.title');
+
   return (
-    <DashboardLayout pageTitle={t('comments.title')}>
+    <DashboardLayout
+      pageTitle={pageTitle}
+      headerRight={
+        <Button variant="outline" onClick={() => setIsFiltersOpen(true)}>
+          <Filter className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">{t('comments.filters.filter')}</span>
+        </Button>
+      }
+    >
       <CommentsListCard
         comments={commentsData?.comments}
         pagination={commentsData?.pagination}
         isLoading={commentsLoading}
         onPageChange={setPage}
-        onOpenFilters={() => setIsFiltersOpen(true)}
       />
 
       <Sheet open={isFiltersOpen} onOpenChange={setIsFiltersOpen}>

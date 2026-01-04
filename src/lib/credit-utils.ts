@@ -4,7 +4,7 @@
  * Manage page-level credits for moderation and FAQ auto-responses
  */
 
-import { prisma } from '@/server/prisma';
+import { prisma } from '../server/prisma';
 import { FREE_TRIAL_CREDITS, PLAN_CONFIGS } from './subscription-utils';
 import type { PageCredits, Subscription } from '@prisma/client';
 

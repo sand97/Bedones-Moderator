@@ -1,8 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
-import { prisma } from '@/server/prisma';
-import { getNextResetDate } from '@/lib/subscription-utils';
+import { prisma } from '../../../server/prisma';
+import { getNextResetDate } from '../../../lib/subscription-utils';
 import type { SubscriptionTier } from '@prisma/client';
+import { rateLimit, RateLimitPresets } from '../../../lib/rate-limit';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2024-12-18.acacia',
@@ -28,6 +29,11 @@ async function getRawBody(req: NextApiRequest): Promise<Buffer> {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
+  }
+
+  // Rate limiting: High limit for webhooks (1000 requests per minute)
+  if (!rateLimit(req, res, RateLimitPresets.WEBHOOK)) {
+    return; // Response already sent
   }
 
   const buf = await getRawBody(req);

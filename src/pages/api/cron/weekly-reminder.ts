@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { weeklyReminderJob, verifyCronToken } from '@/lib/cron-utils';
+import { weeklyReminderJob, verifyCronToken } from '../../../lib/cron-utils';
 
 /**
  * Weekly Cron Job: Reminders
