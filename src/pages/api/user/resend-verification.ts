@@ -82,7 +82,7 @@ export default async function handler(
       verificationUrl,
     });
 
-    await sendEmail({
+    const emailResult = await sendEmail({
       to: user.email,
       subject: emailTemplate.subject,
       html: emailTemplate.html,
@@ -92,7 +92,15 @@ export default async function handler(
       campaignName: 'email-verification-resend',
     });
 
-    console.log(`📧 Verification email resent to ${user.email}`);
+    if (!emailResult.success) {
+      console.error(`❌ Failed to send verification email to ${user.email}:`, emailResult.error);
+      return res.status(500).json({
+        error: 'Failed to send verification email',
+        details: emailResult.error,
+      });
+    }
+
+    console.log(`📧 Verification email resent to ${user.email} (ID: ${emailResult.resendId})`);
 
     return res.status(200).json({
       success: true,
