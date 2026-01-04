@@ -16,6 +16,15 @@ export default withSentryConfig(
       NODE_ENV: process.env.NODE_ENV,
     },
 
+    images: {
+      remotePatterns: [
+        {
+          protocol: 'https',
+          hostname: 'images.unsplash.com',
+        },
+      ],
+    },
+
     /** We run eslint as a separate task in CI */
     eslint: {
       ignoreDuringBuilds: true,

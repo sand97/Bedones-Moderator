@@ -10,7 +10,8 @@ export interface EmailTemplateData {
 }
 
 /**
- * Base email template with Black header + White content
+ * Base email template with minimal design (like Airbnb)
+ * Forces white background even in Gmail dark mode
  */
 function baseTemplate(content: string, previewText?: string): string {
   return `
@@ -21,47 +22,73 @@ function baseTemplate(content: string, previewText?: string): string {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   ${previewText ? `<meta name="description" content="${previewText}">` : ''}
   <title>Moderateur Bedones</title>
+  <style>
+    /* Force white background - Gmail dark mode fix */
+    body {
+      margin: 0 !important;
+      padding: 0 !important;
+      background-color: #ffffff !important;
+      background-image: linear-gradient(#ffffff, #ffffff) !important;
+    }
+    .email-wrapper {
+      background-color: #ffffff !important;
+      background-image: linear-gradient(#ffffff, #ffffff) !important;
+    }
+    /* Prevent Gmail from changing text color */
+    .email-content {
+      color: #222222 !important;
+    }
+    .email-content h1,
+    .email-content h2,
+    .email-content h3,
+    .email-content p {
+      color: #222222 !important;
+    }
+  </style>
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #FFFFFF;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #FFFFFF;">
-    <tr>
-      <td align="center" style="padding: 40px 20px;">
-        <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
+  <div class="email-wrapper" style="background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff); min-height: 100vh;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);">
+      <tr>
+        <td align="center" style="padding: 40px 20px; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" bgcolor="#ffffff" style="max-width: 600px; width: 100%; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);">
 
-          <!-- Header: Black background with white logo -->
-          <tr>
-            <td style="background-color: #000000; padding: 30px 40px; text-align: center;">
-              <h1 style="margin: 0; color: #FFFFFF; font-size: 24px; font-weight: 600; letter-spacing: -0.5px;">
-                ⚫ Moderateur Bedones
-              </h1>
-            </td>
-          </tr>
+            <!-- Logo -->
+            <tr>
+              <td align="left" style="padding: 0 0 40px 0; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
+                <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="24" cy="24" r="24" fill="#000000"/>
+                  <text x="24" y="32" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif" font-size="24" font-weight="600" fill="#FFFFFF" text-anchor="middle">B</text>
+                </svg>
+              </td>
+            </tr>
 
-          <!-- Content: White background with black text -->
-          <tr>
-            <td style="background-color: #FFFFFF; padding: 40px; border-left: 1px solid #E0E0E0; border-right: 1px solid #E0E0E0;">
-              ${content}
-            </td>
-          </tr>
+            <!-- Content -->
+            <tr>
+              <td class="email-content" style="background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff); padding: 0; color: #222222;" bgcolor="#ffffff">
+                ${content}
+              </td>
+            </tr>
 
-          <!-- Footer: Light gray background -->
-          <tr>
-            <td style="background-color: #F5F5F5; padding: 30px 40px; border-top: 1px solid #E0E0E0; text-align: center;">
-              <p style="margin: 0 0 10px 0; color: #666666; font-size: 12px; line-height: 1.5;">
-                © ${new Date().getFullYear()} Moderateur Bedones. Tous droits réservés.
-              </p>
-              <p style="margin: 0; font-size: 12px;">
-                <a href="{{unsubscribeUrl}}" style="color: #666666; text-decoration: underline;">Se désabonner</a>
-              </p>
-            </td>
-          </tr>
+            <!-- Footer -->
+            <tr>
+              <td style="padding: 40px 0 0 0; text-align: left; background-color: #ffffff; background-image: linear-gradient(#ffffff, #ffffff);" bgcolor="#ffffff">
+                <p style="margin: 0 0 8px 0; color: #717171 !important; font-size: 14px; line-height: 1.5;">
+                  © ${new Date().getFullYear()} Moderateur Bedones
+                </p>
+                <p style="margin: 0; font-size: 14px;">
+                  <a href="{{unsubscribeUrl}}" style="color: #717171 !important; text-decoration: underline;">Se désabonner</a>
+                </p>
+              </td>
+            </tr>
 
-        </table>
-      </td>
-    </tr>
-  </table>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </div>
 
-  <!-- Tracking pixel (replaced by mailer) -->
+  <!-- Tracking pixel -->
   {{trackingPixel}}
 </body>
 </html>
@@ -69,14 +96,14 @@ function baseTemplate(content: string, previewText?: string): string {
 }
 
 /**
- * CTA Button component
+ * CTA Button component (Airbnb style)
  */
 function ctaButton(text: string, url: string): string {
   return `
-    <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 30px 0;">
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 24px 0;">
       <tr>
-        <td style="background-color: #000000; text-align: center;">
-          <a href="${url}" style="display: inline-block; padding: 16px 40px; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 16px;">
+        <td style="background-color: #000000; border-radius: 8px; text-align: center;">
+          <a href="${url}" style="display: inline-block; padding: 14px 24px; color: #FFFFFF; text-decoration: none; font-weight: 600; font-size: 16px; border-radius: 8px;">
             ${text}
           </a>
         </td>
@@ -392,19 +419,19 @@ export function emailVerificationEmail(data: {
   verificationUrl: string;
 }): { subject: string; html: string; previewText: string } {
   const content = `
-    <h2 style="margin: 0 0 20px 0; color: #000000; font-size: 28px; font-weight: 600; line-height: 1.3;">
+    <h1 style="margin: 0 0 16px 0; color: #000000; font-size: 26px; font-weight: 600; line-height: 1.3;">
       Vérifiez votre adresse email
-    </h2>
-    <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+    </h1>
+    <p style="margin: 0 0 24px 0; color: #222222; font-size: 16px; line-height: 1.5;">
       Bonjour ${data.userName},
     </p>
-    <p style="margin: 0 0 20px 0; color: #333333; font-size: 16px; line-height: 1.6;">
+    <p style="margin: 0 0 24px 0; color: #222222; font-size: 16px; line-height: 1.5;">
       Merci d'avoir ajouté votre adresse email à votre compte Moderateur Bedones. Pour activer les notifications et recevoir des astuces de modération, veuillez vérifier votre email.
     </p>
 
     ${ctaButton('Vérifier mon email', data.verificationUrl)}
 
-    <p style="margin: 30px 0 0 0; color: #999999; font-size: 14px; line-height: 1.5;">
+    <p style="margin: 24px 0 0 0; color: #717171; font-size: 14px; line-height: 1.5;">
       Ce lien expire dans 24 heures.<br>
       Si vous n'avez pas demandé cette vérification, ignorez cet email.
     </p>

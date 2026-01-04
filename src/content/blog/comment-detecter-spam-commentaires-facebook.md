@@ -3,11 +3,11 @@ title: "Comment détecter et bloquer le spam sur Facebook et Instagram"
 slug: "comment-detecter-spam-commentaires-facebook"
 excerpt: "Apprenez à identifier les patterns de spam sur vos pages Facebook et Instagram et découvrez comment les bloquer efficacement avec l'IA."
 category: "Tutoriels"
-readTime: "7 min"
+readTime: "8 min"
 publishedAt: "2026-01-02"
 author:
-  name: "Équipe Moderateur"
-  role: "Expert en modération de réseaux sociaux"
+  name: "Awa Traore"
+  role: "Specialiste en moderation et experience client"
 image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=1200&h=630&fit=crop"
 ---
 
@@ -88,6 +88,10 @@ Si un utilisateur publie du spam de manière répétée, envisagez de le bloquer
 - **Analyser les faux positifs** pour affiner vos règles de détection
 - **Communiquer clairement** vos règles de commentaires
 - **Former votre équipe** aux patterns de spam courants
+
+## Outil recommande
+
+[Bedones Moderator](https://moderator.bedones.com) automatise la detection du spam, applique vos regles et vous laisse un controle humain pour les cas limites.
 
 ## Conclusion
 

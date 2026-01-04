@@ -48,7 +48,7 @@ const IndexPage: NextPageWithLayout = () => {
       <Head>
         <title>Bedones Moderator</title>
       </Head>
-      <div className="min-h-screen bg-[#FDFDFD] bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:80px_80px] relative overflow-hidden">
+      <div className="min-h-[90vh] app-grid-bg relative overflow-hidden">
         <Header className="pt-4 pb-8" />
         <div className="container mx-auto px-4 pb-4 max-w-2xl relative z-10">
           <div className="text-center mb-6">

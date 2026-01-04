@@ -281,20 +281,9 @@ const DashboardAccountPage: NextPage = () => {
                   required
                 />
                 {session.user.email && !session.user.emailVerified && (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2 text-sm text-amber-600">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>{t('accountPage.email.notVerified')}</span>
-                    </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={handleResendVerification}
-                      disabled={resendLoading}
-                    >
-                      {resendLoading ? t('accountPage.email.resending') : t('accountPage.email.resend')}
-                    </Button>
+                  <div className="flex items-center gap-2 text-sm text-amber-600">
+                    <AlertTriangle className="h-4 w-4" />
+                    <span>{t('accountPage.email.notVerified')}</span>
                   </div>
                 )}
                 {session.user.email && session.user.emailVerified && (
@@ -304,9 +293,22 @@ const DashboardAccountPage: NextPage = () => {
                   </div>
                 )}
               </div>
-              <Button type="submit" disabled={emailLoading || !email}>
-                {emailLoading ? t('accountPage.email.updating') : t('accountPage.email.update')}
-              </Button>
+              <div className="flex gap-3">
+                <Button type="submit" disabled={emailLoading || !email} className="flex-1">
+                  {emailLoading ? t('accountPage.email.updating') : t('accountPage.email.update')}
+                </Button>
+                {session.user.email && !session.user.emailVerified && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleResendVerification}
+                    disabled={resendLoading}
+                    className="flex-1"
+                  >
+                    {resendLoading ? t('accountPage.email.resending') : t('accountPage.email.resend')}
+                  </Button>
+                )}
+              </div>
             </form>
           </CardContent>
         </Card>

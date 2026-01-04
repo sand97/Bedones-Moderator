@@ -107,3 +107,13 @@ input[type="radio"]:checked {
   background-clip: content-box;
   padding: 2px;
 }
+
+@layer utilities {
+  .app-grid-bg {
+    background-color: #fdfdfd;
+    background-image:
+      linear-gradient(to right, #8080800a 1px, transparent 1px),
+      linear-gradient(to bottom, #8080800a 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+}

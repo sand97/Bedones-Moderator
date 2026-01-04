@@ -11,8 +11,25 @@ import type { CampaignType, EmailStatus } from '@prisma/client';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Email sender configuration
-const FROM_EMAIL = 'Moderateur Bedones <noreply@moderateur.bedones.com>';
+const FROM_EMAIL_TRANSACTIONAL = process.env.FROM_EMAIL_TRANSACTIONAL || 'Bedones Moderator <contact@moderator.bedones.com>';
+const FROM_EMAIL_MARKETING = process.env.FROM_EMAIL_MARKETING || 'Bedones Moderator <team@moderator.bedones.com>';
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || 'https://moderator.bedones.local';
+
+// Determine which FROM email to use based on campaign type
+function getFromEmail(campaignType: CampaignType): string {
+  const transactionalTypes: CampaignType[] = [
+    'VERIFICATION',
+    'PAYMENT_SUCCESS',
+    'PAYMENT_FAILED',
+    'SUBSCRIPTION_EXPIRED',
+    'SUBSCRIPTION_EXPIRING',
+    'LOW_CREDITS',
+  ];
+
+  return transactionalTypes.includes(campaignType)
+    ? FROM_EMAIL_TRANSACTIONAL
+    : FROM_EMAIL_MARKETING;
+}
 
 export interface SendEmailOptions {
   to: string;
@@ -102,8 +119,9 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       .replace(/{{pricingUrl}}/g, pricingUrl);
 
     // Send email via Resend
+    const fromEmail = getFromEmail(options.campaignType);
     const { data, error } = await resend.emails.send({
-      from: FROM_EMAIL,
+      from: fromEmail,
       to: options.to,
       subject: options.subject,
       html: finalHtml,
@@ -426,8 +444,9 @@ export async function sendBatchEmails(options: {
         .replace(/{{retryPaymentUrl}}/g, retryPaymentUrl)
         .replace(/{{pricingUrl}}/g, pricingUrl);
 
+      const fromEmail = getFromEmail(options.campaignType);
       return {
-        from: FROM_EMAIL,
+        from: fromEmail,
         to: recipient.to,
         subject: options.subject,
         html: finalHtml,

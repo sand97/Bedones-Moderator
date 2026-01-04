@@ -158,7 +158,7 @@ export default function PaymentMethodPage() {
           <CardHeader className="p-0 pb-4">
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="size-5" />
-              {t('payment.currentPlan')}
+              {currentData?.planConfig.name || t('payment.currentPlan')}
             </CardTitle>
             <CardDescription>{t('payment.currentPlanDescription')}</CardDescription>
           </CardHeader>
@@ -170,28 +170,30 @@ export default function PaymentMethodPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-2xl font-bold">{currentData?.planConfig.name}</h3>
-                    {currentData?.subscription?.tier !== 'FREE' && (
-                      <p className="text-sm text-muted-foreground">
-                        {formatCurrency(currentData?.planConfig.price.monthly || 0, 'USD')}/mois
-                      </p>
-                    )}
-                  </div>
-                  {currentData?.subscription?.expiresAt && (
-                    <div className="text-right">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    {currentData?.subscription?.expiresAt && (
                       <div className="flex items-center gap-2 text-sm">
                         <Calendar className="size-4" />
                         <span>
                           {t('payment.expiresIn')} {stats?.daysRemaining} {t('payment.days')}
                         </span>
+                        <span className="text-muted-foreground">
+                          ({new Date(currentData.subscription.expiresAt).toLocaleDateString()})
+                        </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {new Date(currentData.subscription.expiresAt).toLocaleDateString()}
+                    )}
+                  </div>
+                  <div className="text-right">
+                    <div className="flex items-baseline gap-1 justify-end">
+                      <p className="text-2xl font-bold">
+                        {currentData?.subscription?.tier === 'FREE' ? 'Free' : formatCurrency(currentData?.planConfig.price.monthly || 0, 'USD')}
                       </p>
+                      {currentData?.subscription?.tier !== 'FREE' && (
+                        <span className="text-sm text-muted-foreground">/mois</span>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 <Separator />
@@ -212,10 +214,6 @@ export default function PaymentMethodPage() {
                       <span className="text-sm text-muted-foreground">FAQ</span>
                     </div>
                   </div>
-                </div>
-
-                <div className="text-xs text-muted-foreground">
-                  {t('payment.creditsAcross')} {currentData?.creditsInfo.pageCount} {t('payment.pages')}
                 </div>
               </div>
             )}
@@ -294,8 +292,8 @@ export default function PaymentMethodPage() {
                                       {t('payment.creditCard')}
                                     </span>
                                     <div className="flex items-center gap-2">
-                                      <Image src="/visa.jpeg" alt="Visa" width={32} height={20} className="rounded object-contain" />
-                                      <Image src="/mastercard.jpg" alt="Mastercard" width={32} height={20} className="rounded object-contain" />
+                                      <Image src="/visa.jpeg" alt="Visa" width={32} height={20} className="rounded object-contain" unoptimized />
+                                      <Image src="/mastercard.jpg" alt="Mastercard" width={32} height={20} className="rounded object-contain" unoptimized />
                                     </div>
                                   </Label>
                                 </div>
@@ -307,8 +305,8 @@ export default function PaymentMethodPage() {
                                       {t('payment.mobileMoney')}
                                     </span>
                                     <div className="flex items-center gap-2">
-                                      <Image src="/orange-money.jpeg" alt="Orange Money" width={32} height={20} className="rounded object-contain" />
-                                      <Image src="/mtn-momo.jpeg" alt="MTN Mobile Money" width={32} height={20} className="rounded object-contain" />
+                                      <Image src="/orange-money.jpeg" alt="Orange Money" width={32} height={20} className="rounded object-contain" unoptimized />
+                                      <Image src="/mtn-momo.jpeg" alt="MTN Mobile Money" width={32} height={20} className="rounded object-contain" unoptimized />
                                     </div>
                                   </Label>
                                 </div>
