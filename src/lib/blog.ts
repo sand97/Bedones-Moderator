@@ -30,7 +30,7 @@ const getContentDirectory = (locale?: string) => {
   return blogRootDirectory;
 };
 
-export function getAllArticles(locale: string = 'fr'): BlogArticle[] {
+export function getAllArticles(locale = 'fr'): BlogArticle[] {
   const contentDirectory = getContentDirectory(locale);
   // Check if directory exists
   if (!fs.existsSync(contentDirectory)) {
@@ -68,7 +68,7 @@ export function getAllArticles(locale: string = 'fr'): BlogArticle[] {
   });
 }
 
-export function getArticleBySlug(slug: string, locale: string = 'fr'): BlogArticle | undefined {
+export function getArticleBySlug(slug: string, locale = 'fr'): BlogArticle | undefined {
   try {
     const contentDirectory = getContentDirectory(locale);
     const fullPath = path.join(contentDirectory, `${slug}.md`);
@@ -99,7 +99,7 @@ export function getArticleBySlug(slug: string, locale: string = 'fr'): BlogArtic
   }
 }
 
-export function getAllSlugs(locale: string = 'fr'): string[] {
+export function getAllSlugs(locale = 'fr'): string[] {
   const contentDirectory = getContentDirectory(locale);
 
   if (!fs.existsSync(contentDirectory)) {
