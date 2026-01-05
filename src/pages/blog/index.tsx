@@ -96,8 +96,8 @@ export default function BlogPage({ articles }: BlogPageProps) {
   );
 }
 
-export const getStaticProps: GetStaticProps = async () => {
-  const articles = getAllArticles();
+export const getStaticProps: GetStaticProps<BlogPageProps> = async ({ locale }) => {
+  const articles = getAllArticles(locale ?? 'fr');
 
   return {
     props: {

@@ -200,14 +200,7 @@ export default function BlogArticlePage({ article, relatedArticles }: BlogArticl
                       {children}
                     </li>
                   ),
-                  code: ({ inline, children }) => {
-                    if (inline) {
-                      return (
-                        <code className="bg-muted px-2 py-1 rounded text-sm font-mono text-foreground">
-                          {children}
-                        </code>
-                      );
-                    }
+                  code: ({ children }) => {
                     return (
                       <code className="block bg-muted border border-border rounded-lg p-4 overflow-x-auto text-sm font-mono my-6">
                         {children}
@@ -338,11 +331,15 @@ export default function BlogArticlePage({ article, relatedArticles }: BlogArticl
   );
 }
 
-export const getStaticPaths: GetStaticPaths = async () => {
-  const slugs = getAllSlugs();
-  const paths = slugs.map((slug) => ({
-    params: { slug },
-  }));
+export const getStaticPaths: GetStaticPaths = async ({ locales }) => {
+  const availableLocales = locales?.length ? locales : ['fr'];
+  const paths = availableLocales.flatMap((locale) => {
+    const slugs = getAllSlugs(locale);
+    return slugs.map((slug) => ({
+      params: { slug },
+      locale,
+    }));
+  });
 
   return {
     paths,
@@ -352,6 +349,7 @@ export const getStaticPaths: GetStaticPaths = async () => {
 
 export const getStaticProps: GetStaticProps<BlogArticlePageProps, { slug: string }> = async ({
   params,
+  locale,
 }) => {
   if (!params?.slug) {
     return {
@@ -359,7 +357,7 @@ export const getStaticProps: GetStaticProps<BlogArticlePageProps, { slug: string
     };
   }
 
-  const article = getArticleBySlug(params.slug);
+  const article = getArticleBySlug(params.slug, locale ?? 'fr');
 
   if (!article) {
     return {
@@ -367,7 +365,7 @@ export const getStaticProps: GetStaticProps<BlogArticlePageProps, { slug: string
     };
   }
 
-  const allArticles = getAllArticles();
+  const allArticles = getAllArticles(locale ?? 'fr');
   const relatedArticles = allArticles
     .filter((a) => a.slug !== params.slug && a.category === article.category)
     .slice(0, 3);

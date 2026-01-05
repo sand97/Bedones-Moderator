@@ -17,9 +17,21 @@ export interface BlogArticle {
   content: string;
 }
 
-const contentDirectory = path.join(process.cwd(), 'src/content/blog');
+const blogRootDirectory = path.join(process.cwd(), 'src/content/blog');
 
-export function getAllArticles(): BlogArticle[] {
+const getContentDirectory = (locale?: string) => {
+  const normalizedLocale = locale === 'en' ? 'en' : 'fr';
+  const localizedDirectory = path.join(blogRootDirectory, normalizedLocale);
+
+  if (fs.existsSync(localizedDirectory)) {
+    return localizedDirectory;
+  }
+
+  return blogRootDirectory;
+};
+
+export function getAllArticles(locale: string = 'fr'): BlogArticle[] {
+  const contentDirectory = getContentDirectory(locale);
   // Check if directory exists
   if (!fs.existsSync(contentDirectory)) {
     console.warn(`Blog directory not found: ${contentDirectory}`);
@@ -56,8 +68,9 @@ export function getAllArticles(): BlogArticle[] {
   });
 }
 
-export function getArticleBySlug(slug: string): BlogArticle | undefined {
+export function getArticleBySlug(slug: string, locale: string = 'fr'): BlogArticle | undefined {
   try {
+    const contentDirectory = getContentDirectory(locale);
     const fullPath = path.join(contentDirectory, `${slug}.md`);
 
     if (!fs.existsSync(fullPath)) {
@@ -86,7 +99,9 @@ export function getArticleBySlug(slug: string): BlogArticle | undefined {
   }
 }
 
-export function getAllSlugs(): string[] {
+export function getAllSlugs(locale: string = 'fr'): string[] {
+  const contentDirectory = getContentDirectory(locale);
+
   if (!fs.existsSync(contentDirectory)) {
     return [];
   }
