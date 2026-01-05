@@ -4,19 +4,79 @@ import Link from 'next/link';
 import { Header } from '~/components/Header';
 import { Footer } from '~/components/Footer';
 import { getArticleBySlug, getAllSlugs, getAllArticles, BlogArticle } from '~/lib/blog';
-import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, User, Link2 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useTranslation } from 'react-i18next';
 import SEO from '~/components/SEO';
 import JsonLd from '~/components/JsonLd';
+import { useState, useEffect } from 'react';
 
 interface BlogArticlePageProps {
   article: BlogArticle | null;
   relatedArticles: BlogArticle[];
 }
 
+// Fonction pour générer un slug à partir du texte
+function generateSlug(text: string): string {
+  return text
+    .toString()
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+}
+
+// Composant H2 avec lien cliquable
+function H2WithLink({ children }: { children: React.ReactNode }) {
+  const [copied, setCopied] = useState(false);
+  const text = typeof children === 'string' ? children : (Array.isArray(children) ? children.join('') : '');
+  const id = generateSlug(text);
+
+  const handleCopyLink = () => {
+    const url = `${window.location.origin}${window.location.pathname}#${id}`;
+    navigator.clipboard.writeText(url);
+    window.history.pushState(null, '', `#${id}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  return (
+    <h2 id={id} className="text-3xl font-bold mt-12 mb-6 text-foreground scroll-mt-20 group relative">
+      {children}
+      <button
+        onClick={handleCopyLink}
+        className="inline-flex items-center ml-2 opacity-0 group-hover:opacity-100 transition-opacity"
+        aria-label="Copier le lien"
+        type="button"
+      >
+        <Link2 className="w-5 h-5 text-primary hover:text-primary/80" />
+        {copied && (
+          <span className="absolute -top-8 left-0 bg-foreground text-background px-2 py-1 rounded text-sm whitespace-nowrap">
+            Lien copié !
+          </span>
+        )}
+      </button>
+    </h2>
+  );
+}
+
 export default function BlogArticlePage({ article, relatedArticles }: BlogArticlePageProps) {
   const { t } = useTranslation();
+
+  // Gestion du scroll vers l'ancre au chargement de la page
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1);
+      const element = document.getElementById(id);
+      if (element) {
+        setTimeout(() => {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      }
+    }
+  }, []);
 
   if (!article) {
     return (
@@ -46,8 +106,10 @@ export default function BlogArticlePage({ article, relatedArticles }: BlogArticl
         author={article.author.name}
       />
       <JsonLd type="article" data={{ article }} />
-      <div className="flex min-h-screen flex-col">
-        <Header />
+      <div className="flex min-h-screen flex-col relative">
+        <div className="absolute top-0 left-0 right-0 z-50 py-4">
+          <Header variant="transparent" />
+        </div>
 
         <main className="flex-1">
           {/* Hero Image */}
@@ -71,7 +133,7 @@ export default function BlogArticlePage({ article, relatedArticles }: BlogArticl
                   {t('blog.article.back', 'Retour au blog')}
                 </Link>
 
-                <div className="inline-block mb-4 px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-medium">
+                <div className="inline-block ml-2 mb-4 px-3 py-1 bg-white/20 backdrop-blur-sm text-white rounded-full text-sm font-medium">
                   {article.category}
                 </div>
 
@@ -103,8 +165,118 @@ export default function BlogArticlePage({ article, relatedArticles }: BlogArticl
 
           {/* Article Content */}
           <div className="container mx-auto max-w-4xl py-12 px-4">
-            <div className="prose prose-lg max-w-none dark:prose-invert prose-headings:scroll-mt-20">
-              <ReactMarkdown>{article.content}</ReactMarkdown>
+            <div className="prose prose-lg max-w-none dark:prose-invert">
+              <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
+                components={{
+                  h2: ({ children }) => <H2WithLink>{children}</H2WithLink>,
+                  h3: ({ children }) => (
+                    <h3 className="text-2xl font-bold mt-8 mb-4 text-foreground scroll-mt-20">
+                      {children}
+                    </h3>
+                  ),
+                  p: ({ children }) => (
+                    <p className="text-base leading-relaxed mb-6 text-foreground/90">
+                      {children}
+                    </p>
+                  ),
+                  strong: ({ children }) => (
+                    <strong className="font-semibold text-foreground">
+                      {children}
+                    </strong>
+                  ),
+                  ul: ({ children }) => (
+                    <ul className="my-6 list-disc pl-6 space-y-2">
+                      {children}
+                    </ul>
+                  ),
+                  ol: ({ children }) => (
+                    <ol className="my-6 list-decimal pl-6 space-y-2">
+                      {children}
+                    </ol>
+                  ),
+                  li: ({ children }) => (
+                    <li className="text-foreground/90">
+                      {children}
+                    </li>
+                  ),
+                  code: ({ inline, children }) => {
+                    if (inline) {
+                      return (
+                        <code className="bg-muted px-2 py-1 rounded text-sm font-mono text-foreground">
+                          {children}
+                        </code>
+                      );
+                    }
+                    return (
+                      <code className="block bg-muted border border-border rounded-lg p-4 overflow-x-auto text-sm font-mono my-6">
+                        {children}
+                      </code>
+                    );
+                  },
+                  pre: ({ children }) => (
+                    <pre className="bg-muted border border-border rounded-lg p-4 overflow-x-auto my-6">
+                      {children}
+                    </pre>
+                  ),
+                  blockquote: ({ children }) => (
+                    <blockquote className="border-l-4 border-primary pl-4 italic my-6 text-foreground/80">
+                      {children}
+                    </blockquote>
+                  ),
+                  a: ({ href, children }) => (
+                    <a
+                      href={href}
+                      className="text-primary underline font-medium hover:text-primary/80 transition-colors"
+                      target={href?.startsWith('http') ? '_blank' : undefined}
+                      rel={href?.startsWith('http') ? 'noopener noreferrer' : undefined}
+                    >
+                      {children}
+                    </a>
+                  ),
+                  table: ({ children }) => (
+                    <div className="my-8 overflow-x-auto">
+                      <table className="w-full border-collapse">
+                        {children}
+                      </table>
+                    </div>
+                  ),
+                  thead: ({ children }) => (
+                    <thead className="border-b-2 border-border bg-muted/50">
+                      {children}
+                    </thead>
+                  ),
+                  tbody: ({ children }) => (
+                    <tbody>
+                      {children}
+                    </tbody>
+                  ),
+                  tr: ({ children }) => (
+                    <tr className="transition-colors hover:bg-muted/30">
+                      {children}
+                    </tr>
+                  ),
+                  th: ({ children }) => (
+                    <th className="px-4 py-3 text-left font-semibold text-foreground">
+                      {children}
+                    </th>
+                  ),
+                  td: ({ children }) => (
+                    <td className="px-4 py-3 border-b border-border text-foreground/90">
+                      {children}
+                    </td>
+                  ),
+                  img: ({ src, alt }) => (
+                    <img
+                      src={src}
+                      alt={alt || ''}
+                      className="rounded-lg my-8 w-full"
+                    />
+                  ),
+                }}
+              >
+                {article.content}
+              </ReactMarkdown>
             </div>
 
             {/* Author Bio */}

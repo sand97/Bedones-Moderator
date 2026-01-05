@@ -57,7 +57,7 @@ export default function BlogPage({ articles }: BlogPageProps) {
                         className="group"
                       >
                         <article className="h-full flex flex-col rounded-3xl border border-border/70 bg-card p-4 transition-colors duration-200 hover:border-black">
-                          <div className="relative mb-4 h-48 overflow-hidden rounded-lg">
+                          <div className="relative mb-4 h-48 overflow-hidden rounded-2xl">
                             <Image
                               src={article.image}
                               alt={article.title}
