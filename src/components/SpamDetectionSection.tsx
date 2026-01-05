@@ -43,7 +43,7 @@ export function SpamDetectionSection({
       </div>
 
       <Collapsible open={enabled}>
-        <CollapsibleContent className="mt-4 ml-6 space-y-3">
+        <CollapsibleContent className="mt-4 ml-3 space-y-3">
           <RadioGroup value={action} onValueChange={onActionChange}>
             <div className="flex items-center space-x-2">
               <RadioGroupItem value="hide" id={`${idPrefix}hide-spam`} />

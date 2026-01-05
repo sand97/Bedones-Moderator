@@ -1,7 +1,7 @@
 {
   "page": {
     "title": "Bedones Moderator",
-    "subtitle": "Gérez vos commentaires Facebook avec l'intelligence artificielle"
+    "subtitle": "Gérez vos commentaires Facebook et Instagram avec l'intelligence artificielle"
   },
   "header": {
     "connection": "Connexion",
@@ -9,7 +9,7 @@
     "help": "Aide"
   },
   "undesiredComments": {
-    "title": "Filtrer les commentaires indésirables",
+    "title": "Commentaires indésirables",
     "configure": "Configurer la gestion des commentaires indésirables",
     "description": "Lorsqu'elle est activée, cette fonctionnalité vous permet de gérer automatiquement les commentaires contenant du contenu indésirable, un langage inapproprié ou qui violent vos directives communautaires. Vous pouvez choisir de masquer ces commentaires de la vue publique ou de les supprimer entièrement.",
     "hide": "Masquer les commentaires indésirables",
@@ -23,7 +23,7 @@
     "delete": "Supprimer les commentaires spam"
   },
   "intelligentFAQ": {
-    "title": "Réponses générées intelligemment",
+    "title": "Réponses intelligentes",
     "configure": "Gérer les réponses FAQ intelligentes",
     "description": "Configurez des réponses intelligentes automatisées pour les questions fréquemment posées. Définissez des assertions qui déclenchent des réponses spécifiques générées par l'IA pour fournir des réponses cohérentes et utiles à votre audience.",
     "rules": "Règles FAQ",

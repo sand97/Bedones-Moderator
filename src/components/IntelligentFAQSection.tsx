@@ -125,7 +125,7 @@ export function IntelligentFAQSection({
       </div>
 
       <Collapsible open={enabled}>
-        <CollapsibleContent className="mt-4 ml-6 space-y-4">
+        <CollapsibleContent className="mt-4 ml-3 space-y-4">
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <h4 className="text-sm font-medium">
