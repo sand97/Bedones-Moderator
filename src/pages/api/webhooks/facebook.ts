@@ -200,13 +200,11 @@ async function processCommentNotification(
 
         case 'reply':
           if (analysis.replyMessage) {
-            // Wait random delay (4-10 seconds) before replying to trigger notification
-            await FacebookService.waitBeforeReply();
-
             await FacebookService.replyToComment(
               comment_id,
               analysis.replyMessage,
               pageAccessToken,
+              from.id, // Mention the user to trigger notification
             );
             console.log(`Replied to comment ${comment_id}: ${analysis.reason}`);
           }
