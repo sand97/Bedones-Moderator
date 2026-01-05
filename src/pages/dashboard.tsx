@@ -129,8 +129,7 @@ const DashboardPage: NextPage = () => {
     if (!sessionLoading && !session?.user) {
       router.push('/');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, sessionLoading]);
+  }, [session, sessionLoading, router]);
 
   // Apply initial settings from localStorage after OAuth
   useEffect(() => {
@@ -160,8 +159,7 @@ const DashboardPage: NextPage = () => {
       console.error('Failed to parse moderation settings:', error);
       localStorage.removeItem('moderationSettings');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user, pagesCount, settingsApplied, router.query.update]);
+  }, [session?.user, pagesCount, settingsApplied, router.query.update, applySettings]);
 
   if (sessionLoading) {
     return (

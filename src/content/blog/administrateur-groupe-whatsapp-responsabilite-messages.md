@@ -8,7 +8,7 @@ publishedAt: "2026-01-11"
 author:
   name: "Nadia Diop"
   role: "Analyste conformite et risques digitaux"
-image: "https://images.unsplash.com/photo-1611746872915-64382b5c76da?w=1200&h=630&fit=crop"
+image: "https://images.unsplash.com/photo-1556742212-5b321f3c261b?w=1200&h=630&fit=crop"
 ---
 
 ## Pourquoi la responsabilité des admins devient critique en Afrique

@@ -8,7 +8,7 @@ publishedAt: "2026-01-10"
 author:
   name: "Nadia Diop"
   role: "Analyste conformite et risques digitaux"
-image: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&h=630&fit=crop"
+image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=1200&h=630&fit=crop"
 ---
 
 ## Pourquoi la Côte d'Ivoire est devenue un marché à haut risque juridique

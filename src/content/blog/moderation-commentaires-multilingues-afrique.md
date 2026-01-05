@@ -8,7 +8,7 @@ publishedAt: "2026-01-16"
 author:
   name: "Awa Traore"
   role: "Specialiste en moderation et experience client"
-image: "https://images.unsplash.com/photo-1525182008055-f88b95ff7980?w=1200&h=630&fit=crop"
+image: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&h=630&fit=crop"
 ---
 
 ## Pourquoi le multilingue est un défi majeur en Afrique

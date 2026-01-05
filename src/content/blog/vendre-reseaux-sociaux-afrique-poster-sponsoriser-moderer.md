@@ -8,7 +8,7 @@ publishedAt: "2026-01-09"
 author:
   name: "Jean-Marc Kouame"
   role: "Consultant en strategie social media"
-image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&h=630&fit=crop"
+image: "https://images.unsplash.com/photo-1556742212-5b321f3c261b?w=1200&h=630&fit=crop"
 ---
 
 ## Le parcours d'achat africain sur les réseaux sociaux est unique

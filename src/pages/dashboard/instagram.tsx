@@ -63,8 +63,7 @@ const InstagramPage: NextPage = () => {
     if (updateDisabled) {
       localStorage.removeItem('moderationSettings');
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session, sessionLoading, router.query.update]);
+  }, [session, sessionLoading, router]);
 
   if (sessionLoading || accountsLoading) {
     return (

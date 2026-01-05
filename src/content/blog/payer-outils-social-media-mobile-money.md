@@ -8,7 +8,7 @@ publishedAt: "2026-01-07"
 author:
   name: "Koffi Mensah"
   role: "Expert paiements digitaux"
-image: "https://images.unsplash.com/photo-1489515217757-5fd1be406fef?w=1200&h=630&fit=crop"
+image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=1200&h=630&fit=crop"
 ---
 
 ## Pourquoi le mobile money est la clé du marché africain
