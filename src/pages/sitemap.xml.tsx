@@ -1,7 +1,9 @@
 import { GetServerSideProps } from 'next';
+import { getAllArticles, BlogArticle } from '~/lib/blog';
 
-function generateSiteMap() {
+function generateSiteMap(articles: BlogArticle[]) {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://moderator.bedones.com';
+  const now = new Date().toISOString();
 
   // Static pages
   const staticPages = [
@@ -21,9 +23,28 @@ function generateSiteMap() {
          return `
        <url>
            <loc>${baseUrl}${path}</loc>
-           <lastmod>${new Date().toISOString()}</lastmod>
+           <lastmod>${now}</lastmod>
            <changefreq>${path === '' ? 'daily' : 'weekly'}</changefreq>
            <priority>${path === '' ? '1.0' : '0.8'}</priority>
+           <xhtml:link rel="alternate" hreflang="fr" href="${baseUrl}${path}" />
+           <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/en${path}" />
+           <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}${path}" />
+       </url>
+     `;
+       })
+       .join('')}
+     ${articles
+       .map((article) => {
+         const path = `/blog/${article.slug}`;
+         const parsedDate = Date.parse(article.publishedAt);
+         const lastmod = Number.isNaN(parsedDate) ? now : new Date(parsedDate).toISOString();
+
+         return `
+       <url>
+           <loc>${baseUrl}${path}</loc>
+           <lastmod>${lastmod}</lastmod>
+           <changefreq>monthly</changefreq>
+           <priority>0.7</priority>
            <xhtml:link rel="alternate" hreflang="fr" href="${baseUrl}${path}" />
            <xhtml:link rel="alternate" hreflang="en" href="${baseUrl}/en${path}" />
            <xhtml:link rel="alternate" hreflang="x-default" href="${baseUrl}${path}" />
@@ -41,7 +62,8 @@ function SiteMap() {
 
 export const getServerSideProps: GetServerSideProps = async ({ res }) => {
   // Generate the XML sitemap
-  const sitemap = generateSiteMap();
+  const articles = getAllArticles();
+  const sitemap = generateSiteMap(articles);
 
   res.setHeader('Content-Type', 'text/xml');
   // Cache for 1 day
