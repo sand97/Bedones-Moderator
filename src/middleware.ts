@@ -23,12 +23,13 @@ export function middleware(_request: NextRequest) {
   // Note: Adjust based on your actual needs (e.g., Google Analytics, Sentry, Stripe)
   const cspDirectives = [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://www.googletagmanager.com https://www.google-analytics.com https://static.cloudflareinsights.com",
     "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
     "font-src 'self' https://fonts.gstatic.com data:",
     "img-src 'self' data: https: blob:",
-    "connect-src 'self' https://api.stripe.com https://*.sentry.io https://www.google-analytics.com https://analytics.google.com",
+    "connect-src 'self' https://api.stripe.com https://*.sentry.io https://www.google-analytics.com https://analytics.google.com https://cloudflareinsights.com",
     "frame-src 'self' https://js.stripe.com https://hooks.stripe.com",
+    "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -41,7 +42,6 @@ export function middleware(_request: NextRequest) {
     'camera=()',
     'microphone=()',
     'geolocation=()',
-    'interest-cohort=()', // Disable FLoC
   ];
   response.headers.set('Permissions-Policy', permissionsPolicy.join(', '));
 

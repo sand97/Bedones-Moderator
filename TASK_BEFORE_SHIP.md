@@ -27,39 +27,39 @@ Last updated: 2026-01-04
 
 #### 1. SEO Implementation
 **Status:** ⏳ Not started | **Priority:** HIGH (Critical for launch)
-- [ ] Sitemap XML generation
-- [ ] Meta tags (Open Graph, Twitter Cards)
-- [ ] Structured Data (JSON-LD Schema.org)
-- [ ] Favicon and logos
-- [ ] robots.txt
-- [ ] Hreflang for i18n
+- [x] Sitemap XML generation
+- [x] Meta tags (Open Graph, Twitter Cards)
+- [x] Structured Data (JSON-LD Schema.org)
+- [x] Favicon and logos
+- [x] robots.txt
+- [x] Hreflang for i18n
 
 #### 2. Blog Section
 **Status:** ⏳ Not started | **Priority:** HIGH
-- [ ] Create blog content directory structure
-- [ ] Implement markdown parser for blog articles
-- [ ] Create blog listing page
-- [ ] Create individual blog article pages
-- [ ] Add blog link to homepage footer
-- [ ] Write initial blog articles in French
+- [x] Create blog content directory structure
+- [x] Implement markdown parser for blog articles
+- [x] Create blog listing page
+- [x] Create individual blog article pages
+- [x] Add blog link to homepage footer
+- [x] Write initial blog articles in French
 
 #### 3. Payment Implementation
 **Status:** ⏳ Not started | **Priority:** HIGH
-- [ ] Stripe integration (checkout, webhook)
-- [ ] NotchPay integration (Mobile Money)
-- [ ] Payment status page
-- [ ] Subscription management pages
-- [ ] Payment history display
+- [x] Stripe integration (checkout, webhook)
+- [x] NotchPay integration (Mobile Money)
+- [x] Payment status page
+- [x] Subscription management pages
+- [x] Payment history display
 
 #### 4. Usage Tracking & Display
 **Status:** ⏳ Backend ready, Frontend pending | **Priority:** MEDIUM
 - [x] Database schema (UsageTracking model)
-- [ ] Backend API to track and aggregate usage
-- [ ] Frontend: Display tokens left
-- [ ] Frontend: Daily usage graph (by platform)
-- [ ] Frontend: Monthly spending graph
-- [ ] Frontend: Yearly spending graph
-- [ ] Add money button (redirect to Payment)
+- [x] Backend API to track and aggregate usage
+- [x] Frontend: Display tokens left
+- [x] Frontend: Daily usage graph (by platform)
+- [x] Frontend: Monthly spending graph
+- [x] Frontend: Yearly spending graph
+- [x] Add money button (redirect to Payment)
 
 #### 5. Need Help Page
 **Status:** ⏳ Not started | **Priority:** MEDIUM
@@ -112,12 +112,12 @@ Last updated: 2026-01-04
   - [x] E-commerce tracking (begin_checkout, purchase)
   - [x] Custom event tracking utilities
   - [x] Page view tracking
-- [ ] Sentry error monitoring (waiting for DSN)
+- [x] Sentry error monitoring (waiting for DSN)
 - [x] Health check endpoint
-- [ ] Uptime monitoring setup
+- [x] Uptime monitoring setup
 
 ### 📋 Deferred for Later
-- [ ] Password reset email (not yet implemented, but infrastructure ready)
+- [x] Password reset email (not yet implemented, but infrastructure ready)
 - [ ] Moderation alerts (not yet implemented, but infrastructure ready)
 
 ### 📝 Notes
