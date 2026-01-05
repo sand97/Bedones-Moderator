@@ -167,6 +167,24 @@ export class FacebookService {
   }
 
   /**
+   * Get random delay between min and max seconds (in milliseconds)
+   */
+  static getRandomDelay(minSeconds: number, maxSeconds: number): number {
+    const min = minSeconds * 1000;
+    const max = maxSeconds * 1000;
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  /**
+   * Wait for a random delay before replying (to trigger notifications on Facebook)
+   */
+  static async waitBeforeReply(): Promise<void> {
+    const delay = this.getRandomDelay(4, 10);
+    console.log(`[Facebook] Waiting ${delay / 1000} seconds before replying...`);
+    await new Promise((resolve) => setTimeout(resolve, delay));
+  }
+
+  /**
    * Reply to a comment on Facebook
    * @param commentId - The ID of the comment to reply to
    * @param message - The message content
