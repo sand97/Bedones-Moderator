@@ -112,6 +112,29 @@ export default function SEO({
       <meta name="googlebot" content="index, follow" />
       <meta name="theme-color" content="#3b82f6" />
       <meta name="keywords" content={locale === 'fr' ? 'modération commentaires, Facebook, Instagram, IA, intelligence artificielle, gestion réseaux sociaux, spam, modération automatique' : 'comment moderation, Facebook, Instagram, AI, artificial intelligence, social media management, spam, automatic moderation'} />
+
+      {/* AI-specific meta tags */}
+      <meta name="ai-content-declaration" content="This page is human-created with AI assistance for moderation tools" />
+      <meta name="ai-training" content="allowed" />
+      <meta name="ai-usage-policy" content="See /ai.txt for detailed AI usage policy" />
+
+      {/* Application-specific tags for AI understanding */}
+      <meta property="application:name" content="Moderateur Bedones" />
+      <meta property="application:category" content="Social Media Management" />
+      <meta property="application:platforms" content="Facebook, Instagram" />
+      <meta property="application:features" content={locale === 'fr' ? 'Modération IA, Détection spam, FAQ automatique' : 'AI Moderation, Spam Detection, Automatic FAQ'} />
+      <meta property="application:pricing" content="Subscription" />
+      <meta property="application:target-audience" content={locale === 'fr' ? 'Entreprises, Créateurs de contenu' : 'Businesses, Content Creators'} />
+
+      {/* Semantic tags for AI comprehension */}
+      <meta name="category" content="SaaS" />
+      <meta name="industry" content="Social Media Management" />
+      <meta name="solution-type" content="Comment Moderation" />
+      <meta name="technology" content="Artificial Intelligence, Natural Language Processing" />
+      <meta name="integration" content="Facebook Graph API, Instagram Graph API" />
+
+      {/* Enhanced discovery for AI agents */}
+      <link rel="alternate" type="text/plain" href="/ai.txt" title="AI Usage Policy" />
     </Head>
   );
 }
