@@ -1,5 +1,81 @@
 # robots.txt pour Moderateur Bedones
+
+# Default for all crawlers
 User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# AI Crawlers Configuration
+# OpenAI GPTBot (ChatGPT crawler)
+User-agent: GPTBot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+Crawl-delay: 10
+
+# Anthropic Claude (Claude AI crawler)
+User-agent: Claude-Web
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+Crawl-delay: 10
+
+# Google Extended (for Bard/Gemini AI training)
+User-agent: Google-Extended
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# Common Crawl (used by many AI models)
+User-agent: CCBot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# Anthropic AI research crawler
+User-agent: anthropic-ai
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+Crawl-delay: 10
+
+# Apple Intelligence
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# Amazon Alexa
+User-agent: Amazonbot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# Cohere AI
+User-agent: cohere-ai
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# Perplexity AI
+User-agent: PerplexityBot
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /auth-error
+
+# Meta AI
+User-agent: FacebookBot
 Allow: /
 Disallow: /api/
 Disallow: /dashboard/
