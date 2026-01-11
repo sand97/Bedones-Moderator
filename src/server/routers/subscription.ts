@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc';
 import { prisma } from '../prisma';
 import { PLAN_CONFIGS, calculateMultiMonthPrice } from '../../lib/subscription-utils';
-import { getUserTotalCredits } from '../../lib/credit-utils';
+import { getCreditBalance, grantInitialCredits } from '../../lib/credit-utils';
 import { TRPCError } from '@trpc/server';
 
 export const subscriptionRouter = router({
@@ -24,13 +24,18 @@ export const subscriptionRouter = router({
       },
     });
 
-    // Get total credits across all user's pages
-    const creditsInfo = await getUserTotalCredits(ctx.user.id);
-
     // Get plan config
     const planConfig = subscription
       ? PLAN_CONFIGS[subscription.tier]
       : PLAN_CONFIGS.FREE;
+
+    // Grant initial credits to FREE users if they don't have any
+    if (planConfig.tier === 'FREE') {
+      await grantInitialCredits(ctx.user.id);
+    }
+
+    // Get user credits
+    const creditsInfo = await getCreditBalance(ctx.user.id);
 
     return {
       subscription,

@@ -461,6 +461,7 @@
     "title": "Méthode de paiement",
     "currentPlan": "Plan actuel",
     "currentPlanDescription": "Votre abonnement actif et vos crédits",
+    "mostPopular": "Plus populaire",
     "availablePlans": "Plans disponibles",
     "availablePlansDescription": "Choisissez le plan qui correspond à vos besoins",
     "paymentHistory": "Historique des paiements",
@@ -495,7 +496,14 @@
     "completed": "Terminé",
     "pending": "En attente",
     "failed": "Échoué",
-    "noPayments": "Aucun historique de paiement"
+    "noPayments": "Aucun historique de paiement",
+    "processing": "Traitement en cours...",
+    "error": "Erreur de paiement",
+    "errorDescription": "Une erreur s'est produite lors du traitement de votre paiement. Veuillez réessayer.",
+    "successTitle": "🎉 Paiement réussi !",
+    "successDescription": "Votre abonnement a été activé. Vous pouvez maintenant profiter de toutes les fonctionnalités premium !",
+    "cancelledTitle": "Paiement annulé",
+    "cancelledDescription": "Votre paiement a été annulé. Vous pouvez réessayer à tout moment depuis la page Méthode de paiement."
   },
   "usage": {
     "title": "Utilisation",
@@ -535,6 +543,21 @@
     "date": "Date",
     "cost": "Coût",
     "noHistoryData": "Aucun historique d'utilisation disponible"
+  },
+  "upgrade": {
+    "title": "Nombre de réponses limité",
+    "description": "Votre plan gratuit limite le nombre de commentaires que vous pouvez modérer. Passez à un plan supérieur pour débloquer plus de crédits et de fonctionnalités.",
+    "cta": "Contrôler plus de commentaires"
+  },
+  "upgradeBanner": {
+    "normal": {
+      "message": "Vous ne pourrez modérer que {{moderationLeft}} nouveaux commentaires et faire {{faqLeft}} réponses automatiques.",
+      "cta": "Passer à un plan supérieur"
+    },
+    "critical": {
+      "message": "⚠️ Plus que {{moderationLeft}} commentaires de modération et {{faqLeft}} réponses restants ! Arrivé à zéro, plus aucun commentaire négatif ne sera masqué ou supprimé.",
+      "cta": "Upgrader maintenant"
+    }
   },
   "accountPage": {
     "title": "Paramètres du compte",

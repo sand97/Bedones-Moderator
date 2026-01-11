@@ -5,7 +5,7 @@
 import { z } from 'zod';
 import { router, protectedProcedure } from '../trpc';
 import { prisma } from '../prisma';
-import { getCreditBalance, getUserTotalCredits } from '../../lib/credit-utils';
+import { getCreditBalance } from '../../lib/credit-utils';
 
 export const usageRouter = router({
   /**
@@ -17,14 +17,18 @@ export const usageRouter = router({
       where: { userId: ctx.user.id },
     });
 
-    // Get total credits across all pages
-    const creditsInfo = await getUserTotalCredits(ctx.user.id);
+    // Get user credits
+    const creditsInfo = await getCreditBalance(ctx.user.id);
 
     // Get all pages
     const pages = await prisma.page.findMany({
       where: { userId: ctx.user.id },
       include: {
-        credits: true,
+        _count: {
+          select: {
+            posts: true,
+          },
+        },
       },
     });
 
@@ -62,11 +66,7 @@ export const usageRouter = router({
         id: page.id,
         name: page.name,
         provider: page.provider,
-        moderationCredits: page.credits?.moderationCredits || 0,
-        faqCredits: page.credits?.faqCredits || 0,
-        totalModerationsUsed: page.credits?.totalModerationsUsed || 0,
-        totalFaqRepliesUsed: page.credits?.totalFaqRepliesUsed || 0,
-        freeCreditsGiven: page.credits?.freeCreditsGiven || false,
+        postsCount: page._count.posts,
       })),
       usageStats: {
         totalCommentsAnalyzed,
@@ -77,26 +77,11 @@ export const usageRouter = router({
   }),
 
   /**
-   * Get credit balance for a specific page
+   * Get credit balance for the user
    */
-  getPageCredits: protectedProcedure
-    .input(
-      z.object({
-        pageId: z.string(),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      // Verify page ownership
-      const page = await prisma.page.findUnique({
-        where: { id: input.pageId },
-      });
-
-      if (page?.userId !== ctx.user.id) {
-        throw new Error('Page not found or unauthorized');
-      }
-
-      return getCreditBalance(input.pageId);
-    }),
+  getCredits: protectedProcedure.query(async ({ ctx }) => {
+    return getCreditBalance(ctx.user.id);
+  }),
 
   /**
    * Get usage history with daily breakdown
@@ -198,7 +183,7 @@ export const usageRouter = router({
   }),
 
   /**
-   * Get top pages by usage
+   * Get top pages by post count
    */
   getTopPages: protectedProcedure
     .input(
@@ -210,7 +195,6 @@ export const usageRouter = router({
       const pages = await prisma.page.findMany({
         where: { userId: ctx.user.id },
         include: {
-          credits: true,
           _count: {
             select: {
               posts: true,
@@ -219,21 +203,22 @@ export const usageRouter = router({
         },
       });
 
-      // Sort by total usage (moderation + FAQ)
+      // Get user credits for total usage
+      const userCredits = await getCreditBalance(ctx.user.id);
+
+      // Sort by post count (as proxy for activity)
       const sortedPages = pages
         .map((page) => ({
           id: page.id,
           name: page.name,
           provider: page.provider,
           profilePictureUrl: page.profilePictureUrl,
-          totalUsage:
-            (page.credits?.totalModerationsUsed || 0) +
-            (page.credits?.totalFaqRepliesUsed || 0),
-          moderationUsage: page.credits?.totalModerationsUsed || 0,
-          faqUsage: page.credits?.totalFaqRepliesUsed || 0,
+          totalUsage: userCredits.totalModerationsUsed + userCredits.totalFaqRepliesUsed,
+          moderationUsage: userCredits.totalModerationsUsed,
+          faqUsage: userCredits.totalFaqRepliesUsed,
           postsCount: page._count.posts,
         }))
-        .sort((a, b) => b.totalUsage - a.totalUsage)
+        .sort((a, b) => b.postsCount - a.postsCount)
         .slice(0, input.limit);
 
       return sortedPages;

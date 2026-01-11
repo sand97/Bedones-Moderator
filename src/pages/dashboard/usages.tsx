@@ -1,13 +1,12 @@
 import { useTranslation } from 'react-i18next';
 import { DashboardLayout } from '~/components/DashboardLayout';
+import { UpgradeCard } from '~/components/UpgradeCard';
 import { trpc } from '~/utils/trpc';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
-import { Badge } from '~/components/ui/badge';
 import { Skeleton } from '~/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '~/components/ui/tabs';
 import {
   TrendingUp,
-  Activity,
   Zap,
   MessageSquare,
   HelpCircle,
@@ -31,6 +30,9 @@ export default function UsagesPage() {
 
   // Fetch usage summary
   const { data: summary, isLoading: isLoadingSummary } = trpc.usage.getSummary.useQuery();
+
+  // Fetch current subscription to check if user is on free plan
+  const { data: currentData } = trpc.subscription.getCurrent.useQuery();
 
   // Fetch usage history (30 days)
   const { data: history = [], isLoading: isLoadingHistory } = trpc.usage.getHistory.useQuery({
@@ -57,8 +59,11 @@ export default function UsagesPage() {
   return (
     <DashboardLayout pageTitle={t('usage.title')}>
       <div className="space-y-6">
+        {/* Upgrade Card for Free Plan Users */}
+        {currentData?.subscription?.tier === 'FREE' && <UpgradeCard />}
+
         {/* Overview Stats */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
@@ -72,7 +77,7 @@ export default function UsagesPage() {
               ) : (
                 <>
                   <div className="text-2xl font-bold">
-                    {(summary?.creditsInfo.totalModerationCredits || 0).toLocaleString()}
+                    {(summary?.creditsInfo.moderationCredits || 0).toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {t('usage.moderationCredits')}
@@ -95,10 +100,10 @@ export default function UsagesPage() {
               ) : (
                 <>
                   <div className="text-2xl font-bold">
-                    {(summary?.creditsInfo.totalFaqCredits || 0).toLocaleString()}
+                    {(summary?.creditsInfo.faqCredits || 0).toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {t('usage.acrossPages', { count: summary?.creditsInfo.pageCount || 0 })}
+                    {t('usage.faqCredits')}
                   </p>
                 </>
               )}
@@ -122,29 +127,6 @@ export default function UsagesPage() {
                   </div>
                   <p className="text-xs text-muted-foreground">
                     {t('usage.last30Days')}
-                  </p>
-                </>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {t('usage.estimatedCost')}
-              </CardTitle>
-              <Activity className="size-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              {isLoadingSummary ? (
-                <Skeleton className="h-8 w-24" />
-              ) : (
-                <>
-                  <div className="text-2xl font-bold">
-                    ${(summary?.usageStats.totalCost || 0).toFixed(4)}
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {t('usage.aiProcessingCost')}
                   </p>
                 </>
               )}
@@ -248,48 +230,6 @@ export default function UsagesPage() {
                   <div className="text-center text-muted-foreground py-8">
                     {t('usage.noData')}
                   </div>
-                )}
-
-                {summary && summary.pages.length > 0 && (
-                  <>
-                    <div className="mt-6">
-                      <h4 className="font-semibold mb-3">{t('usage.allPages')}</h4>
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>{t('usage.page')}</TableHead>
-                            <TableHead className="text-right">{t('usage.moderationCredits')}</TableHead>
-                            <TableHead className="text-right">{t('usage.faqCredits')}</TableHead>
-                            <TableHead className="text-right">{t('usage.totalUsed')}</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {summary.pages.map((page) => (
-                            <TableRow key={page.id}>
-                              <TableCell className="font-medium">
-                                <div className="flex items-center gap-2">
-                                  {page.provider === 'FACEBOOK' ? (
-                                    <Facebook className="size-4" />
-                                  ) : (
-                                    <Instagram className="size-4" />
-                                  )}
-                                  {page.name}
-                                  {page.freeCreditsGiven && (
-                                    <Badge variant="secondary" className="text-xs">Free trial</Badge>
-                                  )}
-                                </div>
-                              </TableCell>
-                              <TableCell className="text-right">{page.moderationCredits.toLocaleString()}</TableCell>
-                              <TableCell className="text-right">{page.faqCredits.toLocaleString()}</TableCell>
-                              <TableCell className="text-right">
-                                {(page.totalModerationsUsed + page.totalFaqRepliesUsed).toLocaleString()}
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </>
                 )}
               </CardContent>
             </Card>

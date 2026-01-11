@@ -83,14 +83,38 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
 async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) {
   console.log('🔍 Processing checkout.session.completed:', session.id);
-  console.log('📦 Session metadata:', session.metadata);
+  console.log('📦 Session mode:', session.mode);
   console.log('💰 Payment status:', session.payment_status);
   console.log('👤 Customer:', session.customer);
+  console.log('🔗 Subscription:', session.subscription);
 
-  let userId = session.metadata?.userId;
-  const tier = session.metadata?.tier as SubscriptionTier;
-  const planName = session.metadata?.planName;
-  const monthlyCommentLimit = parseInt(session.metadata?.monthlyCommentLimit || '1000', 10);
+  // For subscription mode, metadata is in the subscription object, not the session
+  let userId: string | undefined;
+  let tier: SubscriptionTier | undefined;
+  let planName: string | undefined;
+  let monthlyModerationCredits: number | undefined;
+  let monthlyFaqCredits: number | undefined;
+
+  if (session.mode === 'subscription' && session.subscription) {
+    // Retrieve the subscription to get metadata
+    console.log('📋 Retrieving subscription metadata...');
+    const subscription = await stripe.subscriptions.retrieve(session.subscription as string);
+    console.log('📦 Subscription metadata:', subscription.metadata);
+
+    userId = subscription.metadata?.userId;
+    tier = subscription.metadata?.tier as SubscriptionTier;
+    planName = subscription.metadata?.planName;
+    monthlyModerationCredits = parseInt(subscription.metadata?.monthlyModerationCredits || '1000', 10);
+    monthlyFaqCredits = parseInt(subscription.metadata?.monthlyFaqCredits || '100', 10);
+  } else {
+    // Fallback to session metadata for payment mode
+    console.log('📦 Session metadata:', session.metadata);
+    userId = session.metadata?.userId;
+    tier = session.metadata?.tier as SubscriptionTier;
+    planName = session.metadata?.planName;
+    monthlyModerationCredits = parseInt(session.metadata?.monthlyModerationCredits || '1000', 10);
+    monthlyFaqCredits = parseInt(session.metadata?.monthlyFaqCredits || '100', 10);
+  }
 
   if (!userId || !tier || !planName) {
     console.error('❌ Missing metadata in checkout session:', session.id);
@@ -144,6 +168,9 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
   // Calculate next usage reset date (first day of next month)
   const usageResetDate = getNextResetDate();
 
+  // Store Stripe subscription ID if available
+  const stripeSubscriptionId = session.mode === 'subscription' ? (session.subscription as string) : null;
+
   // Create or update subscription
   try {
     const subscription = await prisma.subscription.upsert({
@@ -152,9 +179,10 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         tier,
         planName,
         stripeCustomerId: session.customer as string,
-        stripePriceId: session.metadata?.priceId || null,
-        stripeProductId: process.env.STRIPE_PRODUCT_ID || null,
-        monthlyCommentLimit,
+        stripeSubscriptionId,
+        stripePriceId: null, // Will be updated when we implement multi-price support
+        stripeProductId: null,
+        monthlyCommentLimit: monthlyModerationCredits || 1000, // Legacy field for backwards compatibility
         currentMonthUsage: 0, // Reset usage on new subscription
         usageResetDate,
         expiresAt,
@@ -165,9 +193,10 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
         tier,
         planName,
         stripeCustomerId: session.customer as string,
-        stripePriceId: session.metadata?.priceId || null,
-        stripeProductId: process.env.STRIPE_PRODUCT_ID || null,
-        monthlyCommentLimit,
+        stripeSubscriptionId,
+        stripePriceId: null,
+        stripeProductId: null,
+        monthlyCommentLimit: monthlyModerationCredits || 1000,
         currentMonthUsage: 0,
         usageResetDate,
         expiresAt,
@@ -177,8 +206,10 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     console.log(`✅ Subscription created/updated successfully!`);
     console.log(`   User ID: ${userId}`);
     console.log(`   Subscription ID: ${subscription.id}`);
+    console.log(`   Stripe Subscription ID: ${stripeSubscriptionId}`);
     console.log(`   Plan: ${planName} (${tier})`);
-    console.log(`   Monthly limit: ${monthlyCommentLimit} comments`);
+    console.log(`   Monthly moderation credits: ${monthlyModerationCredits}`);
+    console.log(`   Monthly FAQ credits: ${monthlyFaqCredits}`);
     console.log(`   Expires: ${expiresAt.toISOString()}`);
   } catch (error) {
     console.error('❌ Error creating/updating subscription:', error);

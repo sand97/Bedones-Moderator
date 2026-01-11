@@ -3,10 +3,11 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import { trpc } from '~/utils/trpc';
-import { Card, CardContent } from '~/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
 import { Button } from '~/components/ui/button';
 import { DashboardLayout } from '~/components/DashboardLayout';
-import { Facebook, Instagram, ExternalLink } from 'lucide-react';
+import { UpgradeCard } from '~/components/UpgradeCard';
+import { Facebook, Instagram, ExternalLink, CheckCircle, XCircle, X } from 'lucide-react';
 import { cn } from '~/lib/utils';
 import { Skeleton } from '~/components/ui/skeleton';
 import {
@@ -17,7 +18,6 @@ import {
   startOfMonth,
   format,
 } from 'date-fns';
-import { useToast } from '~/hooks/use-toast';
 
 // Helper functions to get date ranges
 const getToday = () => {
@@ -73,13 +73,19 @@ const providers: Provider[] = [
 const DashboardPage: NextPage = () => {
   const router = useRouter();
   const { t } = useTranslation();
-  const { toast } = useToast();
   const [settingsApplied, setSettingsApplied] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState<'success' | 'cancelled' | null>(null);
   const { data: session, isLoading: sessionLoading } =
     trpc.auth.getSession.useQuery();
 
   // Get pages count by provider
   const { data: pagesCount } = trpc.auth.getPagesCountByProvider.useQuery(
+    undefined,
+    { enabled: !!session?.user },
+  );
+
+  // Fetch current subscription to check if user is on free plan
+  const { data: currentData } = trpc.subscription.getCurrent.useQuery(
     undefined,
     { enabled: !!session?.user },
   );
@@ -130,6 +136,24 @@ const DashboardPage: NextPage = () => {
       router.push('/');
     }
   }, [session, sessionLoading, router]);
+
+  // Handle payment success/cancel notifications
+  useEffect(() => {
+    // Wait for router to be ready before checking query params
+    if (!router.isReady) return;
+
+    const payment = router.query.payment as string;
+
+    if (payment === 'success') {
+      setPaymentStatus('success');
+      // Remove the query parameter from URL
+      router.replace('/dashboard', undefined, { shallow: true });
+    } else if (payment === 'cancelled') {
+      setPaymentStatus('cancelled');
+      // Remove the query parameter from URL
+      router.replace('/dashboard', undefined, { shallow: true });
+    }
+  }, [router.isReady, router.query.payment, router]);
 
   // Apply initial settings from localStorage after OAuth
   useEffect(() => {
@@ -251,6 +275,69 @@ const DashboardPage: NextPage = () => {
 
   return (
     <DashboardLayout pageTitle={t('sidebar.dashboard')}>
+      {/* Payment Status Card */}
+      {paymentStatus && (
+        <Card
+          className={cn(
+            'mb-6 border-2',
+            paymentStatus === 'success'
+              ? 'border-green-500 bg-green-50'
+              : 'border-red-500 bg-red-50'
+          )}
+        >
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-3">
+                {paymentStatus === 'success' ? (
+                  <CheckCircle className="size-6 text-green-600" />
+                ) : (
+                  <XCircle className="size-6 text-red-600" />
+                )}
+                <div>
+                  <CardTitle
+                    className={
+                      paymentStatus === 'success'
+                        ? 'text-green-900'
+                        : 'text-red-900'
+                    }
+                  >
+                    {paymentStatus === 'success'
+                      ? t('payment.successTitle')
+                      : t('payment.cancelledTitle')}
+                  </CardTitle>
+                  <CardDescription
+                    className={
+                      paymentStatus === 'success'
+                        ? 'text-green-700'
+                        : 'text-red-700'
+                    }
+                  >
+                    {paymentStatus === 'success'
+                      ? t('payment.successDescription')
+                      : t('payment.cancelledDescription')}
+                  </CardDescription>
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="shrink-0"
+                onClick={() => setPaymentStatus(null)}
+              >
+                <X className="size-4" />
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+      )}
+
+      {/* Upgrade Card for Free Plan Users */}
+      {currentData?.subscription?.tier === 'FREE' && (
+        <div className="mb-6">
+          <UpgradeCard />
+        </div>
+      )}
+
       {/* Connected Pages Section */}
       <div className="mb-4">
         <h2 className="text-lg font-semibold tracking-tight">

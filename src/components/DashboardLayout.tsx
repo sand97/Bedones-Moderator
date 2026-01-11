@@ -12,17 +12,20 @@ import {
   BreadcrumbPage,
 } from '~/components/ui/breadcrumb';
 import { AppSidebar } from './app-sidebar';
+import { UpgradeBanner } from './UpgradeBanner';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   pageTitle?: string;
   headerRight?: React.ReactNode;
+  hideBanner?: boolean;
 }
 
 export function DashboardLayout({
   children,
   pageTitle,
   headerRight,
+  hideBanner = false,
 }: DashboardLayoutProps) {
   const fullTitle = pageTitle
     ? `Bedones Moderator | ${pageTitle}`
@@ -54,6 +57,7 @@ export function DashboardLayout({
               </div>
             )}
           </header>
+          {!hideBanner && <UpgradeBanner />}
           <div className="flex flex-1 flex-col p-4">{children}</div>
         </SidebarInset>
       </SidebarProvider>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { DashboardLayout } from '~/components/DashboardLayout';
 import { trpc } from '~/utils/trpc';
 import { trackBeginCheckout } from '~/lib/analytics';
+import { toast } from '~/hooks/use-toast';
 import {
   Card,
   CardContent,
@@ -64,6 +65,7 @@ export default function PaymentMethodPage() {
   );
   const [months, setMonths] = useState<1 | 3 | 6 | 12>(1);
   const [phone, setPhone] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   // Fetch current subscription
   const { data: currentData, isLoading: isLoadingCurrent } =
@@ -96,58 +98,92 @@ export default function PaymentMethodPage() {
   );
 
   const handleUpgrade = async () => {
-    if (!selectedPlan || selectedPlan === 'FREE') return;
+    if (!selectedPlan || selectedPlan === 'FREE' || isProcessing) return;
 
     // Get plan details for tracking
     const plan = plans.find((p) => p.key === selectedPlan);
     if (!plan) return;
 
-    // Track begin_checkout event
-    const currency = paymentMethod === 'stripe' ? 'USD' : 'XAF';
-    const price =
-      paymentMethod === 'stripe'
-        ? plan.price.monthlyUsd * 100 // Convert to cents
-        : plan.price.monthlyXaf;
-    const totalValue =
-      paymentMethod === 'notchpay'
-        ? pricing?.finalPrice || price * months
-        : price;
+    setIsProcessing(true);
 
-    trackBeginCheckout({
-      currency,
-      value: totalValue / (currency === 'USD' ? 100 : 1), // Normalize to actual currency value
-      items: [
-        {
-          item_id: selectedPlan,
-          item_name: plan.name,
-          price: price / (currency === 'USD' ? 100 : 1),
-          quantity: paymentMethod === 'notchpay' ? months : 1,
-          item_category: 'subscription',
-        },
-      ],
-      payment_type: paymentMethod,
-    });
+    try {
+      // Track begin_checkout event
+      const currency = paymentMethod === 'stripe' ? 'USD' : 'XAF';
+      const price =
+        paymentMethod === 'stripe'
+          ? plan.price.monthlyUsd * 100 // Convert to cents
+          : plan.price.monthlyXaf;
+      const totalValue =
+        paymentMethod === 'notchpay'
+          ? pricing?.finalPrice || price * months
+          : price;
 
-    if (paymentMethod === 'stripe') {
-      // Redirect to Stripe checkout
-      // eslint-disable-next-line react-hooks/react-compiler
-      window.location.href = `/api/stripe/checkout?plan=${selectedPlan}`;
-    } else {
-      // Redirect to NotchPay checkout
-      const response = await fetch('/api/notchpay/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          planKey: selectedPlan,
-          months,
-          phone,
-        }),
+      trackBeginCheckout({
+        currency,
+        value: totalValue / (currency === 'USD' ? 100 : 1), // Normalize to actual currency value
+        items: [
+          {
+            item_id: selectedPlan,
+            item_name: plan.name,
+            price: price / (currency === 'USD' ? 100 : 1),
+            quantity: paymentMethod === 'notchpay' ? months : 1,
+            item_category: 'subscription',
+          },
+        ],
+        payment_type: paymentMethod,
       });
 
-      const data = await response.json();
-      if (data.url) {
-        window.location.href = data.url;
+      if (paymentMethod === 'stripe') {
+        // Redirect to Stripe checkout
+        const response = await fetch('/api/stripe/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            planKey: selectedPlan,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create checkout session');
+        }
+
+        const data = await response.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
+      } else {
+        // Redirect to NotchPay checkout
+        const response = await fetch('/api/notchpay/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            planKey: selectedPlan,
+            months,
+            phone,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to create checkout session');
+        }
+
+        const data = await response.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          throw new Error('No checkout URL received');
+        }
       }
+    } catch (error) {
+      console.error('Error during checkout:', error);
+      toast({
+        title: t('payment.error'),
+        description: t('payment.errorDescription'),
+        variant: 'destructive',
+      });
+      setIsProcessing(false);
     }
   };
 
@@ -184,7 +220,7 @@ export default function PaymentMethodPage() {
   };
 
   return (
-    <DashboardLayout pageTitle={t('payment.title')}>
+    <DashboardLayout pageTitle={t('payment.title')} hideBanner>
       <div className="space-y-4 md:space-y-6">
         {/* Current Subscription Card */}
         <Card className="p-4 md:p-6">
@@ -251,7 +287,7 @@ export default function PaymentMethodPage() {
                     </p>
                     <div className="flex items-baseline gap-2">
                       <p className="text-2xl font-bold">
-                        {currentData?.creditsInfo.totalModerationCredits.toLocaleString()}
+                        {currentData?.creditsInfo.moderationCredits.toLocaleString()}
                       </p>
                       <span className="text-sm text-muted-foreground">
                         {t('payment.moderation')}
@@ -264,7 +300,7 @@ export default function PaymentMethodPage() {
                     </p>
                     <div className="flex items-baseline gap-2">
                       <p className="text-2xl font-bold">
-                        {currentData?.creditsInfo.totalFaqCredits.toLocaleString()}
+                        {currentData?.creditsInfo.faqCredits.toLocaleString()}
                       </p>
                       <span className="text-sm text-muted-foreground">FAQ</span>
                     </div>
@@ -301,11 +337,18 @@ export default function PaymentMethodPage() {
                     <Card
                       key={plan.key}
                       className={
-                        selectedPlan === plan.key ? 'ring-2 ring-primary' : ''
+                        selectedPlan === plan.key ? 'ring-2 ring-primary flex flex-col h-full' : 'flex flex-col h-full'
                       }
                     >
                       <CardHeader>
-                        <CardTitle>{plan.name}</CardTitle>
+                        <div className="flex items-center justify-between">
+                          <CardTitle>{plan.name}</CardTitle>
+                          {plan.price.monthlyUsd === 15 && (
+                            <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0">
+                              {t('payment.mostPopular')}
+                            </Badge>
+                          )}
+                        </div>
                         <CardDescription>
                           <span className="text-3xl font-bold text-black">
                             ${plan.price.monthlyUsd}
@@ -313,8 +356,8 @@ export default function PaymentMethodPage() {
                           <span className="text-sm">/mo</span>
                         </CardDescription>
                       </CardHeader>
-                      <CardContent className="space-y-4">
-                        <ul className="space-y-2 text-sm">
+                      <CardContent className="flex flex-col flex-1 space-y-4">
+                        <ul className="space-y-2 text-sm flex-1">
                           {plan.features.map((feature, idx) => (
                             <li key={idx} className="flex items-start gap-2">
                               <Check className="mt-0.5 size-4 text-green-500 shrink-0" />
@@ -326,11 +369,13 @@ export default function PaymentMethodPage() {
                         <Dialog>
                           <DialogTrigger asChild>
                             <Button
-                              className="w-full"
+                              className={plan.price.monthlyUsd === 15 ? 'w-full bg-black hover:bg-black/90 text-white' : 'w-full'}
                               variant={
-                                selectedPlan === plan.key
-                                  ? 'default'
-                                  : 'outline'
+                                plan.price.monthlyUsd === 15
+                                  ? undefined
+                                  : selectedPlan === plan.key
+                                    ? 'default'
+                                    : 'outline'
                               }
                               onClick={() => setSelectedPlan(plan.key)}
                             >
@@ -505,9 +550,12 @@ export default function PaymentMethodPage() {
                               <Button
                                 onClick={handleUpgrade}
                                 className="w-full"
+                                disabled={isProcessing}
                               >
                                 <DollarSign className="mr-2 size-4" />
-                                {t('payment.proceedToPayment')}
+                                {isProcessing
+                                  ? t('payment.processing')
+                                  : t('payment.proceedToPayment')}
                               </Button>
                             </div>
                           </DialogContent>

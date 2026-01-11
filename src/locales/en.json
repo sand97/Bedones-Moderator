@@ -461,6 +461,7 @@
     "title": "Payment Method",
     "currentPlan": "Current Plan",
     "currentPlanDescription": "Your active subscription and credits",
+    "mostPopular": "Most Popular",
     "availablePlans": "Available Plans",
     "availablePlansDescription": "Choose the plan that fits your needs",
     "paymentHistory": "Payment History",
@@ -495,7 +496,14 @@
     "completed": "Completed",
     "pending": "Pending",
     "failed": "Failed",
-    "noPayments": "No payment history yet"
+    "noPayments": "No payment history yet",
+    "processing": "Processing...",
+    "error": "Payment Error",
+    "errorDescription": "An error occurred while processing your payment. Please try again.",
+    "successTitle": "🎉 Payment Successful!",
+    "successDescription": "Your subscription has been activated. You can now enjoy all the premium features!",
+    "cancelledTitle": "Payment Cancelled",
+    "cancelledDescription": "Your payment was cancelled. You can try again anytime from the Payment Method page."
   },
   "usage": {
     "title": "Usage",
@@ -535,6 +543,21 @@
     "date": "Date",
     "cost": "Cost",
     "noHistoryData": "No usage history available yet"
+  },
+  "upgrade": {
+    "title": "Limited Response Count",
+    "description": "Your free plan limits the number of comments you can moderate. Upgrade to a higher plan to unlock more credits and features.",
+    "cta": "Control More Comments"
+  },
+  "upgradeBanner": {
+    "normal": {
+      "message": "You can only moderate {{moderationLeft}} more comments and make {{faqLeft}} automatic replies.",
+      "cta": "Upgrade to a higher plan"
+    },
+    "critical": {
+      "message": "⚠️ Only {{moderationLeft}} moderation credits and {{faqLeft}} replies left! When you reach zero, no more negative comments will be hidden or deleted on your pages.",
+      "cta": "Upgrade now"
+    }
   },
   "accountPage": {
     "title": "Account Settings",

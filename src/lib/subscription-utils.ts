@@ -19,13 +19,14 @@ export interface PlanConfig {
     monthlyXaf: number; // Price in FCFA for mobile money
     currency: 'USD' | 'XAF';
   };
-  stripePriceId?: string; // Will be set from Stripe product IDs
+  stripePriceId: string; // Stripe Price ID from env
   features: string[];
 }
 
 /**
  * Plan configurations for moderateur-bedones
  * New credit-based pricing: $9, $15, $25
+ * Note: stripePriceId values are loaded from environment variables
  */
 export const PLAN_CONFIGS: Record<string, PlanConfig> = {
   FREE: {
@@ -39,6 +40,7 @@ export const PLAN_CONFIGS: Record<string, PlanConfig> = {
       monthlyXaf: 0,
       currency: 'USD',
     },
+    stripePriceId: '', // Free plan has no Stripe price
     features: [
       'Free credits per new page',
       'Test the product risk-free',
@@ -57,6 +59,7 @@ export const PLAN_CONFIGS: Record<string, PlanConfig> = {
       monthlyXaf: 5400, // ~9 USD in FCFA (600 FCFA/USD)
       currency: 'USD',
     },
+    stripePriceId: process.env.STRIPE_PRICE_STARTER || '',
     features: [
       '1,000 moderation credits/month',
       '100 FAQ auto-reply credits/month',
@@ -77,6 +80,7 @@ export const PLAN_CONFIGS: Record<string, PlanConfig> = {
       monthlyXaf: 9000, // ~15 USD in FCFA
       currency: 'USD',
     },
+    stripePriceId: process.env.STRIPE_PRICE_PRO || '',
     features: [
       '5,000 moderation credits/month',
       '500 FAQ auto-reply credits/month',
@@ -98,6 +102,7 @@ export const PLAN_CONFIGS: Record<string, PlanConfig> = {
       monthlyXaf: 15000, // ~25 USD in FCFA
       currency: 'USD',
     },
+    stripePriceId: process.env.STRIPE_PRICE_BUSINESS || '',
     features: [
       '20,000 moderation credits/month',
       '2,000 FAQ auto-reply credits/month',

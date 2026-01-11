@@ -1,12 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
-import { prisma } from '../../../server/prisma';
-import { PLAN_CONFIGS } from '../../../lib/subscription-utils';
+import { prisma } from '~/server/prisma.ts';
+import { PLAN_CONFIGS } from '~/lib/subscription-utils.ts';
 import type { SubscriptionTier } from '@prisma/client';
-import { rateLimit, RateLimitPresets } from '../../../lib/rate-limit';
+import { rateLimit, RateLimitPresets } from '~/lib/rate-limit.ts';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-12-15.clover',
 });
 
 // Mapping des plans aux tiers
@@ -54,6 +54,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const tier = PLAN_TO_TIER[planKey];
     const planConfig = PLAN_CONFIGS[planKey];
 
+    // Validate that Stripe price ID is configured
+    if (!planConfig.stripePriceId) {
+      console.error('Stripe price ID not configured for plan:', planKey);
+      return res.status(500).json({
+        error: 'Stripe price not configured for this plan. Please contact support.'
+      });
+    }
+
     // Get or create Stripe customer
     const user = await prisma.user.findUnique({
       where: { id: sessionData.userId },
@@ -80,29 +88,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       customerId = customer.id;
     }
 
-    // Convert FCFA to cents (Stripe uses smallest currency unit)
-    const amount = planConfig.price.monthly;
-
-    // Create Stripe price on the fly (or use pre-created price IDs from env)
-    let priceId = planConfig.stripePriceId;
-
-    if (!priceId) {
-      // Create price for FCFA (XAF)
-      const price = await stripe.prices.create({
-        unit_amount: amount,
-        currency: 'xaf',
-        product_data: {
-          name: `Moderateur Bedones - ${planConfig.name}`,
-          description: `${planConfig.monthlyCommentLimit} comments moderated per month`,
-        },
-      });
-      priceId = price.id;
-    }
+    // Use pre-configured Stripe price ID
+    const priceId = planConfig.stripePriceId;
 
     // Create Stripe checkout session
     const checkoutSession = await stripe.checkout.sessions.create({
       customer: customerId,
-      mode: 'payment',
+      mode: 'subscription',
       locale: 'fr', // French interface
       line_items: [
         {
@@ -111,28 +103,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         },
       ],
       success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard?payment=success`,
-      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/?payment=cancelled`,
-      metadata: {
-        userId: user.id,
-        planKey,
-        tier,
-        planName: planConfig.name,
-        monthlyCommentLimit: String(planConfig.monthlyCommentLimit),
-        userEmail: user.email || '',
-      },
-      payment_intent_data: {
-        receipt_email: user.email,
-        description: `Abonnement ${planConfig.name} - Moderateur Bedones`,
-      },
-      invoice_creation: {
-        enabled: true,
-        invoice_data: {
-          description: `Abonnement ${planConfig.name} - Moderateur Bedones`,
-          footer: 'Merci pour votre confiance !',
-          metadata: {
-            userId: user.id,
-            planName: planConfig.name,
-          },
+      cancel_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/dashboard/payment-method?payment=cancelled`,
+      subscription_data: {
+        metadata: {
+          userId: user.id,
+          planKey,
+          tier,
+          planName: planConfig.name,
+          monthlyModerationCredits: String(planConfig.monthlyModerationCredits),
+          monthlyFaqCredits: String(planConfig.monthlyFaqCredits),
+          userEmail: user.email || '',
         },
       },
     });

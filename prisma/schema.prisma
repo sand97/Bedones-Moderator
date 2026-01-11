@@ -66,23 +66,24 @@ enum EmailStatus {
 }
 
 model User {
-  id                  String        @id @default(cuid())
-  email               String?       @unique
+  id                  String         @id @default(cuid())
+  email               String?        @unique
   name                String?
   image               String?
-  emailVerified       Boolean       @default(false)
-  emailSubscribed     Boolean       @default(true) // User wants to receive marketing emails
-  emailTransactional  Boolean       @default(true) // User wants to receive transactional emails (billing, account)
-  facebookId          String?       @unique
-  instagramId         String?       @unique
+  emailVerified       Boolean        @default(false)
+  emailSubscribed     Boolean        @default(true) // User wants to receive marketing emails
+  emailTransactional  Boolean        @default(true) // User wants to receive transactional emails (billing, account)
+  facebookId          String?        @unique
+  instagramId         String?        @unique
   accessToken         String? // Encrypted access token
   accessTokenExpiry   DateTime?
-  createdAt           DateTime      @default(now())
-  updatedAt           DateTime      @updatedAt
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
   pages               Page[]
   sessions            Session[]
   accounts            Account[]
   subscription        Subscription?
+  credits             UserCredits?
   usageTracking       UsageTracking[]
   emailLogs           EmailLog[]
 }
@@ -143,7 +144,6 @@ model Page {
   user              User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   settings          PageSettings?
   posts             Post[]
-  credits           PageCredits?
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt
 
@@ -151,27 +151,26 @@ model Page {
   @@index([provider])
 }
 
-model PageCredits {
-  id                 String   @id @default(cuid())
-  pageId             String   @unique
-  page               Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+model UserCredits {
+  id        String   @id @default(cuid())
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  // Credit balances
-  moderationCredits  Int      @default(0) // Credits for spam/undesired comment detection
-  faqCredits         Int      @default(0) // Credits for FAQ auto-responses
+  // Crédits restants (décrémentés à l'usage)
+  moderationCredits Int @default(0)
+  faqCredits        Int @default(0)
 
-  // Free trial credits (given once per page)
-  freeCreditsGiven   Boolean  @default(false) // Track if this page received initial free credits
-  freeCreditsAmount  Int      @default(0) // How many free credits were given
+  // Usage tracking (incrémentés à l'usage)
+  totalModerationsUsed Int @default(0)
+  totalFaqRepliesUsed  Int @default(0)
 
-  // Usage tracking
-  totalModerationsUsed Int    @default(0) // Lifetime moderation count
-  totalFaqRepliesUsed  Int    @default(0) // Lifetime FAQ replies sent
+  // Tracking des commentaires non modérés
+  unmoderatdComments Int @default(0)
 
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@index([pageId])
+  @@index([userId])
 }
 
 model PageSettings {
