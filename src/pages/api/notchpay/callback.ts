@@ -10,18 +10,48 @@ import type { SubscriptionTier } from '@prisma/client';
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse
-) {
-  const { reference } = req.query;
-
-  if (!reference || typeof reference !== 'string') {
-    return res.redirect('/?payment=error');
+): Promise<void> {
+  if (req.method !== 'GET') {
+    res.status(405).json({ error: 'Method not allowed' });
+    return;
   }
 
   try {
+    const { reference, trxref, status } = req.query;
+
+    console.log('🔍 NotchPay callback query params:', { reference, trxref, status });
+
+    // Handle reference - NotchPay sends it twice sometimes (our ref + their trx ref)
+    let ourReference: string;
+    let notchpayReference: string;
+
+    if (Array.isArray(reference)) {
+      // If it's an array, first is our reference, second is NotchPay's trx reference
+      ourReference = reference[0];
+      notchpayReference = reference[1] || reference[0];
+    } else if (typeof reference === 'string') {
+      ourReference = reference;
+      notchpayReference = reference;
+    } else if (typeof trxref === 'string') {
+      // Fallback to trxref if reference is not available
+      ourReference = trxref;
+      notchpayReference = trxref;
+    } else {
+      console.error('❌ No valid reference found in query params');
+      res.redirect('/dashboard/payment-method?payment=error');
+      return;
+    }
+
+    // Clean up the references
+    ourReference = ourReference.split(',')[0].trim();
+    notchpayReference = notchpayReference.split(',')[0].trim();
+
+    console.log(`🔍 Using our reference: ${ourReference}, NotchPay ref: ${notchpayReference}`);
+
     // Find the pending payment
     const payment = await prisma.payment.findFirst({
       where: {
-        notchpayTransactionId: reference,
+        notchpayTransactionId: ourReference,
         status: 'PENDING',
       },
       include: {
@@ -34,12 +64,14 @@ export default async function handler(
     });
 
     if (!payment) {
-      console.error('Payment not found:', reference);
-      return res.redirect('/?payment=not-found');
+      console.error('❌ Payment not found:', ourReference);
+      res.redirect('/dashboard/payment-method?payment=error');
+      return;
     }
 
-    // Verify payment status with NotchPay
-    const verification = await verifyNotchPayPayment(reference);
+    // Verify payment status with NotchPay using their transaction reference
+    console.log(`📞 Verifying payment with NotchPay: ${notchpayReference}`);
+    const verification = await verifyNotchPayPayment(notchpayReference);
 
     if (verification.transaction.status === 'complete') {
       // Parse metadata to get plan details
@@ -48,8 +80,9 @@ export default async function handler(
         : null;
 
       if (!metadata) {
-        console.error('Payment metadata not found:', payment.id);
-        return res.redirect('/?payment=error');
+        console.error('❌ Payment metadata not found:', payment.id);
+        res.redirect('/dashboard/payment-method?payment=error');
+        return;
       }
 
       const tier = metadata.tier as SubscriptionTier;
@@ -87,14 +120,14 @@ export default async function handler(
         },
       });
 
-      // Refill credits for all user's pages
+      // Refill credits for the user
       const creditRefill = await refillMonthlyCredits(
         payment.subscription.userId,
         updatedSubscription
       );
 
       console.log(
-        `💳 Credits refilled for ${creditRefill.pagesRefilled} pages (${creditRefill.totalCreditsAdded} total credits)`
+        `💳 Credits refilled: ${creditRefill.creditsAdded} total credits added`
       );
 
       // Update payment status
@@ -119,7 +152,7 @@ export default async function handler(
           currency: payment.currency,
           months,
           expiresAt: currentPeriodEnd,
-          creditsAdded: creditRefill.totalCreditsAdded,
+          creditsAdded: creditRefill.creditsAdded,
         });
 
         await sendEmail({
@@ -135,7 +168,8 @@ export default async function handler(
         console.log(`📧 Payment success email sent to ${payment.subscription.user.email}`);
       }
 
-      return res.redirect('/dashboard?payment=success');
+      res.redirect('/dashboard/payment-method?payment=success');
+      return;
     } else if (
       verification.transaction.status === 'failed' ||
       verification.transaction.status === 'cancelled'
@@ -177,14 +211,17 @@ export default async function handler(
         console.log(`📧 Payment failed email sent to ${payment.subscription.user.email}`);
       }
 
-      return res.redirect('/?payment=failed');
+      res.redirect('/dashboard/payment-method?payment=cancelled');
+      return;
     } else {
       // Payment still pending
       console.log(`⏳ Payment pending for user ${payment.subscription.userId}`);
-      return res.redirect('/?payment=pending');
+      res.redirect('/dashboard/payment-method?payment=pending');
+      return;
     }
   } catch (error) {
-    console.error('NotchPay callback error:', error);
-    return res.redirect('/?payment=error');
+    console.error('❌ NotchPay callback error:', error);
+    res.redirect('/dashboard/payment-method?payment=error');
+    return;
   }
 }

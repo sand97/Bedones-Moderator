@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
 import Image from 'next/image';
 import { DashboardLayout } from '~/components/DashboardLayout';
@@ -52,10 +53,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import { Input } from '~/components/ui/input';
 import { Skeleton } from '~/components/ui/skeleton';
 
 export default function PaymentMethodPage() {
+  const router = useRouter();
   const { t, i18n } = useTranslation();
   const locale = i18n.language === 'fr' ? fr : enUS;
 
@@ -64,8 +65,64 @@ export default function PaymentMethodPage() {
     'stripe',
   );
   const [months, setMonths] = useState<1 | 3 | 6 | 12>(1);
-  const [phone, setPhone] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
+
+  // Helper function to compare plan tiers
+  const getTierLevel = (tier: string): number => {
+    const tierLevels: Record<string, number> = {
+      FREE: 0,
+      STARTER: 1,
+      PRO: 2,
+      BUSINESS: 3,
+    };
+    return tierLevels[tier] || 0;
+  };
+
+  const isPlanDisabled = (planTier: string): boolean => {
+    const currentTier = currentData?.subscription?.tier || 'FREE';
+    return getTierLevel(currentTier) >= getTierLevel(planTier);
+  };
+
+  // Handle payment status notifications
+  const handlePaymentStatus = useCallback(() => {
+    if (!router.isReady) return;
+
+    const paymentStatus = router.query.payment as string;
+
+    if (paymentStatus === 'success') {
+      toast({
+        title: t('payment.successTitle'),
+        description: t('payment.successDescription'),
+      });
+      router.replace('/dashboard/payment-method', undefined, { shallow: true });
+    } else if (paymentStatus === 'cancelled') {
+      toast({
+        variant: 'destructive',
+        title: t('payment.cancelledTitle'),
+        description: t('payment.cancelledDescription'),
+      });
+      router.replace('/dashboard/payment-method', undefined, { shallow: true });
+    } else if (paymentStatus === 'error') {
+      toast({
+        variant: 'destructive',
+        title: t('payment.error'),
+        description: t('payment.errorDescription'),
+      });
+      router.replace('/dashboard/payment-method', undefined, { shallow: true });
+    } else if (paymentStatus === 'pending') {
+      toast({
+        title: t('payment.pendingTitle') || 'Payment Pending',
+        description:
+          t('payment.pendingDescription') ||
+          'Your payment is being processed. Please wait.',
+      });
+      router.replace('/dashboard/payment-method', undefined, { shallow: true });
+    }
+  }, [router, t, toast]);
+
+  useEffect(() => {
+    handlePaymentStatus();
+  }, [handlePaymentStatus]);
 
   // Fetch current subscription
   const { data: currentData, isLoading: isLoadingCurrent } =
@@ -161,7 +218,6 @@ export default function PaymentMethodPage() {
           body: JSON.stringify({
             planKey: selectedPlan,
             months,
-            phone,
           }),
         });
 
@@ -378,10 +434,13 @@ export default function PaymentMethodPage() {
                                     : 'outline'
                               }
                               onClick={() => setSelectedPlan(plan.key)}
+                              disabled={isPlanDisabled(plan.tier)}
                             >
                               {currentData?.subscription?.tier === plan.tier
                                 ? t('payment.currentPlan')
-                                : t('payment.selectPlan')}
+                                : isPlanDisabled(plan.tier)
+                                  ? t('payment.downgradePlan') || 'Downgrade'
+                                  : t('payment.selectPlan')}
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
@@ -495,14 +554,6 @@ export default function PaymentMethodPage() {
                                       </SelectItem>
                                     </SelectContent>
                                   </Select>
-
-                                  <Label>{t('payment.phoneNumber')}</Label>
-                                  <Input
-                                    type="tel"
-                                    placeholder="+237 6XX XX XX XX"
-                                    value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
-                                  />
 
                                   {/* Price breakdown */}
                                   {pricing && (

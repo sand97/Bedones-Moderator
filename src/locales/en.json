@@ -477,6 +477,7 @@
     "creditsAcross": "Across",
     "pages": "pages",
     "selectPlan": "Select Plan",
+    "downgradePlan": "Lower Plan",
     "upgradeTo": "Upgrade to",
     "choosePaymentMethod": "Choose your payment method",
     "creditCard": "Credit/Debit Card",
@@ -503,7 +504,9 @@
     "successTitle": "🎉 Payment Successful!",
     "successDescription": "Your subscription has been activated. You can now enjoy all the premium features!",
     "cancelledTitle": "Payment Cancelled",
-    "cancelledDescription": "Your payment was cancelled. You can try again anytime from the Payment Method page."
+    "cancelledDescription": "Your payment was cancelled. You can try again anytime from the Payment Method page.",
+    "pendingTitle": "Payment Pending",
+    "pendingDescription": "Your payment is being processed. You will receive a confirmation email once completed."
   },
   "usage": {
     "title": "Usage",

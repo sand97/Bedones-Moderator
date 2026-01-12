@@ -33,7 +33,7 @@ export default async function handler(
       return res.status(401).json({ error: 'Session expired' });
     }
 
-    const { planKey, phone, months = 1 } = req.body;
+    const { planKey, months = 1 } = req.body;
 
     if (!planKey) {
       return res.status(400).json({ error: 'Plan key is required' });
@@ -72,7 +72,6 @@ export default async function handler(
       amount: Math.round(pricing.finalPrice), // Round to avoid decimal issues
       currency: 'XAF',
       email: user.email,
-      phone: phone || undefined,
       reference,
       description,
       callback: callbackUrl,
@@ -83,14 +82,12 @@ export default async function handler(
       where: { userId: user.id },
       update: {
         notchpayCustomerEmail: user.email,
-        notchpayCustomerPhone: phone || null,
         updatedAt: new Date(),
       },
       create: {
         userId: user.id,
         tier: 'FREE', // Will be updated on payment success
         notchpayCustomerEmail: user.email,
-        notchpayCustomerPhone: phone || null,
       },
     });
 

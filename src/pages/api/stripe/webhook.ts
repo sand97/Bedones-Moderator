@@ -1,12 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Stripe from 'stripe';
-import { prisma } from '../../../server/prisma';
-import { getNextResetDate } from '../../../lib/subscription-utils';
+import { prisma } from '~/server/prisma.ts';
+import { getNextResetDate } from '~/lib/subscription-utils.ts';
+import { refillMonthlyCredits } from '~/lib/credit-utils.ts';
 import type { SubscriptionTier } from '@prisma/client';
-import { rateLimit, RateLimitPresets } from '../../../lib/rate-limit';
+import { rateLimit, RateLimitPresets } from '~/lib/rate-limit.ts';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2024-12-18.acacia',
+  apiVersion: '2025-12-15.clover',
 });
 
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
@@ -211,6 +212,13 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     console.log(`   Monthly moderation credits: ${monthlyModerationCredits}`);
     console.log(`   Monthly FAQ credits: ${monthlyFaqCredits}`);
     console.log(`   Expires: ${expiresAt.toISOString()}`);
+
+    // Refill user credits based on the new plan
+    if (tier !== 'FREE') {
+      console.log(`💳 Refilling credits for user ${userId}...`);
+      const creditRefill = await refillMonthlyCredits(userId, subscription);
+      console.log(`✅ Credits refilled: ${creditRefill.creditsAdded} total credits added`);
+    }
   } catch (error) {
     console.error('❌ Error creating/updating subscription:', error);
     throw error;

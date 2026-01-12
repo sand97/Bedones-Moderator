@@ -477,6 +477,7 @@
     "creditsAcross": "Sur",
     "pages": "pages",
     "selectPlan": "Sélectionner ce plan",
+    "downgradePlan": "Plan inférieur",
     "upgradeTo": "Passer à",
     "choosePaymentMethod": "Choisissez votre méthode de paiement",
     "creditCard": "Carte de crédit/débit",
@@ -503,7 +504,9 @@
     "successTitle": "🎉 Paiement réussi !",
     "successDescription": "Votre abonnement a été activé. Vous pouvez maintenant profiter de toutes les fonctionnalités premium !",
     "cancelledTitle": "Paiement annulé",
-    "cancelledDescription": "Votre paiement a été annulé. Vous pouvez réessayer à tout moment depuis la page Méthode de paiement."
+    "cancelledDescription": "Votre paiement a été annulé. Vous pouvez réessayer à tout moment depuis la page Méthode de paiement.",
+    "pendingTitle": "Paiement en attente",
+    "pendingDescription": "Votre paiement est en cours de traitement. Vous recevrez un e-mail de confirmation une fois terminé."
   },
   "usage": {
     "title": "Utilisation",
