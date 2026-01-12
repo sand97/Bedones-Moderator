@@ -16,6 +16,8 @@ import { UndesiredCommentsSection } from '~/components/UndesiredCommentsSection'
 import { useSession } from '~/lib/auth-client';
 import type { NextPageWithLayout } from './_app';
 import Link from 'next/link';
+import SEO from '~/components/SEO';
+import JsonLd from '~/components/JsonLd';
 
 const IndexPage: NextPageWithLayout = () => {
   const { t } = useTranslation();
@@ -45,9 +47,10 @@ const IndexPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head>
-        <title>Bedones Moderator</title>
-      </Head>
+      <SEO
+        image="/og-image.jpg"
+      />
+      <JsonLd type="product" />
       <div className="min-h-[90vh] app-grid-bg relative overflow-hidden">
         <Header className="pt-4 pb-8" />
         <div className="container mx-auto px-4 pb-4 max-w-2xl relative z-10">
