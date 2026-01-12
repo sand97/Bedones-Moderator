@@ -599,6 +599,7 @@ export default function PaymentMethodPage() {
                               )}
 
                               <Button
+                                type="button"
                                 onClick={handleUpgrade}
                                 className="w-full"
                                 disabled={isProcessing}
