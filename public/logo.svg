@@ -1,0 +1,10 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Fond transparent -->
+  <rect width="512" height="512" fill="transparent"/>
+
+  <!-- Cercle noir principal -->
+  <circle cx="256" cy="256" r="220" fill="#000000"/>
+
+  <!-- Lettre B blanche -->
+  <text x="256" y="360" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="280" font-weight="700" text-anchor="middle" fill="white">B</text>
+</svg>

@@ -1,4 +1,3 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -18,6 +17,7 @@ import type { NextPageWithLayout } from './_app';
 import Link from 'next/link';
 import SEO from '~/components/SEO';
 import JsonLd from '~/components/JsonLd';
+import { Shield, Zap, Brain, BarChart3 } from 'lucide-react';
 
 const IndexPage: NextPageWithLayout = () => {
   const { t } = useTranslation();
@@ -47,18 +47,16 @@ const IndexPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <SEO
-        image="/og-image.jpg"
-      />
+      <SEO />
       <JsonLd type="product" />
       <div className="min-h-[90vh] app-grid-bg relative overflow-hidden">
         <Header className="pt-4 pb-8" />
         <div className="container mx-auto px-4 pb-4 max-w-2xl relative z-10">
           <div className="text-center mb-6">
-            <h1 className="lg:text-4xl text-2xl font-light text-black mb-2">
+            <h1 className="lg:text-5xl text-3xl font-bold text-black mb-4">
               {t('page.title')}
             </h1>
-            <p className="text-gray-500 font-normal">{t('page.subtitle')}</p>
+            <p className="text-gray-600 font-normal text-lg max-w-xl mx-auto">{t('page.subtitle')}</p>
           </div>
 
           <div className="mb-8 space-y-2">
@@ -152,6 +150,172 @@ const IndexPage: NextPageWithLayout = () => {
         />
       </div> */}
       </div>
+
+      {/* Section: Comment ça marche */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
+              {t('home.howItWorks.title', 'Comment ça marche ?')}
+            </h2>
+            <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+              {t('home.howItWorks.subtitle', 'Trois étapes simples pour automatiser la modération de vos commentaires')}
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-2xl font-bold">1</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3">
+                {t('home.howItWorks.step1.title', 'Connectez vos comptes')}
+              </h3>
+              <p className="text-gray-600">
+                {t('home.howItWorks.step1.description', 'Liez vos pages Facebook et comptes Instagram en quelques clics de manière sécurisée.')}
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-2xl font-bold">2</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3">
+                {t('home.howItWorks.step2.title', 'Configurez vos règles')}
+              </h3>
+              <p className="text-gray-600">
+                {t('home.howItWorks.step2.description', 'Personnalisez la détection de spam, les commentaires indésirables et vos FAQ automatiques.')}
+              </p>
+            </div>
+
+            <div className="text-center">
+              <div className="w-16 h-16 bg-black rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <span className="text-white text-2xl font-bold">3</span>
+              </div>
+              <h3 className="text-xl font-bold mb-3">
+                {t('home.howItWorks.step3.title', 'Laissez l\'IA travailler')}
+              </h3>
+              <p className="text-gray-600">
+                {t('home.howItWorks.step3.description', 'Notre IA modère vos commentaires 24/7 en temps réel. Vous gardez le contrôle total.')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section: Pourquoi Moderateur Bedones */}
+      <section className="py-16 px-4 bg-gray-50">
+        <div className="container mx-auto max-w-6xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold text-black mb-4">
+              {t('home.whyUs.title', 'Pourquoi choisir Moderateur Bedones ?')}
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-white p-6 rounded-2xl border border-gray-200">
+              <Shield className="h-10 w-10 text-black mb-4" strokeWidth={1.5} />
+              <h3 className="font-bold text-lg mb-2">
+                {t('home.whyUs.feature1.title', 'IA Précise à 98%')}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {t('home.whyUs.feature1.description', 'Détection ultra-précise du spam et des commentaires inappropriés grâce à notre IA avancée.')}
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-gray-200">
+              <Zap className="h-10 w-10 text-black mb-4" strokeWidth={1.5} />
+              <h3 className="font-bold text-lg mb-2">
+                {t('home.whyUs.feature2.title', 'Modération Instantanée')}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {t('home.whyUs.feature2.description', 'Vos commentaires sont analysés et modérés en temps réel, 24h/24 et 7j/7.')}
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-gray-200">
+              <Brain className="h-10 w-10 text-black mb-4" strokeWidth={1.5} />
+              <h3 className="font-bold text-lg mb-2">
+                {t('home.whyUs.feature3.title', 'Réponses Automatiques')}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {t('home.whyUs.feature3.description', 'FAQ intelligente qui répond automatiquement aux questions récurrentes de votre communauté.')}
+              </p>
+            </div>
+
+            <div className="bg-white p-6 rounded-2xl border border-gray-200">
+              <BarChart3 className="h-10 w-10 text-black mb-4" strokeWidth={1.5} />
+              <h3 className="font-bold text-lg mb-2">
+                {t('home.whyUs.feature4.title', 'Gain de Temps')}
+              </h3>
+              <p className="text-gray-600 text-sm">
+                {t('home.whyUs.feature4.description', 'Économisez jusqu\'à 90% du temps passé à modérer manuellement vos commentaires.')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section: Stats / Social Proof */}
+      <section className="py-16 px-4 bg-black text-white">
+        <div className="container mx-auto max-w-5xl">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              {t('home.stats.title', 'Ils nous font confiance')}
+            </h2>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 text-center">
+            <div>
+              <div className="text-5xl font-bold mb-2">500K+</div>
+              <p className="text-white/70">
+                {t('home.stats.comments', 'Commentaires modérés')}
+              </p>
+            </div>
+
+            <div>
+              <div className="text-5xl font-bold mb-2">150+</div>
+              <p className="text-white/70">
+                {t('home.stats.users', 'Créateurs et entreprises')}
+              </p>
+            </div>
+
+            <div>
+              <div className="text-5xl font-bold mb-2">95%</div>
+              <p className="text-white/70">
+                {t('home.stats.spam', 'De spam bloqué automatiquement')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section: CTA */}
+      <section className="py-16 px-4 bg-white">
+        <div className="container mx-auto max-w-4xl text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            {t('home.cta.title', 'Prêt à automatiser votre modération ?')}
+          </h2>
+          <p className="text-gray-600 text-lg mb-8 max-w-2xl mx-auto">
+            {t('home.cta.subtitle', 'Rejoignez des centaines de créateurs qui économisent des heures chaque semaine.')}
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <a
+              href="#connect"
+              className="inline-block bg-black text-white px-8 py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors"
+            >
+              {t('home.cta.primary', 'Commencer Gratuitement')}
+            </a>
+            <Link
+              href="/features"
+              className="inline-block bg-white text-black border-2 border-black px-8 py-4 rounded-full font-semibold hover:bg-gray-50 transition-colors"
+            >
+              {t('home.cta.secondary', 'Voir les fonctionnalités')}
+            </Link>
+          </div>
+        </div>
+      </section>
+
       <Footer />
     </>
   );

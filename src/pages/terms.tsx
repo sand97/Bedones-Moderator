@@ -1,7 +1,7 @@
-import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import { Header } from '~/components/Header';
 import { Footer } from '~/components/Footer';
+import SEO from '~/components/SEO';
 import type { NextPageWithLayout } from './_app';
 
 const TermsPage: NextPageWithLayout = () => {
@@ -12,9 +12,10 @@ const TermsPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head>
-        <title>{t('legalDocuments.terms.metaTitle')}</title>
-      </Head>
+      <SEO
+        title={t('legalDocuments.terms.metaTitle', 'Conditions Générales d\'Utilisation')}
+        description={t('legalDocuments.terms.metaDescription', 'Consultez les conditions générales d\'utilisation de Moderateur Bedones, plateforme de modération automatique pour Facebook et Instagram.')}
+      />
       <div className="min-h-screen bg-[#FDFDFD] bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:80px_80px] relative overflow-hidden">
         <Header className="pt-4 pb-8" />
         <main className="container mx-auto px-4 pb-12 max-w-4xl relative z-10">

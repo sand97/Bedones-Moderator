@@ -16,7 +16,7 @@ export default function JsonLd({ type = 'website', data = {} }: JsonLdProps) {
     '@type': 'Organization',
     name: locale === 'fr' ? 'Moderateur Bedones' : 'Moderateur Bedones',
     url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
+    logo: `${siteUrl}/logo.svg`,
     sameAs: [
       // Add your social media links here
       // 'https://www.facebook.com/moderateurbedones',
@@ -97,7 +97,7 @@ export default function JsonLd({ type = 'website', data = {} }: JsonLdProps) {
           name: locale === 'fr' ? 'Moderateur Bedones' : 'Moderateur Bedones',
           logo: {
             '@type': 'ImageObject',
-            url: `${siteUrl}/logo.png`,
+            url: `${siteUrl}/logo.svg`,
           },
         },
         mainEntityOfPage: {

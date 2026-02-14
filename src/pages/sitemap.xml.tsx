@@ -8,11 +8,13 @@ function generateSiteMap(articles: BlogArticle[]) {
   // Static pages
   const staticPages = [
     '',
+    '/features',
+    '/pricing',
+    '/blog',
     '/legal',
     '/privacy',
     '/terms',
     '/cgv',
-    '/blog',
   ];
 
   return `<?xml version="1.0" encoding="UTF-8"?>

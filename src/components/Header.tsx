@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'react-i18next';
-import { Globe, HelpCircle } from 'lucide-react';
+import { Globe, HelpCircle, BookOpen } from 'lucide-react';
 import { useAuth } from '~/hooks/useAuth';
 import { cn } from '~/lib/utils';
 
@@ -52,10 +52,22 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
               {session.user.name || session.user.email}
             </span>
           )}
+          <Link
+            href="/blog"
+            className={cn(
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              isTransparent
+                ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
+                : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"
+            )}
+          >
+            <BookOpen className="h-4 w-4" strokeWidth={1} />
+            Blog
+          </Link>
           <button
             onClick={handleLanguageToggle}
             className={cn(
-              "flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"
@@ -68,7 +80,7 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
           <Link
             href="/help"
             className={cn(
-              "flex items-center gap-1 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"

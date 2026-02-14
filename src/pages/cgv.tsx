@@ -1,7 +1,7 @@
-import Head from 'next/head';
 import { useTranslation } from 'react-i18next';
 import { Header } from '~/components/Header';
 import { Footer } from '~/components/Footer';
+import SEO from '~/components/SEO';
 import type { NextPageWithLayout } from './_app';
 
 type LegalSection = {
@@ -19,9 +19,10 @@ const CgvPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <Head>
-        <title>{t('legalDocuments.sales.metaTitle')}</title>
-      </Head>
+      <SEO
+        title={t('legalDocuments.sales.metaTitle', 'Conditions Générales de Vente')}
+        description={t('legalDocuments.sales.metaDescription', 'Découvrez les conditions générales de vente de Moderateur Bedones, incluant les tarifs, les conditions de paiement et les modalités d\'abonnement.')}
+      />
       <div className="min-h-screen bg-[#FDFDFD] bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:80px_80px] relative overflow-hidden">
         <Header className="pt-4 pb-8" />
         <main className="container mx-auto px-4 pb-12 max-w-4xl relative z-10">
