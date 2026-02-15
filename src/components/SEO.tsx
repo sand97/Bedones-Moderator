@@ -29,7 +29,7 @@ const defaultMeta = {
 export default function SEO({
   title,
   description,
-  image = '/og-image.jpg',
+  image = '/banner.jpeg',
   article = false,
   publishedTime,
   modifiedTime,
