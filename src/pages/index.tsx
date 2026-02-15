@@ -42,7 +42,15 @@ const IndexPage: NextPageWithLayout = () => {
 
   // Show nothing while checking session or redirecting
   if (isPending || session?.user) {
-    return null;
+    return (
+      <>
+        <SEO
+          title={t('page.metaTitle')}
+          description={t('page.metaDescription')}
+        />
+        <JsonLd type="product" />
+      </>
+    );
   }
 
   return (
