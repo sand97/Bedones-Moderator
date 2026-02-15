@@ -1,7 +1,58 @@
 {
   "page": {
     "title": "Bedones Moderator",
-    "subtitle": "Gérez vos commentaires Facebook et Instagram avec l'intelligence artificielle"
+    "subtitle": "Gérez vos commentaires Facebook et Instagram avec l'intelligence artificielle",
+    "metaTitle": "Moderateur Bedones - Modération Intelligente pour Facebook & Instagram",
+    "metaDescription": "Gérez et modérez automatiquement vos commentaires Facebook et Instagram avec l'intelligence artificielle. Détection de spam, FAQ automatique et modération avancée."
+  },
+  "home": {
+    "howItWorks": {
+      "title": "Comment ça marche ?",
+      "subtitle": "Trois étapes simples pour automatiser la modération de vos commentaires",
+      "step1": {
+        "title": "Connectez vos comptes",
+        "description": "Liez vos pages Facebook et comptes Instagram en quelques clics de manière sécurisée."
+      },
+      "step2": {
+        "title": "Configurez vos règles",
+        "description": "Personnalisez la détection de spam, les commentaires indésirables et vos FAQ automatiques."
+      },
+      "step3": {
+        "title": "Laissez l'IA travailler",
+        "description": "Notre IA modère vos commentaires 24/7 en temps réel. Vous gardez le contrôle total."
+      }
+    },
+    "whyUs": {
+      "title": "Pourquoi choisir Moderateur Bedones ?",
+      "feature1": {
+        "title": "IA Précise à 98%",
+        "description": "Détection ultra-précise du spam et des commentaires inappropriés grâce à notre IA avancée."
+      },
+      "feature2": {
+        "title": "Modération Instantanée",
+        "description": "Vos commentaires sont analysés et modérés en temps réel, 24h/24 et 7j/7."
+      },
+      "feature3": {
+        "title": "Réponses Automatiques",
+        "description": "FAQ intelligente qui répond automatiquement aux questions récurrentes de votre communauté."
+      },
+      "feature4": {
+        "title": "Gain de Temps",
+        "description": "Économisez jusqu'à 90% du temps passé à modérer manuellement vos commentaires."
+      }
+    },
+    "stats": {
+      "title": "Ils nous font confiance",
+      "comments": "Commentaires modérés",
+      "users": "Créateurs et entreprises",
+      "spam": "De spam bloqué automatiquement"
+    },
+    "cta": {
+      "title": "Prêt à automatiser votre modération ?",
+      "subtitle": "Rejoignez des centaines de créateurs qui économisent des heures chaque semaine.",
+      "primary": "Commencer Gratuitement",
+      "secondary": "Voir les fonctionnalités"
+    }
   },
   "header": {
     "connection": "Connexion",
@@ -316,6 +367,7 @@
   },
   "legalPage": {
     "metaTitle": "Mentions légales - Bedones Moderator",
+    "metaDescription": "Consultez les mentions légales, la politique de confidentialité et les conditions d'utilisation de Moderateur Bedones.",
     "title": "Mentions légales",
     "subtitle": "Retrouvez nos documents juridiques pour l'utilisation, la confidentialité et la facturation de Bedones Moderator.",
     "cards": {
@@ -337,15 +389,18 @@
   "legalDocuments": {
     "terms": {
       "title": "Conditions générales d'utilisation (CGU)",
-      "metaTitle": "Conditions générales d'utilisation - Bedones Moderator"
+      "metaTitle": "Conditions générales d'utilisation - Bedones Moderator",
+      "metaDescription": "Consultez les conditions générales d'utilisation de Moderateur Bedones, plateforme de modération automatique pour Facebook et Instagram."
     },
     "privacy": {
       "title": "Politique de confidentialité",
-      "metaTitle": "Politique de confidentialité - Bedones Moderator"
+      "metaTitle": "Politique de confidentialité - Bedones Moderator",
+      "metaDescription": "Découvrez comment Moderateur Bedones protège vos données lors de la modération de vos commentaires Facebook et Instagram. Conformité RGPD et sécurité des données."
     },
     "sales": {
       "title": "Conditions générales de vente (CGV)",
-      "metaTitle": "Conditions générales de vente - Bedones Moderator"
+      "metaTitle": "Conditions générales de vente - Bedones Moderator",
+      "metaDescription": "Découvrez les conditions générales de vente de Moderateur Bedones, incluant les tarifs, les conditions de paiement et les modalités d'abonnement."
     }
   },
   "cgv": {
@@ -621,6 +676,99 @@
       "successDescription": "Votre compte a été définitivement supprimé. Redirection...",
       "error": "Échec de la suppression du compte",
       "errorDescription": "Une erreur s'est produite lors de la suppression de votre compte. Veuillez réessayer ou contacter le support."
+    }
+  },
+  "features": {
+    "metaTitle": "Fonctionnalités - Modération IA pour Facebook & Instagram",
+    "metaDescription": "Découvrez toutes les fonctionnalités de Moderateur Bedones : détection de spam par IA, filtrage intelligent, FAQ automatique, modération en temps réel et bien plus.",
+    "hero": {
+      "title": "Fonctionnalités Puissantes pour une Modération Efficace",
+      "subtitle": "Moderateur Bedones combine intelligence artificielle et automatisation pour vous offrir la meilleure solution de modération pour Facebook et Instagram."
+    },
+    "spamDetection": {
+      "title": "Détection de Spam Intelligente",
+      "description": "Notre IA analyse chaque commentaire pour détecter automatiquement le spam, les liens suspects, et le contenu promotionnel non sollicité. Réduisez jusqu'à 95% du spam sur vos publications."
+    },
+    "unwantedComments": {
+      "title": "Filtrage des Commentaires Indésirables",
+      "description": "Bloquez automatiquement les commentaires contenant un langage inapproprié, des insultes ou du contenu offensant. Protégez votre communauté et votre image de marque."
+    },
+    "intelligentFaq": {
+      "title": "FAQ Intelligente Automatique",
+      "description": "Configurez des questions-réponses et laissez l'IA répondre automatiquement aux questions fréquentes de votre audience. Gagnez des heures chaque semaine."
+    },
+    "realTime": {
+      "title": "Modération en Temps Réel",
+      "description": "Surveillez et modérez vos commentaires dès leur publication. Chaque nouveau commentaire est analysé instantanément pour une protection maximale."
+    },
+    "multiPlatform": {
+      "title": "Support Multi-Plateformes",
+      "description": "Gérez vos commentaires Facebook ET Instagram depuis une seule interface. Connectez plusieurs pages et comptes pour une gestion centralisée."
+    },
+    "analytics": {
+      "title": "Statistiques Détaillées",
+      "description": "Suivez l'activité de modération avec des statistiques complètes. Visualisez les tendances, les types de spam détectés et l'engagement de votre communauté."
+    },
+    "timeSaving": {
+      "title": "Gain de Temps Considérable",
+      "description": "Automatisez jusqu'à 90% de votre modération. Concentrez-vous sur votre contenu pendant que Moderateur Bedones protège votre communauté."
+    },
+    "community": {
+      "title": "Protection de la Communauté",
+      "description": "Créez un environnement sain et sécurisé pour vos followers. Une communauté bien modérée est une communauté engagée et fidèle."
+    },
+    "cta": {
+      "title": "Prêt à automatiser votre modération ?",
+      "description": "Rejoignez des centaines de créateurs et entreprises qui font confiance à Moderateur Bedones pour protéger leur communauté.",
+      "button": "Commencer Gratuitement"
+    }
+  },
+  "pricing": {
+    "metaTitle": "Tarifs - Plans de Modération IA pour Facebook & Instagram",
+    "metaDescription": "Choisissez le plan Moderateur Bedones adapté à vos besoins. Plans à partir de 5 000 XAF/mois. Essai gratuit disponible.",
+    "hero": {
+      "title": "Des Tarifs Simples et Transparents",
+      "subtitle": "Choisissez le plan qui correspond à vos besoins. Tous les plans incluent notre technologie IA de pointe."
+    },
+    "faq": {
+      "title": "Questions Fréquentes",
+      "trial": {
+        "question": "Y a-t-il un essai gratuit ?",
+        "answer": "Oui ! Tous nos plans incluent un essai gratuit de 14 jours. Aucune carte bancaire requise pour commencer."
+      },
+      "payment": {
+        "question": "Quels modes de paiement acceptez-vous ?",
+        "answer": "Nous acceptons les paiements par Mobile Money (Orange Money, MTN Mobile Money), carte bancaire et virement bancaire."
+      },
+      "cancel": {
+        "question": "Puis-je annuler mon abonnement à tout moment ?",
+        "answer": "Absolument. Vous pouvez annuler votre abonnement à tout moment depuis votre tableau de bord. Aucun frais d'annulation."
+      },
+      "upgrade": {
+        "question": "Puis-je changer de plan plus tard ?",
+        "answer": "Oui ! Vous pouvez upgrader ou downgrader votre plan à tout moment. Les changements sont appliqués immédiatement."
+      },
+      "support": {
+        "question": "Le support est-il inclus ?",
+        "answer": "Oui ! Tous les plans incluent un support par email. Les plans Pro et Enterprise bénéficient d'un support prioritaire et dédié."
+      }
+    },
+    "cta": {
+      "title": "Besoin d'un plan personnalisé ?",
+      "description": "Notre équipe est là pour vous aider à trouver la solution parfaite pour vos besoins spécifiques.",
+      "button": "Contactez-nous"
+    }
+  },
+  "blog": {
+    "title": "Blog - Conseils et Actualités",
+    "description": "Découvrez nos articles sur la modération de commentaires, les meilleures pratiques et les actualités des réseaux sociaux.",
+    "hero": {
+      "title": "Blog",
+      "subtitle": "Conseils, astuces et actualités sur la modération de commentaires"
+    },
+    "noArticles": "Aucun article disponible pour le moment.",
+    "notFound": {
+      "title": "Article non trouvé"
     }
   }
 }

@@ -1,7 +1,58 @@
 {
   "page": {
     "title": "Bedones Moderator",
-    "subtitle": "Manage your Facebook comments with artificial intelligence"
+    "subtitle": "Manage your Facebook comments with artificial intelligence",
+    "metaTitle": "Moderateur Bedones - Smart Moderation for Facebook & Instagram",
+    "metaDescription": "Manage and moderate your Facebook and Instagram comments automatically with artificial intelligence. Spam detection, automatic FAQ and advanced moderation."
+  },
+  "home": {
+    "howItWorks": {
+      "title": "How it works",
+      "subtitle": "Three simple steps to automate your comment moderation",
+      "step1": {
+        "title": "Connect your accounts",
+        "description": "Link your Facebook pages and Instagram accounts in a few secure clicks."
+      },
+      "step2": {
+        "title": "Configure your rules",
+        "description": "Customize spam detection, unwanted comments, and your automatic FAQs."
+      },
+      "step3": {
+        "title": "Let AI do the work",
+        "description": "Our AI moderates your comments 24/7 in real time. You keep full control."
+      }
+    },
+    "whyUs": {
+      "title": "Why choose Moderateur Bedones?",
+      "feature1": {
+        "title": "98% Accurate AI",
+        "description": "Ultra-precise detection of spam and inappropriate comments thanks to our advanced AI."
+      },
+      "feature2": {
+        "title": "Instant Moderation",
+        "description": "Your comments are analyzed and moderated in real time, 24/7."
+      },
+      "feature3": {
+        "title": "Automatic Replies",
+        "description": "Intelligent FAQ that automatically responds to recurring questions from your community."
+      },
+      "feature4": {
+        "title": "Time Saving",
+        "description": "Save up to 90% of the time spent manually moderating your comments."
+      }
+    },
+    "stats": {
+      "title": "They trust us",
+      "comments": "Comments moderated",
+      "users": "Creators and businesses",
+      "spam": "Spam blocked automatically"
+    },
+    "cta": {
+      "title": "Ready to automate your moderation?",
+      "subtitle": "Join hundreds of creators who save hours every week.",
+      "primary": "Get Started for Free",
+      "secondary": "See features"
+    }
   },
   "header": {
     "connection": "Connection",
@@ -316,6 +367,7 @@
   },
   "legalPage": {
     "metaTitle": "Legal Mentions - Bedones Moderator",
+    "metaDescription": "View the legal mentions, privacy policy and terms of service of Moderateur Bedones.",
     "title": "Legal Mentions",
     "subtitle": "Find the legal documents for usage, privacy, and billing of Bedones Moderator.",
     "cards": {
@@ -337,15 +389,18 @@
   "legalDocuments": {
     "terms": {
       "title": "Terms of Service",
-      "metaTitle": "Terms of Service - Bedones Moderator"
+      "metaTitle": "Terms of Service - Bedones Moderator",
+      "metaDescription": "View the terms of service for Moderateur Bedones, an automatic moderation platform for Facebook and Instagram."
     },
     "privacy": {
       "title": "Privacy Policy",
-      "metaTitle": "Privacy Policy - Bedones Moderator"
+      "metaTitle": "Privacy Policy - Bedones Moderator",
+      "metaDescription": "Learn how Moderateur Bedones protects your data when moderating your Facebook and Instagram comments. GDPR compliance and data security."
     },
     "sales": {
       "title": "Terms of Sale",
-      "metaTitle": "Terms of Sale - Bedones Moderator"
+      "metaTitle": "Terms of Sale - Bedones Moderator",
+      "metaDescription": "View the terms of sale for Moderateur Bedones, including pricing, payment conditions and subscription terms."
     }
   },
   "cgv": {
@@ -621,6 +676,99 @@
       "successDescription": "Your account has been permanently deleted. Redirecting...",
       "error": "Failed to delete account",
       "errorDescription": "An error occurred while deleting your account. Please try again or contact support."
+    }
+  },
+  "features": {
+    "metaTitle": "Features - AI Moderation for Facebook & Instagram",
+    "metaDescription": "Discover all the features of Moderateur Bedones: AI spam detection, intelligent filtering, automatic FAQ, real-time moderation and more.",
+    "hero": {
+      "title": "Powerful Features for Effective Moderation",
+      "subtitle": "Moderateur Bedones combines artificial intelligence and automation to offer you the best moderation solution for Facebook and Instagram."
+    },
+    "spamDetection": {
+      "title": "Intelligent Spam Detection",
+      "description": "Our AI analyzes every comment to automatically detect spam, suspicious links, and unsolicited promotional content. Reduce up to 95% of spam on your posts."
+    },
+    "unwantedComments": {
+      "title": "Unwanted Comment Filtering",
+      "description": "Automatically block comments containing inappropriate language, insults or offensive content. Protect your community and your brand image."
+    },
+    "intelligentFaq": {
+      "title": "Automatic Intelligent FAQ",
+      "description": "Set up Q&As and let AI automatically answer your audience's frequently asked questions. Save hours every week."
+    },
+    "realTime": {
+      "title": "Real-Time Moderation",
+      "description": "Monitor and moderate your comments as soon as they are posted. Every new comment is analyzed instantly for maximum protection."
+    },
+    "multiPlatform": {
+      "title": "Multi-Platform Support",
+      "description": "Manage your Facebook AND Instagram comments from a single interface. Connect multiple pages and accounts for centralized management."
+    },
+    "analytics": {
+      "title": "Detailed Analytics",
+      "description": "Track moderation activity with comprehensive statistics. Visualize trends, types of spam detected and your community's engagement."
+    },
+    "timeSaving": {
+      "title": "Considerable Time Saving",
+      "description": "Automate up to 90% of your moderation. Focus on your content while Moderateur Bedones protects your community."
+    },
+    "community": {
+      "title": "Community Protection",
+      "description": "Create a healthy and safe environment for your followers. A well-moderated community is an engaged and loyal community."
+    },
+    "cta": {
+      "title": "Ready to automate your moderation?",
+      "description": "Join hundreds of creators and businesses who trust Moderateur Bedones to protect their community.",
+      "button": "Get Started for Free"
+    }
+  },
+  "pricing": {
+    "metaTitle": "Pricing - AI Moderation Plans for Facebook & Instagram",
+    "metaDescription": "Choose the Moderateur Bedones plan that suits your needs. Plans starting from 5,000 XAF/month. Free trial available.",
+    "hero": {
+      "title": "Simple and Transparent Pricing",
+      "subtitle": "Choose the plan that fits your needs. All plans include our cutting-edge AI technology."
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "trial": {
+        "question": "Is there a free trial?",
+        "answer": "Yes! All our plans include a 14-day free trial. No credit card required to get started."
+      },
+      "payment": {
+        "question": "What payment methods do you accept?",
+        "answer": "We accept payments via Mobile Money (Orange Money, MTN Mobile Money), bank card and bank transfer."
+      },
+      "cancel": {
+        "question": "Can I cancel my subscription at any time?",
+        "answer": "Absolutely. You can cancel your subscription at any time from your dashboard. No cancellation fees."
+      },
+      "upgrade": {
+        "question": "Can I change my plan later?",
+        "answer": "Yes! You can upgrade or downgrade your plan at any time. Changes are applied immediately."
+      },
+      "support": {
+        "question": "Is support included?",
+        "answer": "Yes! All plans include email support. Pro and Enterprise plans benefit from priority and dedicated support."
+      }
+    },
+    "cta": {
+      "title": "Need a custom plan?",
+      "description": "Our team is here to help you find the perfect solution for your specific needs.",
+      "button": "Contact us"
+    }
+  },
+  "blog": {
+    "title": "Blog - Tips and News",
+    "description": "Discover our articles on comment moderation, best practices and social media news.",
+    "hero": {
+      "title": "Blog",
+      "subtitle": "Tips, tricks and news about comment moderation"
+    },
+    "noArticles": "No articles available at the moment.",
+    "notFound": {
+      "title": "Article not found"
     }
   }
 }

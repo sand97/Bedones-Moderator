@@ -47,7 +47,10 @@ const IndexPage: NextPageWithLayout = () => {
 
   return (
     <>
-      <SEO />
+      <SEO
+        title={t('page.metaTitle')}
+        description={t('page.metaDescription')}
+      />
       <JsonLd type="product" />
       <div className="min-h-[90vh] app-grid-bg relative overflow-hidden">
         <Header className="pt-4 pb-8" />

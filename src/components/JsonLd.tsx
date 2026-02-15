@@ -9,7 +9,7 @@ interface JsonLdProps {
 export default function JsonLd({ type = 'website', data = {} }: JsonLdProps) {
   const router = useRouter();
   const locale = router.locale || 'fr';
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://moderator.bedones.local';
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://moderator.bedones.com';
 
   const organizationSchema = {
     '@context': 'https://schema.org',
