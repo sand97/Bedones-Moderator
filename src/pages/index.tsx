@@ -59,7 +59,7 @@ const IndexPage: NextPageWithLayout = () => {
             <p className="text-gray-600 font-normal text-lg max-w-xl mx-auto">{t('page.subtitle')}</p>
           </div>
 
-          <div className="mb-8 space-y-2">
+          <div id="start-form" className="mb-8 space-y-2">
             <Card>
               <CardContent className="p-6">
                 <UndesiredCommentsSection
@@ -301,7 +301,7 @@ const IndexPage: NextPageWithLayout = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <a
-              href="#connect"
+              href="#start-form"
               className="inline-block bg-black text-white px-8 py-4 rounded-full font-semibold hover:bg-gray-800 transition-colors"
             >
               {t('home.cta.primary', 'Commencer Gratuitement')}

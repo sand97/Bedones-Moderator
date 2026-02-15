@@ -1,15 +1,18 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { prisma } from '../../../server/prisma';
-import { verifyNotchPayPayment } from '../../../lib/notchpay-utils';
-import { getNextResetDate } from '../../../lib/subscription-utils';
-import { refillMonthlyCredits } from '../../../lib/credit-utils';
-import { sendEmail } from '../../../lib/email/mailer';
-import { paymentSuccessEmail, paymentFailedEmail } from '../../../lib/email/templates';
+import { prisma } from '~/server/prisma.ts';
+import { verifyNotchPayPayment } from '~/lib/notchpay-utils.ts';
+import { getNextResetDate } from '~/lib/subscription-utils.ts';
+import { refillMonthlyCredits } from '~/lib/credit-utils.ts';
+import { sendEmail } from '~/lib/email/mailer.ts';
+import {
+  paymentFailedEmail,
+  paymentSuccessEmail,
+} from '~/lib/email/templates.ts';
 import type { SubscriptionTier } from '@prisma/client';
 
 export default async function handler(
   req: NextApiRequest,
-  res: NextApiResponse
+  res: NextApiResponse,
 ): Promise<void> {
   if (req.method !== 'GET') {
     res.status(405).json({ error: 'Method not allowed' });
@@ -46,7 +49,9 @@ export default async function handler(
     ourReference = ourReference.split(',')[0].trim();
     notchpayReference = notchpayReference.split(',')[0].trim();
 
-    console.log(`🔍 Using our reference: ${ourReference}, NotchPay ref: ${notchpayReference}`);
+    console.log(
+      `🔍 Using our reference: ${ourReference}, NotchPay ref: ${notchpayReference}`,
+    );
 
     // Find the pending payment
     const payment = await prisma.payment.findFirst({
@@ -75,9 +80,7 @@ export default async function handler(
 
     if (verification.transaction.status === 'complete') {
       // Parse metadata to get plan details
-      const metadata = payment.metadata
-        ? JSON.parse(payment.metadata)
-        : null;
+      const metadata = payment.metadata ? JSON.parse(payment.metadata) : null;
 
       if (!metadata) {
         console.error('❌ Payment metadata not found:', payment.id);
@@ -87,9 +90,10 @@ export default async function handler(
 
       const tier = metadata.tier as SubscriptionTier;
       const planName = metadata.planName as string;
-      const monthlyModerationCredits = metadata.monthlyModerationCredits as number;
+      const monthlyModerationCredits =
+        metadata.monthlyModerationCredits as number;
       const monthlyFaqCredits = metadata.monthlyFaqCredits as number;
-      const months = metadata.months as number || 1;
+      const months = (metadata.months as number) || 1;
 
       // Calculate period dates
       const now = new Date();
@@ -123,11 +127,11 @@ export default async function handler(
       // Refill credits for the user
       const creditRefill = await refillMonthlyCredits(
         payment.subscription.userId,
-        updatedSubscription
+        updatedSubscription,
       );
 
       console.log(
-        `💳 Credits refilled: ${creditRefill.creditsAdded} total credits added`
+        `💳 Credits refilled: ${creditRefill.creditsAdded} total credits added`,
       );
 
       // Update payment status
@@ -140,13 +144,17 @@ export default async function handler(
       });
 
       console.log(
-        `✅ Payment successful for user ${payment.subscription.userId} - ${months} month(s) of ${planName}`
+        `✅ Payment successful for user ${payment.subscription.userId} - ${months} month(s) of ${planName}`,
       );
 
       // Send payment success email
-      if (payment.subscription.user.email && payment.subscription.user.emailVerified) {
+      if (
+        payment.subscription.user.email &&
+        payment.subscription.user.emailVerified
+      ) {
         const emailTemplate = paymentSuccessEmail({
-          userName: payment.subscription.user.name || payment.subscription.user.email,
+          userName:
+            payment.subscription.user.name || payment.subscription.user.email,
           planName,
           amount: payment.amount,
           currency: payment.currency,
@@ -165,7 +173,9 @@ export default async function handler(
           campaignName: 'payment-success',
         });
 
-        console.log(`📧 Payment success email sent to ${payment.subscription.user.email}`);
+        console.log(
+          `📧 Payment success email sent to ${payment.subscription.user.email}`,
+        );
       }
 
       res.redirect('/dashboard/payment-method?payment=success');
@@ -186,12 +196,16 @@ export default async function handler(
       console.log(`❌ Payment failed for user ${payment.subscription.userId}`);
 
       // Send payment failed email
-      if (payment.subscription.user.email && payment.subscription.user.emailVerified) {
+      if (
+        payment.subscription.user.email &&
+        payment.subscription.user.emailVerified
+      ) {
         const metadata = payment.metadata ? JSON.parse(payment.metadata) : null;
         const planName = metadata?.planName || 'Plan';
 
         const emailTemplate = paymentFailedEmail({
-          userName: payment.subscription.user.name || payment.subscription.user.email,
+          userName:
+            payment.subscription.user.name || payment.subscription.user.email,
           planName,
           amount: payment.amount,
           currency: payment.currency,
@@ -208,7 +222,9 @@ export default async function handler(
           campaignName: 'payment-failed',
         });
 
-        console.log(`📧 Payment failed email sent to ${payment.subscription.user.email}`);
+        console.log(
+          `📧 Payment failed email sent to ${payment.subscription.user.email}`,
+        );
       }
 
       res.redirect('/dashboard/payment-method?payment=cancelled');
