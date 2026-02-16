@@ -70,6 +70,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "formik": "^2.4.6",
+    "geist": "^1.7.0",
     "gray-matter": "^4.0.3",
     "i18next": "^25.5.2",
     "lucide-react": "^0.544.0",
