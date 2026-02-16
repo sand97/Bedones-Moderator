@@ -13,7 +13,8 @@ import {
   Globe2,
   Clock,
   Users,
-  CheckCircle2
+  CheckCircle2,
+  ArrowRight
 } from 'lucide-react';
 
 const FeaturesPage: NextPageWithLayout = () => {
@@ -140,49 +141,45 @@ const FeaturesPage: NextPageWithLayout = () => {
 
           <main className="flex-1">
             {/* Hero Section */}
-            <section className="relative py-16 px-4">
-              <div className="container mx-auto max-w-6xl text-center">
-                <h1 className="text-4xl md:text-5xl font-bold mb-6 text-foreground">
+            <section className="relative py-16 px-6">
+              <div className="mx-auto max-w-6xl text-center">
+                <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-6 text-foreground">
                   {t('features.hero.title', 'Fonctionnalités Puissantes pour une Modération Efficace')}
                 </h1>
-                <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                <p className="text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                   {t('features.hero.subtitle', 'Moderateur Bedones combine intelligence artificielle et automatisation pour vous offrir la meilleure solution de modération pour Facebook et Instagram.')}
                 </p>
               </div>
             </section>
 
             {/* Features Grid */}
-            <section className="py-12 px-4">
-              <div className="container mx-auto max-w-7xl">
-                <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+            <section className="py-12 px-6">
+              <div className="mx-auto max-w-6xl">
+                <div className="grid md:grid-cols-2 gap-6">
                   {features.map((feature, index) => {
                     const Icon = feature.icon;
                     return (
                       <div
                         key={index}
-                        className="group p-8 rounded-3xl border border-border/70 bg-card hover:border-black transition-all duration-300"
+                        className="flex flex-col gap-4 rounded-lg border border-border p-8 transition-colors hover:bg-secondary"
                       >
-                        {/* Icon */}
-                        <div className="mb-6 w-14 h-14 rounded-2xl bg-black/5 flex items-center justify-center group-hover:bg-black group-hover:scale-110 transition-all duration-300">
-                          <Icon className="h-7 w-7 text-black group-hover:text-white transition-colors duration-300" strokeWidth={1.5} />
+                        <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-border bg-secondary text-foreground">
+                          <Icon className="h-5 w-5" />
                         </div>
 
-                        {/* Title */}
-                        <h2 className="text-2xl font-bold mb-4 text-foreground">
+                        <h2 className="text-lg font-semibold text-foreground">
                           {t(feature.titleKey, feature.titleFallback)}
                         </h2>
 
-                        {/* Description */}
-                        <p className="text-muted-foreground mb-6 leading-relaxed">
+                        <p className="text-sm leading-relaxed text-muted-foreground">
                           {t(feature.descKey, feature.descFallback)}
                         </p>
 
-                        {/* Highlights */}
-                        <ul className="space-y-2">
+                        <ul className="space-y-2 mt-2">
                           {feature.highlights.map((highlight, hIndex) => (
                             <li key={hIndex} className="flex items-start gap-3">
-                              <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" strokeWidth={2} />
-                              <span className="text-sm text-foreground/80">{highlight}</span>
+                              <CheckCircle2 className="h-4 w-4 text-foreground mt-0.5 flex-shrink-0" strokeWidth={2} />
+                              <span className="text-sm text-muted-foreground">{highlight}</span>
                             </li>
                           ))}
                         </ul>
@@ -194,22 +191,21 @@ const FeaturesPage: NextPageWithLayout = () => {
             </section>
 
             {/* CTA Section */}
-            <section className="py-16 px-4">
-              <div className="container mx-auto max-w-4xl">
-                <div className="bg-black text-white rounded-3xl p-12 text-center">
-                  <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                    {t('features.cta.title', 'Prêt à automatiser votre modération ?')}
-                  </h2>
-                  <p className="text-lg text-white/80 mb-8 max-w-2xl mx-auto">
-                    {t('features.cta.description', 'Rejoignez des centaines de créateurs et entreprises qui font confiance à Moderateur Bedones pour protéger leur communauté.')}
-                  </p>
-                  <a
-                    href="/"
-                    className="inline-block bg-white text-black px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-colors"
-                  >
-                    {t('features.cta.button', 'Commencer Gratuitement')}
-                  </a>
-                </div>
+            <section className="py-24 px-6 app-grid-bg border-t border-border">
+              <div className="mx-auto max-w-6xl flex flex-col items-center text-center">
+                <h2 className="mb-4 text-balance text-3xl font-bold tracking-tight text-foreground">
+                  {t('features.cta.title', 'Prêt à automatiser votre modération ?')}
+                </h2>
+                <p className="mb-8 max-w-xl text-base text-muted-foreground">
+                  {t('features.cta.description', 'Rejoignez des centaines de créateurs et entreprises qui font confiance à Moderateur Bedones pour protéger leur communauté.')}
+                </p>
+                <a
+                  href="/"
+                  className="inline-flex items-center gap-2 rounded-full bg-foreground px-8 py-4 text-sm font-medium text-background transition-opacity hover:opacity-80"
+                >
+                  {t('features.cta.button', 'Commencer Gratuitement')}
+                  <ArrowRight className="h-4 w-4" />
+                </a>
               </div>
             </section>
           </main>

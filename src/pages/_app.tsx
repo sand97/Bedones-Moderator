@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { GoogleAnalytics } from '@next/third-parties/google';
+import { GeistSans } from 'geist/font/sans';
 
 import { DefaultLayout } from '~/components/DefaultLayout';
 import { AnalyticsIdentifier } from '~/components/AnalyticsIdentifier';
@@ -53,13 +54,13 @@ const MyApp = (({ Component, pageProps }: AppPropsWithLayout) => {
   }, [router, locale]);
 
   return (
-    <>
+    <div className={GeistSans.className}>
       <AnalyticsIdentifier />
       <PurchaseTracker />
       {getLayout(<Component {...pageProps} />)}
       <Toaster />
       <GoogleAnalytics gaId="G-ZEJZ4EPXE9" />
-    </>
+    </div>
   );
 }) as AppType;
 

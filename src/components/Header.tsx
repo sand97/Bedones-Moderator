@@ -39,12 +39,12 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
       <div className="max-w-screen-lg mx-auto flex items-center justify-between">
         <div
           className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center cursor-pointer",
-            isTransparent ? "bg-white" : "bg-black"
+            "w-8 h-8 rounded-full flex items-center justify-center cursor-pointer",
+            isTransparent ? "bg-white" : "bg-foreground"
           )}
           onClick={() => router.push(session?.user ? '/dashboard' : '/')}
         >
-          <span className={cn("text-xl font-bold", isTransparent ? "text-black" : "text-white")}>B</span>
+          <span className={cn("text-sm font-bold", isTransparent ? "text-black" : "text-background")}>B</span>
         </div>
         <div className="flex items-center gap-3">
           {session?.user && (
@@ -55,7 +55,7 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
           <Link
             href="/blog"
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"
@@ -67,7 +67,7 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
           <button
             onClick={handleLanguageToggle}
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"
@@ -80,7 +80,7 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
           <Link
             href="/help"
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"
