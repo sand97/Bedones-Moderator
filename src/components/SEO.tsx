@@ -41,7 +41,7 @@ export default function SEO({
 
   const pageTitle = title ? `${title} | ${meta.siteName}` : meta.title;
   const pageDescription = description || meta.description;
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://moderator.bedones.local';
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://moderator.bedones.com';
   const imageUrl = image.startsWith('http') ? image : `${siteUrl}${image}`;
 
   // Generate proper URLs for different locales

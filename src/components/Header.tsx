@@ -39,12 +39,12 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
       <div className="max-w-screen-lg mx-auto flex items-center justify-between">
         <div
           className={cn(
-            "w-12 h-12 rounded-full flex items-center justify-center cursor-pointer",
-            isTransparent ? "bg-white" : "bg-black"
+            "w-8 h-8 rounded-full flex items-center justify-center cursor-pointer",
+            isTransparent ? "bg-white" : "bg-foreground"
           )}
           onClick={() => router.push(session?.user ? '/dashboard' : '/')}
         >
-          <span className={cn("text-xl font-bold", isTransparent ? "text-black" : "text-white")}>B</span>
+          <span className={cn("text-sm font-bold", isTransparent ? "text-black" : "text-background")}>B</span>
         </div>
         <div className="flex items-center gap-3">
           {session?.user && (
