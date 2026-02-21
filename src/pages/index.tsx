@@ -67,10 +67,15 @@ const IndexPage: NextPageWithLayout = () => {
             <h1 className="text-3xl md:text-5xl font-bold tracking-tight text-foreground mb-4">
               {t('page.title')}
             </h1>
-            <p className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed">{t('page.subtitle')}</p>
+            <p
+              id="start-form"
+              className="text-muted-foreground text-lg max-w-xl mx-auto leading-relaxed"
+            >
+              {t('page.subtitle')}
+            </p>
           </div>
 
-          <div id="start-form" className="mb-8 space-y-2">
+          <div className="mb-8 space-y-2">
             <Card>
               <CardContent className="p-6">
                 <UndesiredCommentsSection
@@ -151,9 +156,6 @@ const IndexPage: NextPageWithLayout = () => {
       <section className="border-t border-border">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="mb-16 flex flex-col items-center text-center">
-            <span className="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              {t('home.features.label', 'Fonctionnalités')}
-            </span>
             <h2 className="mb-4 text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               {t('home.whyUs.title', 'Pourquoi choisir Moderateur Bedones ?')}
             </h2>
@@ -166,42 +168,48 @@ const IndexPage: NextPageWithLayout = () => {
                 titleKey: 'home.whyUs.feature1.title',
                 titleFallback: 'Modération IA',
                 descKey: 'home.whyUs.feature1.description',
-                descFallback: "L'IA détecte et classe automatiquement les commentaires négatifs, spam et contenus inappropriés.",
+                descFallback:
+                  "L'IA détecte et classe automatiquement les commentaires négatifs, spam et contenus inappropriés.",
               },
               {
                 icon: <Zap className="h-5 w-5" />,
                 titleKey: 'home.whyUs.feature2.title',
                 titleFallback: 'Réponses automatiques',
                 descKey: 'home.whyUs.feature2.description',
-                descFallback: "Définissez une liste de questions-réponses fréquentes et laissez l'IA répondre à votre place.",
+                descFallback:
+                  "Définissez une liste de questions-réponses fréquentes et laissez l'IA répondre à votre place.",
               },
               {
                 icon: <Trash2 className="h-5 w-5" />,
                 titleKey: 'home.whyUs.feature3.title',
                 titleFallback: 'Suppression & masquage',
                 descKey: 'home.whyUs.feature3.description',
-                descFallback: "Activez la suppression ou le masquage automatique des commentaires néfastes détectés par l'IA.",
+                descFallback:
+                  "Activez la suppression ou le masquage automatique des commentaires néfastes détectés par l'IA.",
               },
               {
                 icon: <Eye className="h-5 w-5" />,
                 titleKey: 'home.whyUs.feature4.title',
                 titleFallback: 'Monitoring en temps réel',
                 descKey: 'home.whyUs.feature4.description',
-                descFallback: 'Suivez en temps réel tous les commentaires sur vos publications Facebook et Instagram.',
+                descFallback:
+                  'Suivez en temps réel tous les commentaires sur vos publications Facebook et Instagram.',
               },
               {
                 icon: <Settings className="h-5 w-5" />,
                 titleKey: 'home.whyUs.feature5.title',
                 titleFallback: 'Configuration flexible',
                 descKey: 'home.whyUs.feature5.description',
-                descFallback: 'Personnalisez les règles de modération, les seuils de sensibilité et les actions automatiques.',
+                descFallback:
+                  'Personnalisez les règles de modération, les seuils de sensibilité et les actions automatiques.',
               },
               {
                 icon: <BarChart3 className="h-5 w-5" />,
                 titleKey: 'home.whyUs.feature6.title',
                 titleFallback: 'Tableau de bord',
                 descKey: 'home.whyUs.feature6.description',
-                descFallback: 'Visualisez les statistiques de modération, les tendances et les performances de votre communauté.',
+                descFallback:
+                  'Visualisez les statistiques de modération, les tendances et les performances de votre communauté.',
               },
             ].map((feature) => (
               <div
@@ -227,9 +235,6 @@ const IndexPage: NextPageWithLayout = () => {
       <section className="bg-secondary">
         <div className="mx-auto max-w-6xl px-6 py-24">
           <div className="mb-16 flex flex-col items-center text-center">
-            <span className="mb-4 text-xs font-medium uppercase tracking-widest text-muted-foreground">
-              {t('home.howItWorks.label', 'Comment ça marche')}
-            </span>
             <h2 className="text-balance text-3xl font-bold tracking-tight text-foreground md:text-4xl">
               {t('home.howItWorks.title', '3 étapes simples')}
             </h2>
@@ -242,21 +247,24 @@ const IndexPage: NextPageWithLayout = () => {
                 titleKey: 'home.howItWorks.step1.title',
                 titleFallback: 'Connectez vos comptes',
                 descKey: 'home.howItWorks.step1.description',
-                descFallback: 'Liez vos pages Facebook et comptes Instagram en quelques clics de manière sécurisée.',
+                descFallback:
+                  'Liez vos pages Facebook et comptes Instagram en quelques clics de manière sécurisée.',
               },
               {
                 step: '02',
                 titleKey: 'home.howItWorks.step2.title',
                 titleFallback: 'Configurez vos règles',
                 descKey: 'home.howItWorks.step2.description',
-                descFallback: 'Définissez vos questions-réponses, mots-clés à surveiller et actions automatiques.',
+                descFallback:
+                  'Définissez vos questions-réponses, mots-clés à surveiller et actions automatiques.',
               },
               {
                 step: '03',
                 titleKey: 'home.howItWorks.step3.title',
                 titleFallback: "Laissez l'IA travailler",
                 descKey: 'home.howItWorks.step3.description',
-                descFallback: "L'IA modère automatiquement 24/7. Consultez le tableau de bord pour suivre les résultats.",
+                descFallback:
+                  "L'IA modère automatiquement 24/7. Consultez le tableau de bord pour suivre les résultats.",
               },
             ].map((item) => (
               <div
@@ -283,13 +291,17 @@ const IndexPage: NextPageWithLayout = () => {
         <div className="mx-auto max-w-6xl px-6 py-16">
           <div className="grid md:grid-cols-3 gap-8 text-center">
             <div>
-              <div className="text-2xl font-bold text-foreground mb-1">500K+</div>
+              <div className="text-2xl font-bold text-foreground mb-1">
+                500K+
+              </div>
               <p className="text-xs text-muted-foreground">
                 {t('home.stats.comments', 'Commentaires modérés')}
               </p>
             </div>
             <div>
-              <div className="text-2xl font-bold text-foreground mb-1">150+</div>
+              <div className="text-2xl font-bold text-foreground mb-1">
+                150+
+              </div>
               <p className="text-xs text-muted-foreground">
                 {t('home.stats.users', 'Créateurs et entreprises')}
               </p>
@@ -311,7 +323,10 @@ const IndexPage: NextPageWithLayout = () => {
             {t('home.cta.title', 'Prêt à automatiser votre modération ?')}
           </h2>
           <p className="mb-8 max-w-xl text-base text-muted-foreground">
-            {t('home.cta.subtitle', 'Rejoignez des centaines de créateurs qui économisent des heures chaque semaine.')}
+            {t(
+              'home.cta.subtitle',
+              'Rejoignez des centaines de créateurs qui économisent des heures chaque semaine.',
+            )}
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a

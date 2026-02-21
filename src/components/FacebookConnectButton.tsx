@@ -68,7 +68,7 @@ export function FacebookConnectButton({
       disabled={loading}
       onClick={handleClick}
       className={cn(
-        'w-full bg-black hover:bg-gray-800 text-white border border-gray-300 px-8 py-6 text-base rounded-full',
+        'w-full bg-black hover:opacity-80 text-white border border-gray-300 px-8 py-6 text-base rounded-full',
         { 'opacity-50': loading },
       )}
     >
