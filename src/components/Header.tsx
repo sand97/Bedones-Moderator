@@ -55,7 +55,7 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
           <Link
             href="/blog"
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"
@@ -67,7 +67,7 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
           <button
             onClick={handleLanguageToggle}
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"
@@ -80,7 +80,7 @@ export function Header({ className, variant = 'default' }: HeaderProps) {
           <Link
             href="/help"
             className={cn(
-              "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+              "flex items-center gap-2 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               isTransparent
                 ? "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 border border-white/30"
                 : "bg-white text-foreground hover:bg-gray-100 border border-gray-300"

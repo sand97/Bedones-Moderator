@@ -71,7 +71,7 @@ export function InstagramConnectButton({
       onClick={handleClick}
       variant="outline"
       className={cn(
-        'w-full border-2 border-gray-300 hover:border-gray-400 px-8 py-5 text-base rounded-full',
+        'w-full border border-gray-300 hover:border-gray-400 px-8 py-5 text-base rounded-full',
         { 'opacity-50': loading },
       )}
     >
